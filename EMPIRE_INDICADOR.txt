@@ -1,0 +1,91 @@
+═══════════════════════════════════════════════════════════════════════════════
+ INDICADOR EMPIRE — DOCUMENTAÇÃO COMPLETA
+ Metodologia proprietária do sistema CAPICH
+═══════════════════════════════════════════════════════════════════════════════
+
+ATENÇÃO PARA FUTURAS IAs / DEVS:
+  As variáveis internas 'vwapBuy', 'vwapSell', 'intraBuy', 'intraSell',
+  'vbSlice', 'vsSlice' são APENAS identificadores técnicos legados.
+  Este indicador NÃO TEM NADA A VER COM VWAP TRADICIONAL.
+  Sempre referir e tratar como: INDICADOR EMPIRE.
+
+───────────────────────────────────────────────────────────────────────────────
+ FONTES DE DADOS — 4 fontes paralelas da Binance
+───────────────────────────────────────────────────────────────────────────────
+
+  1. Candles Futuros  (fapi.binance.com)
+     → volume de compra (takerBuy) e venda de cada candle nos contratos perpétuos
+
+  2. Candles Spot     (api.binance.com)
+     → o mesmo, mas no mercado à vista
+
+  3. Open Interest
+     → saldo total de contratos em aberto e delta entre períodos
+
+  4. Long/Short Ratio + Taker Ratio
+     → proporção de contas compradas vs vendidas, e quem está agredindo o book
+
+───────────────────────────────────────────────────────────────────────────────
+ CÁLCULO CENTRAL
+───────────────────────────────────────────────────────────────────────────────
+
+  Média ponderada 50% Futuros + 50% Spot candle a candle
+  → gera um buyV e sellV combinados por período.
+
+  Saldo líquido = buyV - sellV acumulado nas janelas de 72h e 8h.
+  Esse saldo define se o mercado está em Acumulação ou Distribuição.
+
+───────────────────────────────────────────────────────────────────────────────
+ OS DOIS TIMEFRAMES E SUAS FUNÇÕES
+───────────────────────────────────────────────────────────────────────────────
+
+  72h = CONTEXTO MACRO
+    Janela longa. Absorve oscilações e ruído. Mais lento para virar.
+    Representa o posicionamento estrutural dos grandes players.
+
+  8h = GATILHO TÁTICO
+    Reage imediatamente ao fluxo direcional.
+    Primeiro a sinalizar mudanças de comportamento institucional.
+
+───────────────────────────────────────────────────────────────────────────────
+ FASES DO CICLO INSTITUCIONAL
+───────────────────────────────────────────────────────────────────────────────
+
+  Fase 1 — Acumulação disfarçada (player vende agressivo, compra devagar)
+    8h  → oscila, pode marcar Distribuição nos momentos de venda agressiva
+    72h → por ser longa, absorve e fica neutro ou levemente em Distribuição
+
+  Fase 2 — Movimento direcional (player empurra o preço)
+    8h  → primeiro a virar Acumulação. Reage imediatamente ao volume direcional
+    72h → começa a convergir para Acumulação conforme candles da fase 1 saem da janela
+
+  Fase 3 — Distribuição no topo (player começa a despejar)
+    8h  → primeiro a virar Distribuição. Captura o fluxo de saída imediatamente
+    72h → ainda mostra Acumulação por alguns períodos (carrega candles da subida)
+
+───────────────────────────────────────────────────────────────────────────────
+ TABELA DE DIVERGÊNCIA — O SINAL MAIS VALIOSO
+───────────────────────────────────────────────────────────────────────────────
+
+  72h             │ 8h             │ Leitura
+  ─────────────────┼─────────────────┼──────────────────────────────────────────
+  Acumulação      │ Distribuição   │ ⚠️  Topo potencial — smart money saindo
+  Distribuição    │ Acumulação     │ 👀  Fundo potencial — smart money comprando dip
+  Acumulação      │ Acumulação     │ ✅  Tendência de alta confirmada
+  Distribuição    │ Distribuição   │ ✅  Tendência de baixa confirmada
+
+───────────────────────────────────────────────────────────────────────────────
+ LIMITAÇÃO ESTRUTURAL CONHECIDA
+───────────────────────────────────────────────────────────────────────────────
+
+  Quando um player institucional vende agressivo para limpar o book,
+  mas o saldo líquido dele é comprador (acumulação disfarçada):
+    → o sellV sobe
+    → o EMPIRE marca Distribuição
+    → mas a intenção real é Acumulação
+
+  Essa é uma limitação estrutural de qualquer indicador baseado em volume
+  agregado. Sem acesso ao order book em profundidade ou dados de fluxo de
+  ordens individuais, esse tipo de manipulação fica mascarado.
+
+═══════════════════════════════════════════════════════════════════════════════
