@@ -1,0 +1,2354 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Método - CAPICH</title>
+  <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAfG0lEQVR4nN17B3hU1db2u2fO9EmDBAIEQuhVQLqAlNCCNGkCggSliDTpVUCpAqIoxQAKSBEpgtJ7b6FDQg2BdNJmUiZTzznrf/ZkBnL5LNf/++8V//U8e07bZ2a/a6+2114D/OeJ8Q+lsrxvQECAjp+/916Skh9LTdnVtvS0X0fy854PHii9/fVlywYVffefTAzr1ys48NCGrUf5+7fQAbsURMTBak/KFHuFyAF9+zDeuVWrzQI/lm7Qpn+Fhm/W8HyHAv9UatOmjRtQlSZt51Wo07QjP//67l01P/bZc2M5eWjo6fSznFlmM/H+LLBx45K12nRbV7ZsWU1kZKTyHykJkYUDR+2Wb/cMa9J5Gz/vv3atGzw+mN+ugEgmIhcROTkTQhfuncYfdfj0iIYfw97oNqxpjw+/5udN1q1zM/IfRLu4mLN6LbuWrd02MhF+latERUV5RT9wWz4lUSEDRCKSOCNuE4loNLgJf3vSpAsqPuu1wt+Nbv/+5N5FGfpPILZ6tcs9Y817TbwdWKHZXH4+bW+We2aHHovd7ZF8l4cJXkbQiseuRwD8uCpwBgI+DVv0Hp/bZfgXofxdzkS86jSpcPbQe/SSb6q16JfAjdgBIve98p+sGOkB7ywC3ts4Q6jb1qvbizIsqEKTpZFTVz3gjuTOHXq17UFUVJR75qcuWNV36NSVBKBB4UwCqNG6/hUiuweo5AHtPXqb2x4UnxL1IX/l61jiNkPZqP17iZ+u3rOF3zt+/Libma8cRXp0dNDwMXW/2HiEyoTVmsOvidyW3bjoXtq9l0Rfeql574nnuWus27uB533OwNf6jlpIc9fsncDvjT11SvVKgi9Xzq/Myp3n06s36XaGX+9MTXWLcfv1ezYUEX0vYPGlJhVVhSV3zY+5PTAVMpDTmPGLttCEr3/swi+8duZvp8gX1tl/ze5Lt+q3H5THeeF97jtg1Ece8I6XZvy3GOBtblXovOn4L0V/S2MsufeT1XvEoXNWNnklmNDGE+jwmdp44Mr5dn3Gcr1vzW/MnbvWH/qAYcccbjC/BVL8d5jg93ZklJ9fmcqe3xH8S1R4+uW2s3lDZiyu/7fahOMvfjh415nYi626DeXgR2fZKXT0p6u/UGiMCeN37qU/AO3ytD9ihOtCHhH8gwu69B2x/fitvDcB1BIMwWlRe25kzFy+uUURO8P+ayJPHss+YeSERttP3H5Yr2V3Cgz0j993NWXLgI+X2DWGIKrdZ4BX54sCEv9ic0vC0l+OcOZSh95DadeJe4c7d+1xXGMMkpdsOFKwac/pwS95IfafBK7wXArrNmyZ9suZ2wWDRk6jBcujaOWOaKrWrCcfqKQKCf0j4M9nPd9J0tZzCX/GHPez96bOdgIQ/YJr0LSlm2nTrkPUf9D70rfbT9Oe41fXc0n0jjUmJub/XdT43ntJRYFjzpyFneOSnkXzkUXHZdC+8/eoy/ufJQG6zwAsgqBxZf+xvnsZIEWMmifBGCoV/Hs2QWwW0VUGwIOiGdUavHVz/fajdPHGfbd1fZIlJ6zfdmgEANVLjPi/kgj2MheXLVvYJt1sP5iQWeA26Vki0fyo3WeAYgO4sffE+df3P0jzurI/NHjbE0UJCJa4xLw287t/yzvkE7lCQis4ALztGVbLyFEz10TfS8zlY0owEV2Py722dc/J/kWX0X9FNVhOTs6/uJafN63vkm2xHXuUZqPZS9fRjkMXaN+5mLs1W7ztXqQUocNfbN5X1Nc/F9+XG59xNPpAAsqIULwhAqXFcTH5bpDSb/QXiUSrXCg91+8nykqlkjPBHSh5qOrX637acPTMTZo8fxX9dOgG3UlxXf3p18MDuff0dnJjW7/+f64nol6s1LxkuHr51OB8J128neigYdO/IsFQTBw3ZTat3b5/FXd7nvcKl7fA14PHfOL19b8L3PusyqITElBWRMn3RISNFoHGIir1kHby92SSLBJJLplEF5Fok0m0iiQWiCSarO73nT/u2MNtTYIgCGWKjnv4+AXdv1jxfWJYpRpUv1UP+uHQfboUZ4s5cObWGADFvP1uECmfL6yoiH4PfNO3VFpawtTUXHq070Iqteszjv8QNz70/oejbDMXR/X09g0MrBngOR3xRptORcH/YYu8QxLQUELguyIafS2i+Xcias4WgdoiRq2W7hFJzhxJMoskWuwk5ttINFsLwfOWmkOilcjxyZx5fGwX5syZoynMND0n49R53+wPKlmaP3dUqNueFn53ig7cyEo6eiN13owZMyp4O5J3nXLkp6U1kjMzV128b7Yu23yNytbuzF9OAfAjAHPDZuHc8NQBUPynnfs+2HYl/mjTyCnc/bQqWa6idxHzpy7tey765QZL0HSW0GyFiP7nRAy9I6LjLhFVJ4tAVbHU7lgpg0gymVxidhHw6RYS03NkMcVErrhnDvGZhRy9e/fl49zYNXJs8Kdbjp2Ivp88d+iMxQ0BqN+M6L/Qxy9IBBAN4KrKP4zem7Kalu28QRvPpW79csuxRm7w527GHd11JoGGzPyJmH/T+wC+ANBxz7x+nKsLjCXLW0dMX7QsNi33Z4nIbQFnH4zl/doCmrxnBX+s7952m4PvvlICmktouFRC/7Mi5pKIZSRiQrqItttEBA/lNkFq+ZikfJGkJJPLDTwjl8T0XOLgxacZsutRml28l2IX7yZkO16rW48zYXb3+T/McBtnJ9HFx7n3tpy4vqBJhz4xXFUAVAdQF8B0QHOpftexNHbFWVq07fp1NOk1JxEIXQyAh5ZF7cCEXgNGUJypMCT10ta4/DQA3QE8PnrZvcBz/Rn4fCJJN+uKBDSSUGehiO5HRUwXRZwjSeMkCWtJxIh4Ea02iND3FhHWSxoukmQxk/QkU5S42KeaSUwykRj3THTFUni3WSbGJvsFI+dv+coHhTEmTCq/ZxNG+IlorMxebQ/toB+PPPUNX7pjxQYHHKPJ2GLYONJ2LFl6vXk0vGCvFlZnrWbu2BRUYvOQTqOppMTxkoTAVxbErX5z1Z3z0X/tW15EtBUQrUpIjrtFTHWJGE9SZBJKs4lI4UkfEYiBt4Q0SxKBMIlREyVFhFJ5lSbFGciMZHPfhaJTzNl8WEauWKTXeLlxxbxWoJD/G7rIRcUCu5Sx/RetvfSjiu5tGTTOeuM1SekGWvOO+Z+e4iqVm9+jht3bgCLYlYUHjpx4JpAAvDx/o3qL69792wJ7eZ58H/uM+K5K/aX19/e6rB/G2/bWvj5/fG812y2r9P29u+d8f/v5fS+Xk/ffo2vR68jS3fv7v0f/v6p0O2+Z7+V3730wz/v8X95j//X7bXkP368/x8qQ1/k7t7uewAAAABJRU5ErkJggg==">
+  <link rel="shortcut icon" href="assets/icons/favicon.ico">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Ajustes específicos para a página de Método */
+    body {
+      padding: 80px 24px 60px 24px;
+      align-items: center;
+    }
+
+    .metodo-container {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+    }
+
+    .metodo-hero {
+      text-align: center;
+      padding: 24px 16px 12px 16px;
+    }
+
+    .metodo-hero h1 {
+      color: #f0b90b;
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .metodo-hero p {
+      color: #848e9c;
+      font-size: 1.05rem;
+      max-width: 820px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .card-secao {
+      background-color: #1e2329;
+      border: 1px solid #2b313a;
+      border-radius: 10px;
+      padding: 32px 28px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-secao-header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid #2b313a;
+    }
+
+    .card-secao-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card-secao-title-wrap svg {
+      stroke: #f0b90b;
+      width: 26px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+
+    .card-secao-header h2 {
+      color: #eaecef;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .card-secao-header p {
+      color: #848e9c;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    /* Grid de Teorias */
+    .teorias-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .teoria-item {
+      background-color: #161a1e;
+      border: 1px solid #2b313a;
+      border-left: 4px solid #f0b90b;
+      border-radius: 8px;
+      padding: 24px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .teoria-item:hover {
+      border-color: #3f4753;
+      border-left-color: #f0b90b;
+      transform: translateY(-2px);
+    }
+
+    .teoria-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .teoria-title-group h3 {
+      font-size: 1.25rem;
+      color: #f0b90b;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .teoria-meta-badge {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #eaecef;
+      background-color: #2b313a;
+      padding: 4px 10px;
+      border-radius: 4px;
+      letter-spacing: 0.3px;
+    }
+
+    .teoria-conteudo {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      color: #eaecef;
+      font-size: 0.96rem;
+      line-height: 1.65;
+    }
+
+    .teoria-bloco {
+      background-color: #12151c;
+      border: 1px solid #23272e;
+      border-radius: 6px;
+      padding: 14px 18px;
+    }
+
+    .teoria-bloco-titulo {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #848e9c;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .teoria-bloco-titulo svg {
+      stroke: #f0b90b;
+      width: 15px;
+      height: 15px;
+    }
+
+    .teoria-bloco p {
+      color: #c9d1d9;
+      margin: 0;
+    }
+
+    .destaque-amarelo {
+      color: #f0b90b;
+      font-weight: 600;
+    }
+
+    .destaque-verde {
+      color: #0ecb81;
+      font-weight: 600;
+    }
+
+    .tags-traders {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .tag-trader {
+      background-color: #202630;
+      border: 1px solid #363d4a;
+      color: #eaecef;
+      font-size: 0.8rem;
+      padding: 3px 10px;
+      border-radius: 14px;
+      font-weight: 500;
+    }
+
+    /* Seção Vazia */
+    .secao-vazia {
+      min-height: 160px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #161a1e;
+      border: 1px dashed #363c4e;
+      border-radius: 8px;
+      padding: 32px 20px;
+      text-align: center;
+    }
+
+    .secao-vazia-texto {
+      color: #848e9c;
+      font-size: 0.95rem;
+      font-style: italic;
+    }
+
+    /* Estilos da Seção 2: Aplicação Prática */
+    .mercados-badge-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .mercado-pill {
+      background-color: #202630;
+      border: 1px solid #363d4a;
+      color: #eaecef;
+      font-size: 0.82rem;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mercado-pill.destaque {
+      border-color: #f0b90b;
+      color: #f0b90b;
+      background-color: rgba(240, 185, 11, 0.1);
+    }
+
+    .pratica-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .pratica-card {
+      background-color: #161a1e;
+      border: 1px solid #2b313a;
+      border-radius: 8px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .pratica-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #f0b90b;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .pratica-card-header svg {
+      stroke: #f0b90b;
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .pratica-card p {
+      color: #c9d1d9;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* Modelos Operacionais */
+    .modelos-titulo {
+      color: #f0b90b;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modelos-titulo svg {
+      stroke: #f0b90b;
+      width: 22px;
+      height: 22px;
+    }
+
+    .modelos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .modelo-card {
+      background-color: #161a1e;
+      border: 1px solid #2b313a;
+      border-radius: 8px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .modelo-card:hover {
+      transform: translateY(-2px);
+      border-color: #3f4753;
+    }
+
+    .modelo-card.destaque-modelo {
+      border: 1px solid #f0b90b;
+      background: linear-gradient(180deg, rgba(240, 185, 11, 0.06) 0%, #161a1e 100%);
+    }
+
+    .modelo-topo {
+      margin-bottom: 14px;
+    }
+
+    .modelo-numero {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #f0b90b;
+      background-color: rgba(240, 185, 11, 0.15);
+      border: 1px solid rgba(240, 185, 11, 0.3);
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .modelo-card h4 {
+      font-size: 1.15rem;
+      color: #eaecef;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .modelo-card p {
+      color: #c9d1d9;
+      font-size: 0.93rem;
+      line-height: 1.6;
+    }
+
+    .modelo-footer {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px solid #23272e;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8rem;
+    }
+
+    .modelo-stat {
+      color: #848e9c;
+    }
+
+    .modelo-stat strong {
+      color: #0ecb81;
+    }
+
+    .modelo-stat.alerta strong {
+      color: #f0b90b;
+    }
+
+    /* Área de Demonstração e Gráficos */
+    .demonstracao-area {
+      background-color: #161a1e;
+      border: 1px solid #2b313a;
+      border-radius: 8px;
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-top: 10px;
+    }
+
+    .demonstracao-header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #23272e;
+    }
+
+    .demonstracao-header h3 {
+      font-size: 1.3rem;
+      color: #f0b90b;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .demonstracao-header h3 svg {
+      stroke: #f0b90b;
+      width: 24px;
+      height: 24px;
+    }
+
+    .demonstracao-header p {
+      color: #c9d1d9;
+      font-size: 0.96rem;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .graficos-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .grafico-card {
+      background-color: #12151c;
+      border: 1px solid #2b313a;
+      border-radius: 8px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .grafico-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .grafico-card-header h4 {
+      font-size: 1rem;
+      color: #eaecef;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .grafico-card-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #f0b90b;
+      background-color: rgba(240, 185, 11, 0.12);
+      border: 1px solid rgba(240, 185, 11, 0.25);
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .grafico-img-container {
+      width: 100%;
+      background-color: #0b0e11;
+      border: 1px solid #23272e;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: zoom-in;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .grafico-img-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+      transition: transform 0.25s ease;
+      image-rendering: high-quality;
+    }
+
+    .grafico-img-container:hover img {
+      transform: scale(1.02);
+    }
+
+    .grafico-dica-zoom {
+      font-size: 0.78rem;
+      color: #848e9c;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .grafico-dica-zoom svg {
+      stroke: #848e9c;
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Manifesto / Diário Pessoal */
+    .manifesto-card {
+      background: linear-gradient(135deg, rgba(240, 185, 11, 0.08) 0%, rgba(22, 26, 30, 0.95) 100%);
+      border: 1px solid rgba(240, 185, 11, 0.35);
+      border-radius: 8px;
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .manifesto-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #f0b90b;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .manifesto-header svg {
+      stroke: #f0b90b;
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+
+    .manifesto-card p {
+      color: #eaecef;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    /* Adaptação do Trading System do Ogro & Fractalidade */
+    .ogro-adaptacao-card {
+      background-color: #161a1e;
+      border: 1px solid #2b313a;
+      border-radius: 8px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-top: 24px;
+    }
+
+    .ogro-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #f0b90b;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .ogro-card-header svg {
+      stroke: #f0b90b;
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+
+    .ogro-adaptacao-card p {
+      color: #c9d1d9;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    .fractal-calc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      margin: 6px 0;
+    }
+
+    .fractal-calc-item {
+      background-color: #12151c;
+      border: 1px solid #23272e;
+      border-radius: 6px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .fractal-calc-topo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .fractal-calc-titulo {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #848e9c;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .fractal-calc-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #0ecb81;
+      background-color: rgba(14, 203, 129, 0.12);
+      border: 1px solid rgba(14, 203, 129, 0.3);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .fractal-calc-formula {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #eaecef;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .fractal-calc-formula span.destaque {
+      color: #f0b90b;
+    }
+
+    .fractal-calc-formula svg {
+      stroke: #848e9c;
+      width: 16px;
+      height: 16px;
+    }
+
+    .fractal-calc-desc {
+      font-size: 0.88rem;
+      color: #848e9c;
+      line-height: 1.45;
+    }
+
+    .ogro-videos-box {
+      background-color: #12151c;
+      border: 1px solid #23272e;
+      border-radius: 6px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ogro-videos-titulo {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #848e9c;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ogro-videos-titulo svg {
+      fill: #f6465d;
+      width: 16px;
+      height: 16px;
+    }
+
+    .ogro-videos-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .ogro-video-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background-color: #202630;
+      border: 1px solid #363d4a;
+      color: #eaecef;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .ogro-video-btn:hover {
+      border-color: #f6465d;
+      color: #f6465d;
+      background-color: rgba(246, 70, 93, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .ogro-video-btn svg {
+      fill: #f6465d;
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Demonstração de Pivôs e Setups */
+    .setup-demo-container {
+      background-color: #161a1e;
+      border: 1px solid #2b313a;
+      border-radius: 8px;
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      margin-top: 24px;
+    }
+
+    .setup-demo-header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #23272e;
+    }
+
+    .setup-demo-header h3 {
+      font-size: 1.3rem;
+      color: #f0b90b;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .setup-demo-header h3 svg {
+      stroke: #f0b90b;
+      width: 24px;
+      height: 24px;
+    }
+
+    .setup-subtitulo {
+      color: #848e9c;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .setup-regras-box {
+      background-color: #12151c;
+      border: 1px solid #23272e;
+      border-left: 4px solid #f6465d;
+      border-radius: 6px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .setup-regras-box.alta {
+      border-left-color: #0ecb81;
+      margin-top: 24px;
+    }
+
+    .setup-regras-titulo {
+      color: #f6465d;
+      font-size: 0.92rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .setup-regras-box.alta .setup-regras-titulo {
+      color: #0ecb81;
+    }
+
+    .setup-regras-titulo svg {
+      stroke: #f6465d;
+      width: 18px;
+      height: 18px;
+    }
+
+    .setup-regras-box.alta .setup-regras-titulo svg {
+      stroke: #0ecb81;
+    }
+
+    .setup-regras-box p {
+      color: #c9d1d9;
+      font-size: 0.94rem;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* Grid de Etapas Visuais */
+    .etapas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 20px;
+    }
+
+    .etapa-card {
+      background-color: #12151c;
+      border: 1px solid #2b313a;
+      border-radius: 8px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .etapa-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .etapa-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #f0b90b;
+      background-color: rgba(240, 185, 11, 0.12);
+      border: 1px solid rgba(240, 185, 11, 0.25);
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .etapa-card-header h4 {
+      font-size: 1rem;
+      color: #eaecef;
+      font-weight: 600;
+    }
+
+    .etapa-img-wrap {
+      width: 100%;
+      background-color: #0b0e11;
+      border: 1px solid #23272e;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: zoom-in;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .etapa-img-wrap img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+      transition: transform 0.25s ease;
+      image-rendering: high-quality;
+    }
+
+    .etapa-img-wrap:hover img {
+      transform: scale(1.02);
+    }
+
+    .etapa-desc {
+      font-size: 0.88rem;
+      color: #848e9c;
+      line-height: 1.5;
+    }
+
+    .etapa-desc strong {
+      color: #eaecef;
+    }
+
+    /* Card de Pivô de Alta (Aguardando) */
+    .pivo-alta-placeholder {
+      background-color: #12151c;
+      border: 1px dashed #363c4e;
+      border-radius: 8px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .pivo-alta-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pivo-alta-info svg {
+      stroke: #0ecb81;
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+
+    .pivo-alta-texto h4 {
+      color: #0ecb81;
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .pivo-alta-texto p {
+      color: #848e9c;
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    .badge-em-breve {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #848e9c;
+      background-color: #202630;
+      border: 1px solid #363d4a;
+      padding: 4px 12px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+
+    /* Divisores de Partes da Seção 2 */
+    .secao-divisor-bloco {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 36px;
+      margin-bottom: 22px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #2b313a;
+    }
+
+    .badge-parte {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #12151c;
+      background-color: #f0b90b;
+      padding: 4px 10px;
+      border-radius: 4px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .secao-divisor-bloco h3 {
+      font-size: 1.35rem;
+      color: #eaecef;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .modelo-subbloco {
+      margin-top: 28px;
+    }
+
+    .modelo-header-destaque {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #2b313a;
+    }
+
+    .modelo-header-destaque h4 {
+      font-size: 1.2rem;
+      color: #eaecef;
+      font-weight: 700;
+    }
+
+    .modelo-placeholder-card {
+      background-color: #161a1e;
+      border: 1px dashed #363c4e;
+      border-radius: 8px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .modelo-placeholder-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .modelo-placeholder-info svg {
+      stroke: #848e9c;
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+
+    .modelo-placeholder-info h4 {
+      font-size: 1.1rem;
+      color: #eaecef;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .modelo-placeholder-info p {
+      font-size: 0.9rem;
+      color: #848e9c;
+      margin: 0;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 74px 14px 40px 14px;
+      }
+      .card-secao {
+        padding: 20px 16px;
+      }
+      .teoria-item {
+        padding: 16px;
+      }
+      .metodo-hero h1 {
+        font-size: 1.8rem;
+      }
+      .graficos-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menu no topo estilo Binance Futures -->
+  <header class="topbar-binance">
+    <a href="index.html" class="topbar-brand">
+      <img src="assets/icons/logo.webp" alt="Logo CAPICH" class="topbar-logo">
+      <div class="topbar-title-group">
+        <span class="topbar-name">CAPICH</span>
+        <span class="topbar-badge">
+          <span>Crypto Trading</span>
+          <svg class="infinity-loop-svg" viewBox="0 0 52 26" width="26" height="13" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Infinito">
+            <defs>
+              <linearGradient id="inf-cor-grad-met" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#00f0ff" />
+                <stop offset="30%" stop-color="#0088cc" />
+                <stop offset="48%" stop-color="#060c1d" />
+                <stop offset="52%" stop-color="#060c1d" />
+                <stop offset="70%" stop-color="#4d077d" />
+                <stop offset="100%" stop-color="#8a0ff8" />
+              </linearGradient>
+              <filter id="inf-glow-met" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="0" stdDeviation="0.8" flood-color="#8a0ff8" flood-opacity="0.6" />
+                <feDropShadow dx="0" dy="0" stdDeviation="1.5" flood-color="#00f0ff" flood-opacity="0.5" />
+              </filter>
+              <radialGradient id="sun-flare-met" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+                <stop offset="35%" stop-color="#ffffff" stop-opacity="0.85" />
+                <stop offset="65%" stop-color="#e0f2fe" stop-opacity="0.35" />
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+              </radialGradient>
+              <filter id="sun-soft-met" x="-100%" y="-100%" width="300%" height="300%">
+                <feGaussianBlur stdDeviation="2.2" />
+              </filter>
+            </defs>
+            <!-- Corpo sólido e contínuo nas 3 cores -->
+            <path d="M 26,13 C 21,5 8,5 8,13 C 8,21 21,21 26,13 C 31,5 44,5 44,13 C 44,21 31,21 26,13 Z"
+                  stroke="url(#inf-cor-grad-met)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+                  filter="url(#inf-glow-met)" />
+            <!-- Brilho de luz branca suave circulando lentamente como o sol antes de nascer -->
+            <circle r="6.5" fill="url(#sun-flare-met)" filter="url(#sun-soft-met)">
+              <animateMotion dur="6.5s" repeatCount="indefinite"
+                path="M 26,13 C 21,5 8,5 8,13 C 8,21 21,21 26,13 C 31,5 44,5 44,13 C 44,21 31,21 26,13 Z" />
+            </circle>
+            <circle r="2.2" fill="#ffffff" opacity="0.95">
+              <animateMotion dur="6.5s" repeatCount="indefinite"
+                path="M 26,13 C 21,5 8,5 8,13 C 8,21 21,21 26,13 C 31,5 44,5 44,13 C 44,21 31,21 26,13 Z" />
+            </circle>
+          </svg>
+        </span>
+      </div>
+    </a>
+    <nav class="topbar-nav">
+      <a href="index.html" class="nav-link">Painel</a>
+      <a href="crypto_trading_history.html" class="nav-link">Histórico</a>
+      <a href="sobre.html" class="nav-link">Sobre</a>
+      <a href="metodo.html" class="nav-link active">Método</a>
+    </nav>
+  </header>
+
+  <main class="metodo-container">
+
+    <!-- Hero / Cabeçalho -->
+    <div class="metodo-hero">
+      <h1>Método e Fundamentos Operacionais</h1>
+      <p>
+        Uma visão aprofundada sobre as escolas conceituais, teorias clássicas e modelos comportamentais
+        que compõem a base analítica do nosso operacional nos mercados de ativos digitais.
+      </p>
+    </div>
+
+    <!-- SEÇÃO 1: Teorias e Fundamentos -->
+    <section class="card-secao">
+      <div class="card-secao-header">
+        <div class="card-secao-title-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            <line x1="9" y1="7" x2="15" y2="7"></line>
+            <line x1="9" y1="11" x2="13" y2="11"></line>
+          </svg>
+          <h2>1. Teorias e Escolas que Compõem Nosso Operacional</h2>
+        </div>
+        <p>
+          Nosso operacional não se apoia em palpites, mas sim em teorias robustas desenvolvidas e validadas ao longo de mais de um século
+          pelos maiores operadores da história dos mercados. Abaixo apresentamos as bases de onde cada modelo nasceu, como grandes traders
+          as aplicam e como elas convergem no mercado.
+        </p>
+      </div>
+
+      <div class="teorias-grid">
+
+        <!-- 1. Teoria de Dow -->
+        <article class="teoria-item">
+          <div class="teoria-header">
+            <div class="teoria-title-group">
+              <h3><span>1. Teoria de Dow</span></h3>
+            </div>
+            <span class="teoria-meta-badge">Charles H. Dow — The Wall Street Journal, 1884–1902</span>
+          </div>
+          <div class="teoria-conteudo">
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                História e Origem
+              </div>
+              <p>
+                <span class="destaque-amarelo">Charles Henry Dow</span> (1851–1902) foi jornalista, editor e cofundador da <em>Dow Jones &amp; Company</em> e do <em>The Wall Street Journal</em> em 1889. Filho de uma família humilde de Connecticut, Dow começou como tipógrafo e repórter, especializando-se em finanças em Boston antes de se mudar para Nova York. Sua metodologia nunca foi publicada em livro — emergiu de <strong>editoriais no WSJ entre 1900 e 1902</strong>. Após sua morte em 1902, William Peter Hamilton reuniu os artigos no livro <em>"The Stock Market Barometer"</em> (1922) e Robert Rhea sistematizou tudo em <em>"The Dow Theory"</em> (1932). Dow acreditava que os índices de mercado — especialmente o <strong>Dow Jones Industrial Average</strong> e o <strong>Dow Jones Rail Average</strong> — funcionavam como barômetros de saúde econômica. A confluência entre os dois índices era para ele o sinal mais confiável de tendência primária.
+              </p>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                Os 6 Postulados Fundamentais
+              </div>
+              <p>A Teoria de Dow se estrutura em seis princípios invioláveis:</p>
+              <ol style="margin: 10px 0 0 18px; color: #b7bdc6; line-height: 1.9; font-size: 0.95rem;">
+                <li><strong>O preço desconta tudo.</strong> Toda informação disponível — econômica, política, psicológica — já está precificada no mercado. Não há vantagem de informação privilegiada que o preço não reflita.</li>
+                <li><strong>Existem três tipos de tendência.</strong> <em>Primária</em> (meses a anos), <em>secundária</em> (semanas a meses, geralmente retrações de 33%–66% da primária) e <em>terciária</em> (dias, ruído de curto prazo).</li>
+                <li><strong>As tendências primárias têm três fases.</strong> <em>Acumulação</em> (mãos fortes compram silenciosamente), <em>participação pública</em> (a maioria entra — fase de maior velocidade), <em>distribuição</em> (mãos fortes vendem enquanto o varejo ainda compra eufórico).</li>
+                <li><strong>Os índices devem se confirmar mutuamente.</strong> Um sinal de alta no índice industrial sem confirmação do ferroviário (ou vice-versa) não é confiável. Hoje essa lógica se traduz em confirmar setores correlatos.</li>
+                <li><strong>O volume confirma a tendência.</strong> Volume cresce na direção da tendência primária e diminui nas correções secundárias. Divergência de volume é alarme de reversão.</li>
+                <li><strong>Uma tendência permanece em vigor até reversão confirmada.</strong> Topos e fundos ascendentes definem tendência de alta; a quebra dessa estrutura (pivô de baixa confirmado) é o único sinal de reversão válido.</li>
+              </ol>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                Gestão de Risco e Disciplina Operacional
+              </div>
+              <p>
+                Dow nunca operou como day trader — ele analisava tendências primárias e secundárias para posicionamentos de <strong>semanas a meses</strong>. Sua abordagem de risco era simples e poderosa: <strong>nunca operar contra a tendência primária</strong>. Mesmo num mercado de alta, ele aguardava o término das correções secundárias antes de adicionar posição. O princípio da disciplina era: <em>a tendência existe até que prove o contrário com sinais concretos de mercado</em> — não com base em opiniões ou notícias. Essa postura elimina o erro mais comum do trader iniciante: sair de posições vencedoras prematuramente por medo ou reverter sem confirmação por impaciência.
+              </p>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Legado e Traders que a Utilizam
+              </div>
+              <div class="tags-traders">
+                <span class="tag-trader">Jesse Livermore</span>
+                <span class="tag-trader">Richard Wyckoff</span>
+                <span class="tag-trader">John Murphy</span>
+                <span class="tag-trader">Jack Schwager</span>
+                <span class="tag-trader">Stan Weinstein</span>
+              </div>
+              <p style="margin-top: 10px;">
+                A Teoria de Dow é a <strong>espinha dorsal de toda análise técnica moderna</strong>. As obras de John Murphy (<em>"Análise Técnica dos Mercados Financeiros"</em>) e Stan Weinstein (<em>"Segredos para lucrar em mercados de alta e de baixa"</em>) são extensões diretas desses princípios. No sistema CAPICH, ela atua como <strong>filtro macro primário</strong>: antes de qualquer entrada, confirmamos que o setup está alinhado com a estrutura de topos e fundos do gráfico diário.
+              </p>
+            </div>
+
+          </div>
+        </article>
+
+        <!-- 2. Ondas de Elliott -->
+        <article class="teoria-item">
+          <div class="teoria-header">
+            <div class="teoria-title-group">
+              <h3><span>2. Ondas de Elliott</span></h3>
+            </div>
+            <span class="teoria-meta-badge">Ralph Nelson Elliott — "Elliott Wave Principle" (Frost &amp; Prechter, 1978)</span>
+          </div>
+          <div class="teoria-conteudo">
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                História: Da Doença à Descoberta
+              </div>
+              <p>
+                <span class="destaque-amarelo">Ralph Nelson Elliott</span> (1871–1948) trabalhou décadas como contador e consultor empresarial na América Central e México. Em 1929, gravemente doente em recuperação de uma anemia perniciosa, ficou acamado por anos. Incapaz de trabalhar, passou a estudar obsessivamente os dados de mercado disponíveis — <strong>75 anos de movimentos históricos do mercado americano</strong>, analisando gráficos mensais, semanais, diários, horários e até de 30 minutos. Em 1934, com 63 anos, escreveu uma carta ao analista Charles Collins descrevendo sua descoberta: os mercados se movem em padrões fractais e cíclicos ligados à <strong>Sequência de Fibonacci</strong>. Collins ficou tão impressionado que o ajudou a publicar o livro <em>"The Wave Principle"</em> em 1938. A obra-prima definitiva viria décadas depois, em 1978, com <span class="destaque-amarelo">A.J. Frost</span> e <span class="destaque-amarelo">Robert R. Prechter Jr.</span> — o clássico <em>"Elliott Wave Principle: Key to Market Behavior"</em>.
+              </p>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                Conceitos Centrais e Regras Invioláveis
+              </div>
+              <p>
+                Elliott descobriu que a psicologia das massas forma padrões fractais e repetitivos. O ciclo completo é o padrão <strong>5-3</strong>: 5 ondas impulsivas na direção da tendência dominante + 3 ondas corretivas. Cada onda maior contém o mesmo padrão em escala menor (fractalidade). Três regras são <strong>absolutamente invioláveis</strong>:
+              </p>
+              <ul style="margin: 10px 0 0 18px; color: #b7bdc6; line-height: 1.9; font-size: 0.95rem;">
+                <li><strong>Regra 1:</strong> A Onda 2 <em>jamais</em> pode retornar abaixo do início da Onda 1 (se cruzar, a contagem está errada).</li>
+                <li><strong>Regra 2:</strong> A Onda 3 <em>nunca</em> pode ser a menor das três ondas impulsivas (1, 3 e 5). É geralmente a mais extensa e violenta — onde estão os maiores lucros.</li>
+                <li><strong>Regra 3:</strong> A Onda 4 <em>não pode invadir</em> o território de preço da Onda 1 (em mercados convencionais; criptomoedas alavancadas excepcionalmente violam isso).</li>
+              </ul>
+              <p style="margin-top: 10px;">
+                A ligação com Fibonacci é matemática e direta: a Onda 2 tipicamente retrai <strong>61,8%</strong> da Onda 1; a Onda 3 frequentemente se estende em <strong>161,8%</strong> ou <strong>261,8%</strong> da Onda 1; a Onda 4 retrai <strong>38,2%</strong>; e o alvo da Onda 5 converge com extensões de <strong>100%</strong> ou <strong>127,2%</strong>.
+              </p>
+
+              <!-- REGRA INVIOLÁVEL: 5 ONDAS E ALVOS DE FIBONACCI -->
+              <div style="background: rgba(240, 185, 11, 0.08); border: 1px solid rgba(240, 185, 11, 0.4); border-left: 4px solid #f0b90b; border-radius: 6px; padding: 14px 18px; margin-top: 14px;">
+                <div style="color: #f0b90b; font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                  ⚠️ REGRA FUNDAMENTAL E INVIOLÁVEL: O PADRÃO DE 5 ONDAS E ALVOS DE FIBONACCI
+                </div>
+                <div style="color: #eaecef; font-size: 0.88rem; line-height: 1.7;">
+                  Para que se opere qualquer projeção ou alvo de Fibonacci (1.272, 1.618 ou 2.618), <strong>é absolutamente obrigatório que haja um padrão de 5 ondas de Elliott visível e claro na tela</strong>. Sem um ciclo impulsivo limpo de 5 ondas perfeitamente desenhado e nítido aos olhos, <strong>NÃO EXISTE operação em alvos de Fibonacci</strong>. Tentar projetar alvos sem as 5 ondas nítidas é operar ruído e probabilidade contra.
+                </div>
+              </div>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                Gestão de Risco, Disciplina e Psicologia
+              </div>
+              <p>
+                Elliott era um analista, não um especulador agressivo. A disciplina que suas ondas ensinam é <strong>nunca comprar o topo da Onda 5</strong> — a euforia máxima onde o varejo entra em massa — e ter paciência para aguardar o fim das correções de Onda 2 ou 4 para entrar com assimetria máxima. A psicologia embutida no modelo é profunda: a Onda 3 (maior impulsão) é onde o medo de ficar de fora domina as massas; a Onda 5 é onde a ganância substitui a análise. <strong>Paul Tudor Jones</strong>, um dos maiores traders da história, usou Elliott para prever e lucrar massivamente com o <strong>Crash de 1987</strong> — shortando o mercado americano enquanto todos compravam a euforia da Onda 5. No sistema CAPICH, o gráfico diário é lido estruturalmente com Elliott para posicionar o preço dentro do ciclo macro antes de qualquer execução no 1H.
+              </p>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Grandes Traders que a Utilizam
+              </div>
+              <div class="tags-traders">
+                <span class="tag-trader">Robert Prechter Jr.</span>
+                <span class="tag-trader">Paul Tudor Jones (Crash 1987)</span>
+                <span class="tag-trader">Peter Brandt</span>
+                <span class="tag-trader">Glenn Neely</span>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+        <!-- 3. Fibonacci / Carolyn Boroden -->
+        <article class="teoria-item">
+          <div class="teoria-header">
+            <div class="teoria-title-group">
+              <h3><span>3. Clusters de Fibonacci — Carolyn Boroden</span></h3>
+            </div>
+            <span class="teoria-meta-badge">Carolyn Boroden — "Fibonacci Trading" (McGraw-Hill, 2008)</span>
+          </div>
+          <div class="teoria-conteudo">
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                História: A "Rainha de Fibonacci" de Wall Street
+              </div>
+              <p>
+                <span class="destaque-amarelo">Carolyn Boroden</span> começou sua carreira na <strong>Chicago Mercantile Exchange</strong> na década de 1980, atuando como corretora no pregão físico — um ambiente quase exclusivamente masculino na época. Fascinada pelos padrões numéricos de Fibonacci no comportamento dos preços, dedicou décadas ao refinamento de uma metodologia própria, tornando-se conhecida nos círculos de traders americanos como a <em>"Fibonacci Queen"</em> (Rainha de Fibonacci). Sua obra <em>"Fibonacci Trading: How to Master the Time and Price Advantage"</em> (2008) é considerada a referência mais completa sobre o uso prático de Fibonacci em tempo e preço. Boroden foi analista técnica certificada (CMT) e colaboradora frequente da CNBC e Bloomberg TV.
+              </p>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                O Conceito Central: Clusters de Confluência
+              </div>
+              <p>
+                A grande inovação de Boroden não foi Fibonacci em si — foi o conceito de <strong>Cluster de Confluência</strong>. Um retração isolada de 61,8% tem valor estatístico moderado. Mas quando <strong>múltiplas medições de Fibonacci diferentes convergem na mesma zona de preço</strong> — uma retração 61,8% de uma perna + extensão 127,2% de outra + simetria AB=CD — essa zona se torna magneticamente poderosa. Os principais níveis utilizados são:
+              </p>
+              <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:12px;">
+                <div style="flex:1; min-width:200px; background:#0d1117; border:1px solid #2b313a; border-radius:8px; padding:14px;">
+                  <div style="color:#f0b90b; font-weight:700; font-size:0.85rem; margin-bottom:8px;">RETRAÇÕES (Suporte/Resistência)</div>
+                  <div style="color:#b7bdc6; font-size:0.88rem; line-height:1.8;">
+                    23,6% · 38,2% · 50% · <strong style="color:#0ecb81">61,8%</strong> · <strong style="color:#0ecb81">78,6%</strong>
+                  </div>
+                </div>
+                <div style="flex:1; min-width:200px; background:#0d1117; border:1px solid #2b313a; border-radius:8px; padding:14px;">
+                  <div style="color:#f0b90b; font-weight:700; font-size:0.85rem; margin-bottom:8px;">EXTENSÕES (Alvos de Lucro)</div>
+                  <div style="color:#b7bdc6; font-size:0.88rem; line-height:1.8;">
+                    <strong style="color:#38bdf8">100%</strong> · <strong style="color:#38bdf8">127,2%</strong> · <strong style="color:#f0b90b">161,8%</strong> · 200% · <strong style="color:#f6465d">261,8%</strong>
+                  </div>
+                </div>
+              </div>
+              <p style="margin-top:12px;">
+                A <strong>Simetria AB=CD</strong> é outra ferramenta central de Boroden: quando uma perna de alta (AB) é igual em amplitude e tempo a uma perna futura (CD), o ponto D representa uma zona de reversão altamente provável. Este padrão se repete fractal e consistentemente em todos os mercados e timeframes.
+              </p>
+
+              <!-- PREMISSA INEGOCIÁVEL DE FIBONACCI -->
+              <div style="background: rgba(240, 185, 11, 0.08); border: 1px solid rgba(240, 185, 11, 0.4); border-left: 4px solid #f0b90b; border-radius: 6px; padding: 14px 18px; margin-top: 14px;">
+                <div style="color: #f0b90b; font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                  🎯 PREMISSA INEGOCIÁVEL: A MATEMÁTICA DE FIBONACCI EXIGE AS 5 ONDAS
+                </div>
+                <div style="color: #eaecef; font-size: 0.88rem; line-height: 1.7;">
+                  A precisão cirúrgica de Fibonacci não opera no vácuo: <strong>a existência de alvos matemáticos depende diretamente da validação do ciclo de 5 ondas</strong>. É a impulsão estruturada que fornece os vetores de expansão. Se o operador não enxergar com total nitidez as 5 ondas na tela, Fibonacci não deve ser plotado e nenhuma ordem em alvos de extensão deve ser executada.
+                </div>
+              </div>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                Gestão de Risco e Aplicação Prática
+              </div>
+              <p>
+                Boroden ensina que clusters de Fibonacci devem ser tratados como <strong>zonas de decisão</strong>, não como pontos exatos. O preço frequentemente penetra levemente o cluster antes de reverter — uma característica que o trader experiente não interpreta como invalidação. O stop técnico é posicionado <strong>abaixo do cluster completo</strong> (não apenas do nível mais próximo), gerando trades com relação risco/retorno mínima de 1:2. No sistema CAPICH, Fibonacci é o <strong>instrumento de precisão cirúrgica</strong>: define pontos de entrada, confirma alvos (1,272 → 1,618 → 2,618) e identifica zonas de exaustão para operações de Modelo 03.
+              </p>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Referências e Legado
+              </div>
+              <div class="tags-traders">
+                <span class="tag-trader">Larry Pesavento (Padrões Harmônicos)</span>
+                <span class="tag-trader">Scott Carney (Gartley, Bat, Butterfly)</span>
+                <span class="tag-trader">J.M. Hurst (Ciclos de Fibonacci no Tempo)</span>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+        <!-- 4. André Machado - O Ogro -->
+        <article class="teoria-item">
+          <div class="teoria-header">
+            <div class="teoria-title-group">
+              <h3><span>4. O Trading System do Ogro — André Machado</span></h3>
+            </div>
+            <span class="teoria-meta-badge">André Machado — "O Ogro de Wall Street" — Trader, Analista e Educador</span>
+          </div>
+          <div class="teoria-conteudo">
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                Trajetória e Filosofia
+              </div>
+              <p>
+                <span class="destaque-amarelo">André Machado</span> construiu sua carreira nos mercados financeiros americanos, operando profissionalmente em Nova York e desenvolvendo ao longo de anos uma metodologia robusta baseada em <strong>médias móveis, volume e estrutura de preço</strong>. De volta ao Brasil, tornou-se um dos mais influentes educadores de trading do mercado brasileiro, com sua metodologia — batizada carinhosamente de <em>Trading System do Ogro</em> — reunindo uma comunidade fiel de dezenas de milhares de traders. Sua filosofia central é direta: <em>"O mercado é simples. Quem complica é o trader."</em> André opera fundamentalmente <strong>mini Índice (WIN) e mini Dólar (WDO) na B3</strong>, focado no gráfico de <strong>5 minutos</strong> para day trade, mas seu método se transpõe fractal e elegantemente para qualquer ativo e timeframe.
+              </p>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                O Sistema: As 3 Médias e o Volume
+              </div>
+              <p>
+                O Trading System do Ogro é construído sobre três médias móveis e a leitura de volume:
+              </p>
+              <ul style="margin: 10px 0 0 18px; color: #b7bdc6; line-height: 1.9; font-size: 0.95rem;">
+                <li><strong>MME 9</strong> — Média exponencial rápida. Guia de entrada e saída de posições. Quando o preço respeita e devolve da MME 9, confirma a força da tendência de curto prazo.</li>
+                <li><strong>MMA 20</strong> — Média aritmética de médio prazo. Suporte/resistência dinâmico de tendência. Cruzamento do preço pela MMA 20 com volume é sinal de força institucional.</li>
+                <li><strong>MMA 50</strong> — Média aritmética de longo prazo. Define a tendência mãe no timeframe operado. Preço acima = bullish; abaixo = bearish. Ponto de stop técnico definitivo.</li>
+                <li><strong>Volume</strong> — Confirmador de tudo. Rompimento sem volume é armadilha. Barra longa com pico de volume = entrada institucional. Volume decrescente em alta = distribuição silenciosa.</li>
+              </ul>
+              <p style="margin-top:10px;">
+                A <strong>adaptação CAPICH</strong> para criptomoedas no 1H/15m substitui as médias pelo equivalente fractal: <strong>MME 8 no 1H = MMA 32 no 15m</strong> e <strong>MMA 20 no 1H = MMA 80 no 15m</strong>. A lógica operacional é idêntica — apenas o ativo e o timeframe mudam.
+              </p>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                Gestão de Risco e Disciplina Operacional
+              </div>
+              <p>
+                André defende uma gestão de risco baseada inteiramente em <strong>stops técnicos nas médias</strong> — nunca stops financeiros arbitrários. O stop é colocado abaixo da MMA 50 (na adaptação CAPICH: abaixo da MMA 80 do 15m). Isso garante que o trade só é encerrado quando a estrutura técnica que motivou a entrada é invalidada — não por volatilidade aleatória. Outros pilares da sua disciplina:
+              </p>
+              <ul style="margin: 10px 0 0 18px; color: #b7bdc6; line-height: 1.9; font-size: 0.95rem;">
+                <li><strong>Respeito ao plano:</strong> Se a operação atingiu o stop técnico, ela foi encerrada. Não existe "segurar um pouco mais" ou "mover o stop".</li>
+                <li><strong>Consistência em horários:</strong> Operar apenas nas janelas de maior liquidez e volume institucional. Fora dessas janelas, o mercado é ruído.</li>
+                <li><strong>Número limitado de trades:</strong> Qualidade sobre quantidade. Um trade bem planejado vale mais que dez trades impulsivos.</li>
+                <li><strong>Não operar em dúvida:</strong> Se o setup não está claro e as médias não estão alinhadas, a posição correta é <em>fora do mercado</em>.</li>
+              </ul>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                Como é Aplicado no Sistema CAPICH
+              </div>
+              <p>
+                O setup técnico das médias é o <strong>filtro tático primário</strong> do CAPICH. Antes de qualquer entrada, as três condições de alinhamento devem ser cumpridas: <em>(1)</em> Preço posicionado corretamente em relação à MMA 80; <em>(2)</em> Médias na inclinação favorável à direção operada; <em>(3)</em> Volume de rompimento ou volume de suporte presentes. A partir deste alinhamento, Fibonacci afina o ponto de entrada e o EMPIRE confirma o fluxo institucional por trás do movimento.
+              </p>
+            </div>
+
+          </div>
+        </article>
+
+        <!-- 5. Daniel Kahneman -->
+        <article class="teoria-item">
+          <div class="teoria-header">
+            <div class="teoria-title-group">
+              <h3><span>5. Psicologia Comportamental — Daniel Kahneman</span></h3>
+            </div>
+            <span class="teoria-meta-badge">Daniel Kahneman — Nobel de Economia 2002 — "Rápido e Devagar: Duas Formas de Pensar"</span>
+          </div>
+          <div class="teoria-conteudo">
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                História e a Parceria que Mudou a Economia
+              </div>
+              <p>
+                <span class="destaque-amarelo">Daniel Kahneman</span> (1934–2024) foi psicólogo israelense-americano que revolucionou a economia ao demonstrar matematicamente que os humanos <strong>não são agentes racionais</strong>. Nascido em Tel Aviv, sobreviveu à ocupação nazista em Paris ainda criança — uma experiência que o fascinou pelos mecanismos do julgamento humano. Em Princeton, formou com seu colega <span class="destaque-amarelo">Amos Tversky</span> uma das parcerias científicas mais prolíficas da história. Juntos desenvolveram a <strong>Teoria da Perspectiva (Prospect Theory)</strong> em 1979, publicada no jornal <em>Econometrica</em> — um artigo citado mais de 50.000 vezes. Em 2002, Kahneman recebeu o <strong>Prêmio Nobel de Economia</strong> (Tversky havia falecido em 1996). Seu livro popular <em>"Rápido e Devagar: Duas Formas de Pensar"</em> (2011) se tornou best-seller mundial e é leitura obrigatória para qualquer trader sério.
+              </p>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                Os Dois Sistemas e os Vieses Cruciais para o Trader
+              </div>
+              <p>
+                Kahneman descreve a mente humana operando em dois sistemas:
+              </p>
+              <ul style="margin: 10px 0 0 18px; color: #b7bdc6; line-height: 1.9; font-size: 0.95rem;">
+                <li><strong>Sistema 1 — Rápido:</strong> Automático, emocional, associativo, sem esforço. É ativado instantaneamente quando vemos o preço cair 10% — gera medo e impulso de vender. Ou quando vemos uma vela enorme de alta — gera ganância e impulso de comprar no topo.</li>
+                <li><strong>Sistema 2 — Devagar:</strong> Lento, deliberado, lógico, exige esforço cognitivo. É o sistema que respeita o plano técnico, calcula o risco antes de entrar e aceita o stop quando ele é atingido.</li>
+              </ul>
+              <p style="margin-top:10px;">
+                Os <strong>vieses cognitivos mais perigosos para o trader</strong> identificados por Kahneman e Tversky:
+              </p>
+              <ul style="margin: 10px 0 0 18px; color: #b7bdc6; line-height: 1.9; font-size: 0.95rem;">
+                <li><strong>Efeito Disposição:</strong> Vender posições vencedoras muito cedo (realizando lucro pequenooo) e segurar as perdedoras indefinidamente (esperando que "volte"). Exatamente o oposto do que a lógica manda.</li>
+                <li><strong>Heurística da Disponibilidade:</strong> Superestimar eventos recentes. Se o mercado caiu ontem, o trader acha que vai cair hoje também — ignorando a estrutura técnica completa.</li>
+                <li><strong>Heurística da Ancoragem:</strong> Prender o julgamento a um número arbitrário. "O BTC era $100k, então $80k está 'barato'" — sem analisar a estrutura técnica real.</li>
+                <li><strong>Excesso de Confiança (Overconfidence):</strong> Após uma sequência de acertos, o trader aumenta o tamanho da posição acima do plano e assume riscos que não cabe ao sistema suportar.</li>
+                <li><strong>Aversão à Perda:</strong> A dor de perder $1.000 é psicologicamente duas vezes mais intensa que o prazer de ganhar $1.000. Isso leva traders a não aceitar stops e transformar small losses em catastrophic losses.</li>
+              </ul>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                Mark Douglas e a Aplicação Direta no Trading
+              </div>
+              <p>
+                <span class="destaque-amarelo">Mark Douglas</span> (<em>"Trading in the Zone"</em>, 2000) traduziu a psicologia de Kahneman e Tversky para a linguagem do trader. Seus ensinamentos são o complemento prático indispensável:
+              </p>
+              <ul style="margin: 10px 0 0 18px; color: #b7bdc6; line-height: 1.9; font-size: 0.95rem;">
+                <li><strong>Probabilismo:</strong> Cada trade é apenas uma amostra de uma série. O resultado de um único trade não valida nem invalida o sistema. Traders consistentes pensam em populações de trades, não em trades individuais.</li>
+                <li><strong>Aceitação do Risco:</strong> Antes de abrir uma posição, o trader deve ter aceitado completamente a perda máxima possível. Se não aceitar, o Sistema 1 de Kahneman tomará controle no momento de pressão.</li>
+                <li><strong>Flow State Operacional:</strong> O estado ideal é a execução mecânica do plano, sem emoção, sem torcida — idêntico ao estado mental de um cirurgião que não "vibra" durante uma operação, apenas executa o protocolo.</li>
+              </ul>
+              <p style="margin-top: 10px;">
+                No sistema CAPICH, a psicologia de Kahneman e Douglas se manifesta no protocolo de execução: <strong>definir stop e alvos ANTES de entrar</strong>, nunca mover o stop para "dar mais espaço" e encerrar a tela após o trade estar posicionado — eliminando o Sistema 1 da equação.
+              </p>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Obras de Referência
+              </div>
+              <div class="tags-traders">
+                <span class="tag-trader">Daniel Kahneman — "Rápido e Devagar"</span>
+                <span class="tag-trader">Mark Douglas — "Trading in the Zone"</span>
+                <span class="tag-trader">Brett Steenbarger — "The Psychology of Trading"</span>
+                <span class="tag-trader">Nassim Taleb — "A Lógica do Cisne Negro"</span>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+        <!-- 6. Indicador EMPIRE -->
+        <article class="teoria-item" style="border-color: rgba(240,185,11,0.3); background: linear-gradient(135deg, rgba(240,185,11,0.04) 0%, #161a1e 100%);">
+          <div class="teoria-header">
+            <div class="teoria-title-group">
+              <h3><span>6. Indicador EMPIRE — Metodologia CAPICH</span></h3>
+            </div>
+            <span class="teoria-meta-badge" style="color:#f0b90b; border-color:rgba(240,185,11,0.4);">Sistema Proprietário CAPICH · 4 Fontes · Binance Futuros + Spot</span>
+          </div>
+          <div class="teoria-conteudo">
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                O que é e o que NÃO é
+              </div>
+              <p>
+                O <strong>Indicador EMPIRE</strong> é uma metodologia proprietária do sistema CAPICH para medir o <strong>fluxo de volume direcional institucional</strong> em criptomoedas. <span style="color:#f6465d; font-weight:700;">ATENÇÃO:</span> As variáveis internas (<code>vwapBuy</code>, <code>vwapSell</code>, <code>intraBuy</code>, <code>intraSell</code>) são identificadores técnicos legados. <strong>Este indicador NÃO TEM NADA A VER com VWAP tradicional.</strong> Sempre referido e tratado como: INDICADOR EMPIRE.
+              </p>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                As 4 Fontes de Dados Paralelas
+              </div>
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:10px;">
+                <div style="background:#0d1117; border:1px solid #2b313a; border-radius:8px; padding:14px;">
+                  <div style="color:#f0b90b; font-weight:700; font-size:0.82rem; margin-bottom:6px;">1. CANDLES FUTUROS</div>
+                  <div style="color:#848e9c; font-size:0.85rem;">fapi.binance.com · Volume takerBuy e takerSell de cada candle nos contratos perpétuos</div>
+                </div>
+                <div style="background:#0d1117; border:1px solid #2b313a; border-radius:8px; padding:14px;">
+                  <div style="color:#38bdf8; font-weight:700; font-size:0.82rem; margin-bottom:6px;">2. CANDLES SPOT</div>
+                  <div style="color:#848e9c; font-size:0.85rem;">api.binance.com · O mesmo, mas no mercado à vista. Mede o fluxo do comprador real, sem alavancagem.</div>
+                </div>
+                <div style="background:#0d1117; border:1px solid #2b313a; border-radius:8px; padding:14px;">
+                  <div style="color:#0ecb81; font-weight:700; font-size:0.82rem; margin-bottom:6px;">3. OPEN INTEREST</div>
+                  <div style="color:#848e9c; font-size:0.85rem;">Saldo total de contratos em aberto e delta entre períodos. Mede o posicionamento alavancado acumulado.</div>
+                </div>
+                <div style="background:#0d1117; border:1px solid #2b313a; border-radius:8px; padding:14px;">
+                  <div style="color:#a855f7; font-weight:700; font-size:0.82rem; margin-bottom:6px;">4. LONG/SHORT + TAKER</div>
+                  <div style="color:#848e9c; font-size:0.85rem;">Proporção de contas compradas vs vendidas e quem está agredindo o book. Mede convicção direcional.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                Cálculo Central e os Dois Timeframes
+              </div>
+              <p>
+                O EMPIRE combina as fontes com uma <strong>média ponderada 50% Futuros + 50% Spot</strong> candle a candle, gerando um <code>buyV</code> e um <code>sellV</code> combinados por período. O <strong>saldo líquido = buyV − sellV</strong> acumulado define a leitura:
+              </p>
+              <div style="display:flex; gap:14px; margin-top:12px; flex-wrap:wrap;">
+                <div style="flex:1; min-width:200px; background:#0d1117; border:1px solid rgba(14,203,129,0.3); border-radius:8px; padding:16px;">
+                  <div style="color:#0ecb81; font-weight:700; margin-bottom:8px;">72h — CONTEXTO MACRO</div>
+                  <div style="color:#848e9c; font-size:0.88rem; line-height:1.7;">Janela longa. Absorve oscilações e ruído. Mais lento para virar. Representa o posicionamento estrutural dos grandes players institucionais.</div>
+                </div>
+                <div style="flex:1; min-width:200px; background:#0d1117; border:1px solid rgba(246,70,93,0.3); border-radius:8px; padding:16px;">
+                  <div style="color:#f6465d; font-weight:700; margin-bottom:8px;">8h — GATILHO TÁTICO</div>
+                  <div style="color:#848e9c; font-size:0.88rem; line-height:1.7;">Reage imediatamente ao fluxo direcional. Primeiro a sinalizar mudanças de comportamento institucional. É o gatilho de entrada.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                As 3 Fases do Ciclo Institucional
+              </div>
+              <p><strong>Fase 1 — Acumulação Disfarçada:</strong> O player vende agressivo para limpar o book, mas sua intenção real é comprar. O 8h pode marcar Distribuição nos momentos de venda agressiva; o 72h, por ser longo, absorve e fica neutro ou levemente em Distribuição.</p>
+              <p style="margin-top:8px;"><strong>Fase 2 — Movimento Direcional:</strong> O player empurra o preço. O 8h é o <em>primeiro</em> a virar Acumulação — reage imediatamente ao volume direcional. O 72h começa a convergir conforme os candles da Fase 1 saem da janela.</p>
+              <p style="margin-top:8px;"><strong>Fase 3 — Distribuição no Topo:</strong> O player começa a despejar. O 8h é o <em>primeiro</em> a virar Distribuição — captura o fluxo de saída imediatamente. O 72h ainda mostra Acumulação por alguns períodos (carrega os candles da subida).</p>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                Tabela de Divergência — O Sinal Mais Valioso
+              </div>
+              <div style="overflow-x:auto; margin-top:10px;">
+                <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
+                  <thead>
+                    <tr style="background:#0d1117;">
+                      <th style="padding:12px 16px; text-align:left; color:#f0b90b; border:1px solid #2b313a;">72h (Macro)</th>
+                      <th style="padding:12px 16px; text-align:left; color:#f0b90b; border:1px solid #2b313a;">8h (Tático)</th>
+                      <th style="padding:12px 16px; text-align:left; color:#eaecef; border:1px solid #2b313a;">Leitura</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="padding:11px 16px; border:1px solid #2b313a; color:#0ecb81;">✅ Acumulação</td>
+                      <td style="padding:11px 16px; border:1px solid #2b313a; color:#f6465d;">🔴 Distribuição</td>
+                      <td style="padding:11px 16px; border:1px solid #2b313a; color:#f0b90b;">⚠️ Topo potencial — smart money saindo</td>
+                    </tr>
+                    <tr style="background:#0d1117;">
+                      <td style="padding:11px 16px; border:1px solid #2b313a; color:#f6465d;">🔴 Distribuição</td>
+                      <td style="padding:11px 16px; border:1px solid #2b313a; color:#0ecb81;">✅ Acumulação</td>
+                      <td style="padding:11px 16px; border:1px solid #2b313a; color:#38bdf8;">👀 Fundo potencial — smart money comprando dip</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:11px 16px; border:1px solid #2b313a; color:#0ecb81;">✅ Acumulação</td>
+                      <td style="padding:11px 16px; border:1px solid #2b313a; color:#0ecb81;">✅ Acumulação</td>
+                      <td style="padding:11px 16px; border:1px solid #2b313a; color:#0ecb81;">✅ Tendência de alta confirmada — operar comprado</td>
+                    </tr>
+                    <tr style="background:#0d1117;">
+                      <td style="padding:11px 16px; border:1px solid #2b313a; color:#f6465d;">🔴 Distribuição</td>
+                      <td style="padding:11px 16px; border:1px solid #2b313a; color:#f6465d;">🔴 Distribuição</td>
+                      <td style="padding:11px 16px; border:1px solid #2b313a; color:#f6465d;">🔴 Tendência de baixa confirmada — operar vendido</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="teoria-bloco">
+              <div class="teoria-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                Limitação Estrutural Conhecida
+              </div>
+              <p>
+                Quando um player institucional vende agressivo para limpar o book, mas o saldo líquido é comprador (<em>acumulação disfarçada</em>): o <code>sellV</code> sobe, o EMPIRE marca Distribuição — mas a intenção real é Acumulação. <strong>Esta é uma limitação estrutural de qualquer indicador baseado em volume agregado.</strong> Sem acesso ao order book em profundidade ou dados de fluxo de ordens individuais, esse tipo de manipulação fica mascarado. É exatamente por isso que o EMPIRE é sempre usado em conjunto com as médias móveis e Fibonacci — a convergência dos três filtros eleva a probabilidade mesmo diante dessa limitação.
+              </p>
+            </div>
+
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- SEÇÃO 2: Como Eu Aplico Esses Métodos -->
+    <section class="card-secao">
+      <div class="card-secao-header">
+        <div class="card-secao-title-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+          <h2>2. Aplicação Prática e Modelos Operacionais</h2>
+        </div>
+        <p>
+          A transição da teoria para a consistência real. A engenharia técnica de entrada, o setup gráfico completo e os 3 modelos operacionais que regem todas as execuções neste sistema.
+        </p>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PARTE B: SETUP TÉCNICO E ENGENHARIA GRÁFICA -->
+      <!-- ========================================== -->
+      <div class="secao-divisor-bloco">
+        <span class="badge-parte">PARTE B</span>
+        <h3>Setup Técnico e Engenharia Gráfica</h3>
+      </div>
+
+      <!-- Demonstração do Gráfico Diário & Timeframes -->
+      <div class="demonstracao-area" style="margin-top: 0;">
+        <div class="demonstracao-header">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+            <span>Onde Tudo Começa: O Gráfico Diário (1D) e a Estrutura de 8 Ondas</span>
+          </h3>
+          <p>
+            Apesar de utilizar múltiplos tempos gráficos para contextualização e alinhamento de fluxo, <strong>eu não opero o gráfico diário — o meu tempo operacional de execução é o gráfico de 1 Hora (1H) com filtro nos 15 minutos (15m)</strong>.
+            Contudo, é no diário onde tudo começa: nele enxergamos a real tendência macro e a localização exata do preço dentro do ciclo.
+          </p>
+          <p>
+            Quando Ralph Nelson Elliott falou da <strong>estrutura clássica de 8 ondas</strong>, ele não estava brincando. 
+            Na data de hoje em que faço esta publicação, podemos ver com extrema clareza o gráfico do Bitcoin (BTCUSDT Perp) se movendo com precisão cirúrgica dentro dessa exata estrutura de mercado:
+          </p>
+        </div>
+
+        <!-- REGRA CARDINAL DE OURO: 5 ONDAS E FIBONACCI -->
+        <div class="manifesto-card" style="margin-bottom: 20px; border-color: rgba(240, 185, 11, 0.6); background: linear-gradient(135deg, rgba(240, 185, 11, 0.12) 0%, rgba(22, 26, 30, 0.98) 100%);">
+          <div class="manifesto-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="stroke: #f0b90b; width: 22px; height: 22px;">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            <span style="color: #f0b90b; font-weight: 800; font-size: 1.05rem;">REGRA CARDINAL DE EXECUÇÃO: SEM 5 ONDAS VISÍVEIS, NÃO HÁ ALVO DE FIBONACCI</span>
+          </div>
+          <p style="color: #eaecef; font-size: 0.95rem; line-height: 1.8;">
+            Grave esta diretriz como o mandamento mais importante da sua vida operacional: <strong>para que se opere qualquer alvo ou extensão de Fibonacci (1.272, 1.618, 2.618), é terminantemente necessário que haja um padrão de 5 ondas visível e claro na tela</strong>.
+          </p>
+          <p style="color: #848e9c; font-size: 0.9rem; line-height: 1.7; margin-bottom: 0;">
+            Se você abrir o gráfico e tiver que forçar a vista ou hesitar para encontrar as 5 ondas de Elliott, o padrão <strong>não existe</strong>. Quando o mercado não tem 5 ondas claras, ele está em consolidação caótica, ruído ou acumulação disfarçada. Nesses momentos, <em>Fibonacci é desligado</em>. Operações em alvos de Fibonacci só ganham vida quando as 5 ondas estão desenhadas de forma incontestável diante dos seus olhos.
+          </p>
+        </div>
+
+        <!-- Grid de Gráficos do Diário -->
+        <div class="graficos-grid">
+          <!-- Imagem 1 -->
+          <div class="grafico-card">
+            <div class="grafico-card-header">
+              <h4>Imagem 01: As 5 Ondas de Impulso no BTC</h4>
+              <span class="grafico-card-badge">Gráfico Diário (1D)</span>
+            </div>
+            <div class="grafico-img-container" onclick="abrirModalImagem(this.querySelector('img').src)" title="Clique para ampliar em alta resolução">
+              <img src="assets/images/btc_elliott_5ondas.png" alt="Bitcoin - Estrutura de 5 Ondas de Impulso de Elliott no Gráfico Diário">
+            </div>
+            <div class="grafico-dica-zoom">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+              <span>A estrutura impulsiva clássica: Ondas (1), (2), (3), (4) e (5) perfeitamente respeitadas com médias e Fibonacci. Clique na imagem para zoom.</span>
+            </div>
+          </div>
+
+          <!-- Imagem 2 -->
+          <div class="grafico-card">
+            <div class="grafico-card-header">
+              <h4>Imagem 02: O Ciclo Completo de 8 Ondas (Impulso + Correção A-B-C)</h4>
+              <span class="grafico-card-badge">Gráfico Diário (1D)</span>
+            </div>
+            <div class="grafico-img-container" onclick="abrirModalImagem(this.querySelector('img').src)" title="Clique para ampliar em alta resolução">
+              <img src="assets/images/btc_elliott_8ondas_completo.png" alt="Bitcoin - Ciclo Completo de 8 Ondas de Elliott com Correção ABC">
+            </div>
+            <div class="grafico-dica-zoom">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+              <span>A conclusão do ciclo fractal de 8 ondas: as 5 ondas de impulsão seguidas pelo padrão corretivo (A)-(B)-(C). Clique na imagem para zoom.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Adaptação do Trading System do Ogro & Fractalidade de Médias -->
+      <div class="ogro-adaptacao-card">
+        <div class="ogro-card-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+          <span>A Adaptação do Trading System do Ogro: Fractalidade das Médias no Gráfico de 1H e Filtro no 15m</span>
+        </div>
+        <p>
+          Como aprendi grande parte da minha base operacional com os treinamentos e a metodologia do <strong>André Machado ("O Ogro de Wall Street")</strong>, meu operacional possui semelhanças diretas com o que ele ensina no consagrado <em>Trading System do Ogro</em>.
+        </p>
+        <p>
+          A diferença essencial reside no <strong>horizonte temporal e na dinâmica do ativo</strong>: enquanto o André opera day trade com foco no gráfico de <strong>5 minutos (5m)</strong> para índice e dólar, eu opero o mercado de criptomoedas no gráfico de <strong>1 Hora (1H)</strong>, utilizando o gráfico de <strong>15 minutos (15m) como filtro e sintonia fina de entrada</strong>.
+        </p>
+
+        <!-- Box de Matemática Fractal -->
+        <div class="fractal-calc-grid">
+          <div class="fractal-calc-item">
+            <div class="fractal-calc-topo">
+              <span class="fractal-calc-titulo">Média Rápida Fractal</span>
+              <span class="fractal-calc-badge">Guia de Entrada</span>
+            </div>
+            <div class="fractal-calc-formula">
+              <span>Média de 32p no 15m</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              <span class="destaque">Média de 8p no 1H</span>
+            </div>
+            <div class="fractal-calc-desc">
+              Como 1 hora contém quatro barras de 15 minutos (4 × 15m = 60m), multiplicar 8 períodos por 4 resulta na <strong>média de 32 períodos</strong> plotada no 15m, refletindo exatamente o suporte dinâmico da média de 8 do 1H.
+            </div>
+          </div>
+
+          <div class="fractal-calc-item">
+            <div class="fractal-calc-topo">
+              <span class="fractal-calc-titulo">Média Base Fractal</span>
+              <span class="fractal-calc-badge">Direção de Tendência</span>
+            </div>
+            <div class="fractal-calc-formula">
+              <span>Média de 80p no 15m</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              <span class="destaque">Média de 20p no 1H</span>
+            </div>
+            <div class="fractal-calc-desc">
+              Pelo mesmo princípio fractal (20 períodos × 4), a <strong>média de 80 períodos</strong> no gráfico de 15m espelha fielmente a média de 20 períodos do 1H, permitindo enxergar a inclinação e o consenso institucional do tempo maior sem mudar de tela.
+            </div>
+          </div>
+        </div>
+
+        <p>
+          <strong>Duração das operações e postura psicológica:</strong> Por operar a inércia e as correções do gráfico de 1H, o tempo de maturação dos trades até atingirem seus alvos técnicos varia consideravelmente. Às vezes o alvo é alcançado em <strong>algumas horas</strong>; em outras operações de maior amplitude, pode levar <strong>1 a 2 dias</strong>. Uma das maiores viradas de chave da consistência é que <strong>eu não fico contando o tempo que leva cada operação</strong> — o mercado tem seu próprio ritmo e o meu papel é unicamente respeitar o plano técnico até o alvo projetado ou stop.
+        </p>
+
+        <!-- Links para os vídeos de referência do Ogro -->
+        <div class="ogro-videos-box">
+          <div class="ogro-videos-titulo">
+            <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            <span>Aulas de Referência no YouTube (Trading System do Ogro):</span>
+          </div>
+          <div class="ogro-videos-links">
+            <a href="https://www.youtube.com/watch?v=y50CTJ121N0&t=5320s" target="_blank" rel="noopener noreferrer" class="ogro-video-btn">
+              <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+              <span>Aula 1: Trading System do Ogro (Fundamentos & Regras)</span>
+            </a>
+            <a href="https://www.youtube.com/watch?v=Ep2vFmakBRI&t=798s" target="_blank" rel="noopener noreferrer" class="ogro-video-btn">
+              <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+              <span>Aula 2: Trading System do Ogro (Condução & Dinâmica)</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PARTE C: OS 3 MODELOS OPERACIONAIS DE MERCADO -->
+      <!-- ========================================== -->
+      <div class="secao-divisor-bloco">
+        <span class="badge-parte">PARTE C</span>
+        <h3>Os 3 Modelos Operacionais de Execução</h3>
+      </div>
+
+      <!-- Visão Geral Comparativa dos 3 Modelos -->
+      <div class="modelos-grid" style="margin-top: 10px;">
+        <!-- Modelo 1 -->
+        <div class="modelo-card">
+          <div>
+            <div class="modelo-topo">
+              <span class="modelo-numero">Modelo 01</span>
+              <h4>Captura de Início de Tendência</h4>
+            </div>
+            <p>
+              Focado em identificar a quebra de estruturas laterais ou a gênese de um pivô primário logo após o rompimento. Busca antecipar a formação do fluxo antes que a maioria dos participantes do mercado perceba a nova direção.
+            </p>
+          </div>
+          <div class="modelo-footer">
+            <span class="modelo-stat">Foco: <strong>Timing e Quebra de Estrutura</strong></span>
+            <span class="modelo-stat">Risco x Retorno: <strong>Alto</strong></span>
+          </div>
+        </div>
+
+        <!-- Modelo 2 -->
+        <div class="modelo-card">
+          <div>
+            <div class="modelo-topo">
+              <span class="modelo-numero">Modelo 02</span>
+              <h4>Continuação de Tendência</h4>
+            </div>
+            <p>
+              Operações a favor da inércia já consolidada. Identificação de correções ordenadas (pullbacks) nas médias móveis de suporte e nos níveis chave de Fibonacci, surfando a próxima perna de impulsão com alta previsibilidade direcional.
+            </p>
+          </div>
+          <div class="modelo-footer">
+            <span class="modelo-stat">Foco: <strong>Pullbacks & Condução por Médias</strong></span>
+            <span class="modelo-stat">Taxa de Acerto: <strong>Elevada</strong></span>
+          </div>
+        </div>
+
+        <!-- Modelo 3 (Destaque) -->
+        <div class="modelo-card destaque-modelo">
+          <div>
+            <div class="modelo-topo">
+              <span class="modelo-numero" style="background-color: rgba(240, 185, 11, 0.25);">Modelo 03 • O Mais Lucrativo</span>
+              <h4 style="color: #f0b90b;">Correção de Tendência (com Potencial de Nova Tendência)</h4>
+            </div>
+            <p>
+              <strong>O modelo mais lucrativo de todos.</strong> Consiste em operar contra a exaustão da tendência em vigor quando ela atinge clusters extremos de Fibonacci e sobrevenda/sobrecompra nas médias. 
+              Por lidar com reversões precoces e a volatilidade das violinadas, não possui uma taxa de acerto tão alta, mas quando bem operado oferece um <em>payoff</em> (relação Risco x Retorno) incomparável ao capturar a nova tendência desde o primeiro suspiro.
+            </p>
+          </div>
+          <div class="modelo-footer">
+            <span class="modelo-stat alerta">Violinadas: <strong>Exige Gestão Fria</strong></span>
+            <span class="modelo-stat">Assimetria de Lucro: <strong style="color: #f0b90b;">Excepcional</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ------------------------------------------ -->
+      <!-- CAPÍTULO 1: EXECUÇÃO PRÁTICA DO MODELO 01 -->
+      <!-- ------------------------------------------ -->
+      <div class="setup-demo-container">
+        <div class="setup-demo-header">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+            <span>Execução Prática • Modelo 01: Início de Tendência</span>
+          </h3>
+          <p class="setup-subtitulo">
+            Como identifico, projeto e executo a gênese de um movimento direcional através de pivôs confirmados e projeções de Fibonacci.
+          </p>
+        </div>
+
+        <!-- Bloco 1: Pivô de Baixa (Exemplo Real em ETHUSDT - 15m) -->
+        <div class="setup-regras-box">
+          <div class="setup-regras-titulo">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <polyline points="19 12 12 19 5 12"></polyline>
+            </svg>
+            <span>Caso Real 01: O Pivô de Baixa no Gráfico de 15m (ETHUSDT Perp)</span>
+          </div>
+          <div style="background: rgba(240, 185, 11, 0.08); border-left: 3px solid #f0b90b; padding: 10px 14px; border-radius: 4px; color: #f0b90b; font-weight: 700; font-size: 0.88rem; margin-bottom: 12px;">
+            ⚡ CONDIÇÃO PRÉVIA OBRIGATÓRIA: Padrão de 5 ondas de Elliott visível e claro na tela. Sem isso, NÃO EXISTE operação em alvos de Fibonacci (1.272, 1.618 ou 2.618).
+          </div>
+          <p>
+            <strong>A regra de ouro:</strong> Normalmente você só vai enxergar o pivô após ele estar completamente formado. Não vou ficar ensinando conceitos teóricos básicos de análise técnica aqui — a internet já está cheia disso. O que deixo registrado por experiência prática é: <strong>nunca tente antecipar um pivô</strong>.
+          </p>
+          <p>
+            Para termos alvos de lucro visíveis e calculáveis, é indispensável que o pivô esteja armado e confirmado por uma <strong>barra de rompimento longa e com volume expressivo</strong> rompendo a cabeça do pivô. A partir deste ponto exato, começam as projeções de entrada e alvos.
+          </p>
+          <p>
+            Após o pivô confirmado, espero um dos dois cenários:
+            <br>• <strong>Cenário 1 (Pullback clássico):</strong> O preço volta para testar a cabeça do pivô rompida. Às vezes pode até violá-la voltando um pouco para dentro, e deixo ordem de entrada na barra que rompeu, desde que o preço não retorne profundamente para dentro do pivô armado.
+            <br>• <strong>Cenário 2 (Expansão direta no 1.272 — meu favorito):</strong> O preço não faz pullback e vai direto cravar o primeiro alvo de Fibonacci em 1.272. É o cenário que mais gosto, pois confirma de imediato que a força vendedora e Fibonacci estão sendo rigorosamente respeitados.
+          </p>
+        </div>
+
+        <!-- Grid com as 3 Etapas Visuais -->
+        <div class="etapas-grid">
+          <!-- Etapa 1 -->
+          <div class="etapa-card">
+            <div class="etapa-card-header">
+              <h4>Passo 01: Rompimento com Volume</h4>
+              <span class="etapa-tag">Etapa 1 • Alvo 1.272</span>
+            </div>
+            <div class="etapa-img-wrap" onclick="abrirModalImagem(this.querySelector('img').src)" title="Clique para ampliar em alta resolução">
+              <img src="assets/images/pivo_baixa_rompimento_vol.png" alt="ETHUSDT 15m - Rompimento com barra longa e volume direto no 1.272 de Fibonacci">
+            </div>
+            <div class="etapa-desc">
+              Pivô de baixa armado e rompimento com <strong>barra longa de convicção e pico de volume</strong>. O preço não perde tempo com pullback e busca diretamente a primeira expansão de Fibonacci em <strong>1.272</strong>.
+            </div>
+          </div>
+
+          <!-- Etapa 2 -->
+          <div class="etapa-card">
+            <div class="etapa-card-header">
+              <h4>Passo 02: A "Freada" & Gatilho</h4>
+              <span class="etapa-tag" style="color: #0ecb81; border-color: rgba(14, 203, 129, 0.3); background-color: rgba(14, 203, 129, 0.1);">Etapa 2 • Entrada</span>
+            </div>
+            <div class="etapa-img-wrap" onclick="abrirModalImagem(this.querySelector('img').src)" title="Clique para ampliar em alta resolução">
+              <img src="assets/images/pivo_baixa_freada_entrada.png" alt="ETHUSDT 15m - Freada na impulsão no 1.272 e gatilho de entrada">
+            </div>
+            <div class="etapa-desc">
+              Não é preciso que o preço suba até a cabeça do pivô: ocorre uma <strong>literal freada na impulsão</strong> (vela verde de respiro no 1.272). A entrada na venda é acionada no <strong>rompimento da mínima</strong> dessa parada.
+            </div>
+          </div>
+
+          <!-- Etapa 3 -->
+          <div class="etapa-card">
+            <div class="etapa-card-header">
+              <h4>Passo 03: Alvos & Gestão de Risco</h4>
+              <span class="etapa-tag" style="color: #f6465d; border-color: rgba(246, 70, 93, 0.3); background-color: rgba(246, 70, 93, 0.1);">Etapa 3 • Condução</span>
+            </div>
+            <div class="etapa-img-wrap" onclick="abrirModalImagem(this.querySelector('img').src)" title="Clique para ampliar em alta resolução">
+              <img src="assets/images/pivo_baixa_alvos_completos.png" alt="ETHUSDT 15m - Condução até 100% do pivô e 2.618 da barra de rompimento">
+            </div>
+            <div class="etapa-desc">
+              Busca dos alvos de <strong>1.618, 100% do pivô e 2.618 da pernada</strong>. No 1.618 a atenção é redobrada: recuos fortes de realização costumam estopar posições contra a tendência diária. Aqui, o alvo final foi cravado com precisão.
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloco 2: Pivô de Alta (3 Casos Reais no Gráfico de 15m) -->
+        <div class="setup-regras-box alta">
+          <div class="setup-regras-titulo">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="19" x2="12" y2="5"></line>
+              <polyline points="5 12 12 5 19 12"></polyline>
+            </svg>
+            <span>Caso Real 02: O Pivô de Alta no Gráfico de 15m (3 Dinâmicas Reais de Mercado)</span>
+          </div>
+          <p>
+            <strong>A regra elementar das médias:</strong> A maioria dos livros clássicos de análise técnica afirma uma verdade atemporal: <em>preço acima da média = tendência de alta; preço abaixo da média = tendência de baixa</em>. Isso é universal e válido para qualquer ativo do mercado financeiro.
+          </p>
+          <p>
+            Em tendências muito fortes e alinhadas <strong>a favor da tendência do gráfico diário</strong>, o comportamento do pivô de alta assume características marcantes. Muitas vezes o pivô se forma atrás das médias, ou após uma correção curta trabalhando acima delas.
+          </p>
+          <p>
+            <strong>Gestão emocional de incerteza:</strong> O mercado de cripto é veloz. Em momentos em que entrar uma volatilidade atípica e você sentir <em>medo, dúvida ou incerteza</em> quanto à sustentação do movimento, a melhor decisão operacional é <strong>ficar de fora e esperar pacientemente pela próxima oportunidade</strong>.
+          </p>
+        </div>
+
+        <!-- Grid com os 3 Casos Visuais de Pivô de Alta -->
+        <div class="etapas-grid">
+          <!-- Exemplo 1 -->
+          <div class="etapa-card">
+            <div class="etapa-card-header">
+              <h4>Exemplo 01: Barra de Ignição & Pablito / Gift</h4>
+              <span class="etapa-tag" style="color: #0ecb81; border-color: rgba(14, 203, 129, 0.3); background-color: rgba(14, 203, 129, 0.1);">Cenário 1 • Sem Pullback</span>
+            </div>
+            <div class="etapa-img-wrap" onclick="abrirModalImagem(this.querySelector('img').src)" title="Clique para ampliar em alta resolução">
+              <img src="assets/images/pivo_alta_ignicao_pablito.png" alt="BCHUSDT 15m - Barra de ignição com rompimento direto e formação de Pablito">
+            </div>
+            <div class="etapa-desc">
+              Em tendências muito fortes, o preço <strong>não faz pullback e não dá pausa</strong>. As opções são entrar no rompimento da máxima da barra de ignição ou ficar de fora. No exemplo (BCHUSDT), o candle seguinte formou um <strong>Pablito / Gift</strong> (respiro estreito) antes de explodir para os alvos. Se não romper a máxima de imediato, aguarda-se a formação do Gift.
+            </div>
+          </div>
+
+          <!-- Exemplo 2 -->
+          <div class="etapa-card">
+            <div class="etapa-card-header">
+              <h4>Exemplo 02: Volatilidade, Doji no 15m & Alvo 2.618</h4>
+              <span class="etapa-tag" style="color: #f0b90b; border-color: rgba(240, 185, 11, 0.3); background-color: rgba(240, 185, 11, 0.1);">Cenário 2 • Contexto</span>
+            </div>
+            <div class="etapa-img-wrap" onclick="abrirModalImagem(this.querySelector('img').src)" title="Clique para ampliar em alta resolução">
+              <img src="assets/images/pivo_alta_volatilidade_doji.png" alt="BCHUSDT 15m - Rompimento com volatilidade, fechamento em Doji e alvo em 2.618">
+            </div>
+            <div class="etapa-desc">
+              Um caso muito peculiar: o preço rompe com barra longa e logo volta com forte volatilidade (no 5m causaria pânico de violinada, mas no 15m fechou como um <strong>Doji de sustentação</strong> após testar o primeiro alvo). O que sustentou a entrada foi o <strong>contexto macro de alta</strong>. A operação alcançou com precisão a expansão máxima de <strong>2.618</strong>.
+            </div>
+          </div>
+
+          <!-- Exemplo 3 -->
+          <div class="etapa-card">
+            <div class="etapa-card-header">
+              <h4>Exemplo 03: Pullback Clássico na Cabeça do Pivô</h4>
+              <span class="etapa-tag" style="color: #0ecb81; border-color: rgba(14, 203, 129, 0.3); background-color: rgba(14, 203, 129, 0.1);">Cenário 3 • Maior Lucratividade</span>
+            </div>
+            <div class="etapa-img-wrap" onclick="abrirModalImagem(this.querySelector('img').src)" title="Clique para ampliar em alta resolução">
+              <img src="assets/images/pivo_alta_pullback_cabeca.png" alt="BTCUSDT 15m - Pullback adentrando a cabeça do pivô sem ir direto no 1.272">
+            </div>
+            <div class="etapa-desc">
+              O movimento clássico de cartilha (BTCUSDT): o preço rompe a cabeça do pivô, faz um recuo (pullback) adentrando um pouco abaixo da cabeça rompida e <strong>não vai direto no 1.272</strong>. Esse cenário oferece a <strong>melhor relação Risco x Retorno</strong>, pois permite pagar mais barato com stop protegido antes da arrancada final.
+            </div>
+          </div>
+        </div>
+
+        <!-- Conexão Chave / Síntese Operacional: A Força da Tendência Diária -->
+        <div class="manifesto-card" style="margin-top: 24px; border-color: rgba(240, 185, 11, 0.45); background: linear-gradient(135deg, rgba(240, 185, 11, 0.1) 0%, rgba(22, 26, 30, 0.98) 100%);">
+          <div class="manifesto-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span>A Conexão Chave: Por que Todos os 3 Cenários Cravaram o Alvo de 2.618?</span>
+          </div>
+          <p>
+            Agora repare em um detalhe que conecta toda a teoria com a prática: no <strong>pivô de baixa</strong>, eu mostrei <em>o mesmo pivô em três etapas cronológicas</em> de execução. Já no <strong>pivô de alta</strong>, apresentei <em>três cenários de mercado completamente diferentes</em>. O padrão operacional não muda na essência — o mercado apenas se expressa com variações de velocidade e volatilidade.
+          </p>
+          <p>
+            E se você reparar com atenção nos três exemplos de pivôs de compra, perceberá que <strong>todos os três, sem exceção, atingiram o alvo estendido de 2.618 de Fibonacci</strong>.
+          </p>
+          <p>
+            Isso não é coincidência, nem exceção à regra: <strong>tem um motivo técnico determinante</strong>. Lembra que no início desta página eu mostrei a estrutura macro das <strong>5 ondas de Elliott no Gráfico Diário</strong> em pleno mercado altista? Essas operações foram alavancadas porque estavam rigorosamente <strong>a favor da tendência do gráfico diário</strong>.
+          </p>
+          <p>
+            Seja em criptomoedas ou em qualquer outro mercado financeiro, quando você opera pivôs no 15m/1H alinhados à inércia da tendência diária, você tem o vento institucional a favor. A força do tempo gráfico maior é o que permite ao preço romper resistências intermediárias e buscar alvos longos como o <strong>2.618</strong> com máxima probabilidade matemática.
+          </p>
+        </div>
+      </div>
+
+<!-- ------------------------------------------ -->
+      <!-- CAPÍTULO 2: EXECUÇÃO DO MODELO 02           -->
+      <!-- ------------------------------------------ -->
+      <div class="setup-demo-container">
+        <div class="setup-demo-header">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+            <span>Execução Prática • Modelo 02: Continuação de Tendência</span>
+          </h3>
+          <p class="setup-subtitulo">
+            Identificar correções saudáveis (pullbacks) nas médias de suporte e surfar a próxima perna de impulsão a favor da inércia já consolidada. Alta taxa de acerto com excelente relação risco/retorno.
+          </p>
+        </div>
+
+        <!-- Regras do Modelo 02 -->
+        <div class="setup-regras-box alta">
+          <div class="setup-regras-titulo">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span>Regras de Entrada — Checklist Completo</span>
+          </div>
+          <ol style="margin: 12px 0 0 18px; color: #b7bdc6; line-height: 2.0; font-size: 0.95rem;">
+            <li><strong>Padrão de 5 Ondas Visível:</strong> Deve haver uma estrutura impulsiva de 5 ondas clara e visível na tela anterior ao pullback. Sem o padrão de 5 ondas nítido, não há projeção nem operação em alvos de Fibonacci.</li>
+            <li><strong>Tendência Mãe:</strong> Preço deve estar acima da MMA 80 (no 15m) ou MMA 20 (no 1H). Esta é a condição sine qua non — sem ela, o modelo não existe.</li>
+            <li><strong>EMPIRE 72h = Acumulação.</strong> O fluxo macro institucional deve confirmar a direção. Se o 72h estiver em Distribuição, a correção pode ser o início de uma reversão — não um pullback.</li>
+            <li><strong>Pullback saudável:</strong> O preço recua até a zona da MMA 32 (15m) ou MMA 8 (1H) sem romper abaixo da MMA 80. Quanto mais limpo o pullback (sem volatilidade excessiva), mais confiável o setup.</li>
+            <li><strong>Taker não agride:</strong> O Taker 5m não deve mostrar pressão contrária superior a 65% durante o pullback. Excesso de agressão sinaliza distribuição, não correção saudável.</li>
+            <li><strong>Entrada:</strong> No primeiro candle bullish que toca e rejeita a MMA 32 — ou no rompimento da máxima desse candle de suporte. No caso de pullback para o 1H: aguarda o candle de 1H fechar acima da MME 8 e entra no rompimento da máxima.</li>
+            <li><strong>Stop técnico:</strong> Abaixo da MMA 80 (15m). Se o preço fechar um candle abaixo da MMA 80, a estrutura foi invalidada.</li>
+            <li><strong>Alvos:</strong> 1,272 da pernada de pullback como alvo parcial (realiza 50% da posição); alvo final = topo anterior ou extensão de 1,618 do pullback.</li>
+          </ol>
+          <p style="margin-top:14px; color:#f6465d;">
+            <strong>⚠️ Invalidação:</strong> Se o preço fechar um candle abaixo da MMA 80 durante o pullback, o modelo 02 é cancelado. Pode ser o início de um Modelo 03 (reversão) — mas não confunda os dois e não entre prematuramente.
+          </p>
+        </div>
+
+        <!-- Diagrama SVG do Modelo 02 -->
+        <div style="margin-top: 24px;">
+          <div class="grafico-card-header" style="margin-bottom:12px;">
+            <h4>Diagrama: Continuação de Tendência — Pullback na MMA 32</h4>
+            <span class="grafico-card-badge">Gráfico 15m · Exemplo Didático</span>
+          </div>
+          <div style="background:#0b0e11; border:1px solid #2b313a; border-radius:10px; padding:20px; overflow-x:auto;">
+            <svg viewBox="0 0 760 340" width="100%" style="max-width:760px; display:block; margin:0 auto; font-family: 'Courier New', monospace;">
+              <defs>
+                <pattern id="grid02" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e2329" stroke-width="0.5"/>
+                </pattern>
+              </defs>
+              <rect width="760" height="340" fill="#0b0e11"/>
+              <rect width="760" height="340" fill="url(#grid02)"/>
+              <!-- MMA 80 line (white/gray) -->
+              <path d="M20,280 Q200,275 380,270 Q500,268 740,265" fill="none" stroke="#ffffff" stroke-width="2" stroke-dasharray="6,4" opacity="0.5"/>
+              <text x="745" y="262" fill="#ffffff" font-size="10" opacity="0.7">MMA 80</text>
+              <!-- MMA 32 line (yellow) -->
+              <path d="M20,250 Q100,220 200,180 Q280,150 340,145 Q420,145 460,160 Q500,172 560,165 Q620,158 740,145" fill="none" stroke="#f0b90b" stroke-width="1.5"/>
+              <text x="745" y="142" fill="#f0b90b" font-size="10">MMA 32</text>
+              <!-- Uptrend candles -->
+              <line x1="60" y1="230" x2="60" y2="260" stroke="#0ecb81" stroke-width="1"/>
+              <rect x="53" y="238" width="14" height="20" fill="#0ecb81" rx="1"/>
+              <line x1="100" y1="195" x2="100" y2="230" stroke="#0ecb81" stroke-width="1"/>
+              <rect x="93" y="203" width="14" height="22" fill="#0ecb81" rx="1"/>
+              <line x1="140" y1="170" x2="140" y2="208" stroke="#0ecb81" stroke-width="1"/>
+              <rect x="133" y="178" width="14" height="26" fill="#0ecb81" rx="1"/>
+              <line x1="180" y1="148" x2="180" y2="182" stroke="#0ecb81" stroke-width="1"/>
+              <rect x="173" y="156" width="14" height="20" fill="#0ecb81" rx="1"/>
+              <line x1="220" y1="130" x2="220" y2="160" stroke="#0ecb81" stroke-width="1"/>
+              <rect x="213" y="138" width="14" height="18" fill="#0ecb81" rx="1"/>
+              <!-- Previous high label -->
+              <text x="192" y="124" fill="#0ecb81" font-size="11" font-weight="bold">TOPO ANTERIOR</text>
+              <line x1="230" y1="130" x2="230" y2="120" stroke="#0ecb81" stroke-width="1" stroke-dasharray="3,2"/>
+              <!-- Pullback candles (red) -->
+              <line x1="260" y1="135" x2="260" y2="168" stroke="#f6465d" stroke-width="1"/>
+              <rect x="253" y="143" width="14" height="20" fill="#f6465d" rx="1"/>
+              <line x1="300" y1="140" x2="300" y2="175" stroke="#f6465d" stroke-width="1"/>
+              <rect x="293" y="150" width="14" height="20" fill="#f6465d" rx="1"/>
+              <line x1="340" y1="140" x2="340" y2="172" stroke="#f6465d" stroke-width="1"/>
+              <rect x="333" y="148" width="14" height="18" fill="#f6465d" rx="1"/>
+              <!-- Pullback zone shading -->
+              <rect x="248" y="130" width="120" height="55" fill="rgba(246,70,93,0.07)" rx="4"/>
+              <text x="258" y="122" fill="#f6465d" font-size="10">PULLBACK (correção saudável)</text>
+              <!-- EMPIRE bar pullback -->
+              <rect x="248" y="308" width="120" height="12" fill="rgba(240,185,11,0.3)" rx="2"/>
+              <text x="252" y="320" fill="#848e9c" font-size="9">EMPIRE 8h: neutro</text>
+              <!-- MMA 32 touch indicator -->
+              <circle cx="340" cy="145" r="8" fill="none" stroke="#f0b90b" stroke-width="2"/>
+              <text x="358" y="140" fill="#f0b90b" font-size="10" font-weight="bold">TOCA MMA 32</text>
+              <!-- Entry green arrow -->
+              <polygon points="380,185 374,170 386,170" fill="#0ecb81"/>
+              <line x1="380" y1="170" x2="380" y2="195" stroke="#0ecb81" stroke-width="2"/>
+              <text x="390" y="178" fill="#0ecb81" font-size="11" font-weight="bold">ENTRADA LONG</text>
+              <text x="390" y="191" fill="#848e9c" font-size="9">rompimento da máxima</text>
+              <!-- Stop loss line -->
+              <line x1="248" y1="265" x2="560" y2="265" stroke="#f6465d" stroke-width="1" stroke-dasharray="5,3"/>
+              <text x="565" y="268" fill="#f6465d" font-size="10">STOP — abaixo MMA 80</text>
+              <!-- New impulse candles (green) -->
+              <line x1="380" y1="145" x2="380" y2="185" stroke="#0ecb81" stroke-width="1"/>
+              <rect x="373" y="153" width="14" height="26" fill="#0ecb81" rx="1"/>
+              <line x1="420" y1="120" x2="420" y2="158" stroke="#0ecb81" stroke-width="1"/>
+              <rect x="413" y="128" width="14" height="26" fill="#0ecb81" rx="1"/>
+              <line x1="460" y1="100" x2="460" y2="135" stroke="#0ecb81" stroke-width="1"/>
+              <rect x="453" y="108" width="14" height="23" fill="#0ecb81" rx="1"/>
+              <line x1="500" y1="82" x2="500" y2="112" stroke="#0ecb81" stroke-width="1"/>
+              <rect x="493" y="90" width="14" height="20" fill="#0ecb81" rx="1"/>
+              <line x1="540" y1="68" x2="540" y2="98" stroke="#0ecb81" stroke-width="1"/>
+              <rect x="533" y="76" width="14" height="20" fill="#0ecb81" rx="1"/>
+              <!-- Target 1 (1.272) -->
+              <line x1="380" y1="108" x2="600" y2="108" stroke="#0ecb81" stroke-width="1" stroke-dasharray="5,3"/>
+              <text x="605" y="112" fill="#0ecb81" font-size="10">ALVO 1 — 1.272</text>
+              <!-- Target 2 (1.618 / topo anterior) -->
+              <line x1="380" y1="68" x2="600" y2="68" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="5,3"/>
+              <text x="605" y="72" fill="#38bdf8" font-size="10">ALVO 2 — 1.618 / Topo</text>
+              <!-- EMPIRE bar impulse phase -->
+              <rect x="370" y="308" width="200" height="12" fill="rgba(14,203,129,0.4)" rx="2"/>
+              <text x="378" y="320" fill="#0ecb81" font-size="9">EMPIRE 8h: ACUMULAÇÃO</text>
+              <!-- Legend -->
+              <rect x="20" y="308" width="220" height="22" fill="rgba(0,0,0,0.3)" rx="4"/>
+              <line x1="30" y1="320" x2="50" y2="320" stroke="#f0b90b" stroke-width="1.5"/>
+              <text x="55" y="323" fill="#848e9c" font-size="9">MMA 32</text>
+              <line x1="95" y1="320" x2="115" y2="320" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.5"/>
+              <text x="120" y="323" fill="#848e9c" font-size="9">MMA 80</text>
+              <rect x="168" y="313" width="10" height="10" fill="#0ecb81" rx="1"/>
+              <text x="182" y="323" fill="#848e9c" font-size="9">Alta</text>
+              <rect x="208" y="313" width="10" height="10" fill="#f6465d" rx="1"/>
+              <text x="222" y="323" fill="#848e9c" font-size="9">Baixa</text>
+            </svg>
+          </div>
+          <div class="grafico-dica-zoom" style="margin-top:8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+            <span>Sequência: Tendência → Pullback toca MMA 32 sem quebrar MMA 80 → Entrada bullish → Stop abaixo MMA 80 → Alvos 1.272 e 1.618. EMPIRE 72h em Acumulação durante todo o processo.</span>
+          </div>
+        </div>
+
+        <!-- EMPIRE Confluence for Model 02 -->
+        <div class="manifesto-card" style="margin-top:24px; border-color:rgba(14,203,129,0.3); background:linear-gradient(135deg,rgba(14,203,129,0.07) 0%,rgba(22,26,30,0.98) 100%);">
+          <div class="manifesto-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            <span>Confluência com o Indicador EMPIRE — Modelo 02</span>
+          </div>
+          <p>No Modelo 02, o EMPIRE funciona como <strong>dupla confirmação</strong>: o <strong>72h em Acumulação</strong> valida que o pullback é uma correção e não uma reversão; o <strong>8h</strong>, que pode estar momentaneamente neutro ou leve durante o pullback, deve <strong>virar para Acumulação</strong> antes ou no momento da entrada — confirmando que o fluxo tático voltou para a direção da tendência. Quando 72h e 8h convergem em Acumulação enquanto o preço toca a MMA 32: este é um dos setups de maior probabilidade do sistema CAPICH.</p>
+        </div>
+      </div>
+
+<!-- ------------------------------------------ -->
+      <!-- CAPÍTULO 3: EXECUÇÃO DO MODELO 03           -->
+      <!-- ------------------------------------------ -->
+      <div class="setup-demo-container" style="border-color:rgba(240,185,11,0.3); background:linear-gradient(135deg,rgba(240,185,11,0.04) 0%,#161a1e 100%);">
+        <div class="setup-demo-header">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="1 4 1 10 7 10"></polyline>
+              <polyline points="23 20 23 14 17 14"></polyline>
+              <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+            </svg>
+            <span>Execução Prática • Modelo 03: Correção de Tendência e Reversão</span>
+          </h3>
+          <p class="setup-subtitulo">
+            O modelo mais lucrativo — e o mais desafiador. Operar contra a exaustão da tendência em vigor quando ela atinge clusters extremos de Fibonacci. Exige gestão fria, posição reduzida e absoluta disciplina. Quando bem operado: payoff excepcional.
+          </p>
+        </div>
+
+        <!-- Warning Box -->
+        <div style="background:rgba(240,185,11,0.1); border:1px solid rgba(240,185,11,0.4); border-radius:8px; padding:16px; margin-bottom:20px;">
+          <div style="color:#f0b90b; font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#f0b90b" stroke-width="2" style="flex-shrink:0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            AVISO: Este é o Modelo de Maior Risco Relativo
+          </div>
+          <p style="color:#848e9c; font-size:0.9rem; line-height:1.6;">O Modelo 03 opera <em>contra</em> a tendência dominante. A maioria das "violinadas" (stop-outs falsos) acontece neste modelo. É obrigatório: (1) reduzir o tamanho da posição para 50% do normal, (2) usar stop apertado no nível de Fibonacci imediatamente acima/abaixo, (3) NUNCA realizar médio (nunca comprar mais numa posição perdedora). Um trade no Modelo 03 que viola o stop é simplesmente encerrado — sem emoção, sem negociação interna.</p>
+        </div>
+
+        <!-- Regras do Modelo 03 -->
+        <div class="setup-regras-box">
+          <div class="setup-regras-titulo">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span>Regras de Entrada — Checklist Completo</span>
+          </div>
+          <ol style="margin: 12px 0 0 18px; color: #b7bdc6; line-height: 2.0; font-size: 0.95rem;">
+            <li><strong>Padrão de 5 Ondas de Exaustão:</strong> O preço deve ter completado com extrema nitidez as 5 ondas de Elliott da tendência prévia. Sem a estrutura de 5 ondas completada e visível, não existe operação de contra-tendência em Fibonacci.</li>
+            <li><strong>Extensão de Fibonacci extrema:</strong> O preço deve estar em 161,8% ou 261,8% de extensão de um movimento relevante (ou em cluster de confluência com múltiplos Fibs convergindo).</li>
+            <li><strong>Divergência EMPIRE (sinal mais valioso):</strong> O EMPIRE 72h deve estar em conflito com o 8h. Exemplo clássico de topo: 72h = Acumulação (carregando candles da subida), mas 8h = Distribuição (já capturando o fluxo de saída). Esta divergência é o alerta precoce de exaustão.</li>
+            <li><strong>Taker com pressão contrária superior a 60%:</strong> O Taker 5m deve mostrar pressão oposta à tendência. Em topo: vendedores acima de 60%. Em fundo: compradores acima de 60% após a capitulação.</li>
+            <li><strong>Candle de confirmação obrigatório:</strong> Aguardar formação de Doji, Hammer, Engolfo ou Pin Bar no nível de Fibonacci. Nunca entrar sem o candle de reversão formado e fechado.</li>
+            <li><strong>Posição reduzida:</strong> 50% do tamanho padrão. A taxa de acerto deste modelo é menor por natureza — o gerenciamento de posição compensa.</li>
+            <li><strong>Stop técnico apertado:</strong> Acima/abaixo do próximo nível de Fibonacci (ex: se entrou no 161,8%, o stop é acima do 200%). Máximo 5 a 10% da amplitude do movimento relevante.</li>
+            <li><strong>Alvo:</strong> Retração de 61,8% do movimento completo da tendência dominante. Realização parcial em 38,2%. Em caso de reversão completa, conduz para 100% de retração.</li>
+          </ol>
+        </div>
+
+        <!-- Diagrama SVG do Modelo 03 -->
+        <div style="margin-top: 24px;">
+          <div class="grafico-card-header" style="margin-bottom:12px;">
+            <h4>Diagrama: Reversão em Cluster de Fibonacci — Exaustão de Tendência</h4>
+            <span class="grafico-card-badge">Gráfico 1H · Exemplo Didático</span>
+          </div>
+          <div style="background:#0b0e11; border:1px solid #2b313a; border-radius:10px; padding:20px; overflow-x:auto;">
+            <svg viewBox="0 0 760 380" width="100%" style="max-width:760px; display:block; margin:0 auto; font-family: 'Courier New', monospace;">
+              <defs>
+                <pattern id="grid03" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e2329" stroke-width="0.5"/>
+                </pattern>
+              </defs>
+              <rect width="760" height="380" fill="#0b0e11"/>
+              <rect width="760" height="380" fill="url(#grid03)"/>
+              <!-- MMA 80 (white dashed) -->
+              <path d="M20,330 Q200,310 380,285 Q500,268 740,250" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.5"/>
+              <text x="745" y="248" fill="#ffffff" font-size="9" opacity="0.6">MMA 80</text>
+              <!-- MMA 32 (yellow) -->
+              <path d="M20,310 Q150,270 300,220 Q420,180 560,155 Q640,145 740,138" fill="none" stroke="#f0b90b" stroke-width="1.5"/>
+              <text x="745" y="136" fill="#f0b90b" font-size="9">MMA 32</text>
+              <!-- Base label -->
+              <text x="20" y="348" fill="#848e9c" font-size="10">BASE (0%)</text>
+              <line x1="60" y1="340" x2="120" y2="340" stroke="#848e9c" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>
+              <!-- Fib levels -->
+              <line x1="20" y1="220" x2="560" y2="220" stroke="#848e9c" stroke-width="0.8" stroke-dasharray="4,4" opacity="0.4"/>
+              <text x="565" y="223" fill="#848e9c" font-size="9" opacity="0.7">100%</text>
+              <line x1="20" y1="185" x2="560" y2="185" stroke="#848e9c" stroke-width="0.8" stroke-dasharray="4,4" opacity="0.4"/>
+              <text x="565" y="188" fill="#848e9c" font-size="9" opacity="0.7">127.2%</text>
+              <!-- 161.8% cluster zone -->
+              <rect x="0" y="142" width="760" height="22" fill="rgba(240,185,11,0.08)"/>
+              <line x1="20" y1="153" x2="560" y2="153" stroke="#f0b90b" stroke-width="1.5" stroke-dasharray="5,3"/>
+              <text x="565" y="156" fill="#f0b90b" font-size="10" font-weight="bold">161.8% CLUSTER</text>
+              <!-- 200% stop level -->
+              <line x1="20" y1="118" x2="560" y2="118" stroke="#f6465d" stroke-width="0.8" stroke-dasharray="4,4" opacity="0.5"/>
+              <text x="565" y="121" fill="#f6465d" font-size="9" opacity="0.8">200% (stop)</text>
+              <!-- Uptrend candles -->
+              <line x1="60" y1="295" x2="60" y2="320" stroke="#0ecb81" stroke-width="1"/>
+              <rect x="53" y="302" width="14" height="15" fill="#0ecb81" rx="1"/>
+              <line x1="100" y1="268" x2="100" y2="298" stroke="#0ecb81" stroke-width="1"/>
+              <rect x="93" y="275" width="14" height="20" fill="#0ecb81" rx="1"/>
+              <line x1="140" y1="242" x2="140" y2="275" stroke="#0ecb81" stroke-width="1"/>
+              <rect x="133" y="250" width="14" height="22" fill="#0ecb81" rx="1"/>
+              <line x1="180" y1="210" x2="180" y2="250" stroke="#0ecb81" stroke-width="1"/>
+              <rect x="173" y="218" width="14" height="28" fill="#0ecb81" rx="1"/>
+              <line x1="220" y1="185" x2="220" y2="220" stroke="#0ecb81" stroke-width="1"/>
+              <rect x="213" y="193" width="14" height="23" fill="#0ecb81" rx="1"/>
+              <line x1="260" y1="162" x2="260" y2="195" stroke="#0ecb81" stroke-width="1"/>
+              <rect x="253" y="170" width="14" height="22" fill="#0ecb81" rx="1"/>
+              <line x1="300" y1="142" x2="300" y2="176" stroke="#0ecb81" stroke-width="1"/>
+              <rect x="293" y="150" width="14" height="22" fill="#0ecb81" rx="1"/>
+              <line x1="340" y1="130" x2="340" y2="162" stroke="#0ecb81" stroke-width="1"/>
+              <rect x="333" y="138" width="14" height="20" fill="#0ecb81" rx="1"/>
+              <!-- Doji at cluster -->
+              <line x1="380" y1="118" x2="380" y2="175" stroke="#ffffff" stroke-width="1.5"/>
+              <rect x="373" y="143" width="14" height="12" fill="#f0b90b" rx="1"/>
+              <circle cx="380" cy="153" r="10" fill="none" stroke="#f0b90b" stroke-width="2"/>
+              <text x="398" y="150" fill="#f0b90b" font-size="10" font-weight="bold">DOJI / PIN BAR</text>
+              <text x="398" y="163" fill="#848e9c" font-size="9">candle de reversão</text>
+              <!-- EMPIRE divergence -->
+              <rect x="340" y="345" width="80" height="22" fill="rgba(246,70,93,0.3)" rx="3"/>
+              <text x="348" y="360" fill="#f6465d" font-size="9" font-weight="bold">8h: DISTRIB.</text>
+              <rect x="260" y="345" width="78" height="22" fill="rgba(14,203,129,0.2)" rx="3"/>
+              <text x="268" y="360" fill="#0ecb81" font-size="9">72h: ACUM.</text>
+              <text x="250" y="338" fill="#f0b90b" font-size="9">DIVERGENCIA EMPIRE</text>
+              <!-- Short entry arrow -->
+              <polygon points="420,165 414,180 426,180" fill="#f6465d"/>
+              <line x1="420" y1="180" x2="420" y2="155" stroke="#f6465d" stroke-width="2"/>
+              <text x="430" y="168" fill="#f6465d" font-size="11" font-weight="bold">ENTRADA SHORT</text>
+              <text x="430" y="181" fill="#848e9c" font-size="9">rompimento da mínima do Doji</text>
+              <!-- Stop line -->
+              <line x1="380" y1="118" x2="600" y2="118" stroke="#f6465d" stroke-width="1" stroke-dasharray="4,3"/>
+              <text x="605" y="121" fill="#f6465d" font-size="10">STOP — acima 200%</text>
+              <!-- Reversal candles (red) -->
+              <line x1="420" y1="162" x2="420" y2="200" stroke="#f6465d" stroke-width="1"/>
+              <rect x="413" y="168" width="14" height="26" fill="#f6465d" rx="1"/>
+              <line x1="460" y1="188" x2="460" y2="230" stroke="#f6465d" stroke-width="1"/>
+              <rect x="453" y="195" width="14" height="28" fill="#f6465d" rx="1"/>
+              <line x1="500" y1="215" x2="500" y2="258" stroke="#f6465d" stroke-width="1"/>
+              <rect x="493" y="222" width="14" height="30" fill="#f6465d" rx="1"/>
+              <line x1="540" y1="248" x2="540" y2="285" stroke="#f6465d" stroke-width="1"/>
+              <rect x="533" y="255" width="14" height="25" fill="#f6465d" rx="1"/>
+              <!-- Target 38.2% -->
+              <line x1="380" y1="248" x2="620" y2="248" stroke="#38bdf8" stroke-width="1" stroke-dasharray="5,3"/>
+              <text x="625" y="251" fill="#38bdf8" font-size="10">ALVO 1 — 38.2%</text>
+              <!-- Target 61.8% -->
+              <line x1="380" y1="285" x2="620" y2="285" stroke="#0ecb81" stroke-width="1.5" stroke-dasharray="5,3"/>
+              <text x="625" y="288" fill="#0ecb81" font-size="10">ALVO 2 — 61.8%</text>
+              <!-- Legend -->
+              <rect x="15" y="345" width="230" height="22" fill="rgba(0,0,0,0.3)" rx="4"/>
+              <rect x="25" y="350" width="10" height="10" fill="#0ecb81" rx="1"/>
+              <text x="40" y="360" fill="#848e9c" font-size="9">Alta</text>
+              <rect x="68" y="350" width="10" height="10" fill="#f6465d" rx="1"/>
+              <text x="83" y="360" fill="#848e9c" font-size="9">Baixa</text>
+              <line x1="108" y1="355" x2="128" y2="355" stroke="#f0b90b" stroke-width="1.5" stroke-dasharray="4,3"/>
+              <text x="133" y="360" fill="#848e9c" font-size="9">161.8%</text>
+              <line x1="175" y1="355" x2="195" y2="355" stroke="#ffffff" stroke-width="1" opacity="0.5" stroke-dasharray="3,2"/>
+              <text x="200" y="360" fill="#848e9c" font-size="9">MMA 80</text>
+            </svg>
+          </div>
+          <div class="grafico-dica-zoom" style="margin-top:8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+            <span>Sequência: Tendência forte → Atinge cluster Fibonacci 161.8% → EMPIRE 8h diverge (Distribuição enquanto 72h ainda em Acumulação) → Doji/Pin Bar → Entrada short → Stop acima 200% → Alvo 38.2% → 61.8% de retração.</span>
+          </div>
+        </div>
+
+        <!-- Psychological Box -->
+        <div class="manifesto-card" style="margin-top:24px; border-color:rgba(240,185,11,0.45); background:linear-gradient(135deg,rgba(240,185,11,0.1) 0%,rgba(22,26,30,0.98) 100%);">
+          <div class="manifesto-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <span>A Dimensão Psicológica do Modelo 03 — Kahneman em Prática</span>
+          </div>
+          <p>
+            Este modelo é onde o <strong>Sistema 1 de Kahneman</strong> tenta sabotar o trader. A tendência estava forte e o mercado "parece" querer continuar subindo — entrar short <em>parece errado</em>. O FOMO (Fear of Missing Out) é máximo. É exatamente aí que o trader treinado atua: <strong>os dados dizem Distribuição, Fibonacci diz exaustão, o Taker diz reversão</strong>. A emoção diz para comprar. A execução mecânica diz para vender.
+          </p>
+          <p style="margin-top:10px;">
+            Após a entrada, as violinadas (reversões temporárias voltando contra a posição) são comuns. O antídoto é a preparação prévia: o stop foi definido ANTES da entrada e ele representa a <strong>invalidação técnica do setup</strong> — não uma preferência emocional. Se o stop é atingido, significa que o cluster foi superado e a tendência continua. Encerra-se a posição e espera-se o próximo nível (200% ou 261,8%) para uma nova tentativa. <strong>Nunca média numa posição perdedora do Modelo 03.</strong>
+          </p>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Modal para visualização de imagem em alta resolução -->
+  <div id="modal-zoom" class="modal-zoom" onclick="fecharModalImagem()">
+    <span class="modal-fechar">&times;</span>
+    <img id="modal-img" src="" alt="Visualização em alta resolução">
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

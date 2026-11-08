@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAPICH – Monitor Multi-Ativos (Binance Futures)</title>
+  <link rel="shortcut icon" href="assets/icons/favicon.ico">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/monitor.css">
+  <link rel="stylesheet" href="css/section_guides.css">
+</head>
+<body style="padding-right: 20px;">
+
+  <!-- Topbar no estilo Binance Futures -->
+  <header class="topbar-binance">
+    <a href="index.html" class="topbar-brand">
+      <img src="assets/icons/logo.webp" alt="Logo CAPICH" class="topbar-logo">
+      <div class="topbar-title-group">
+        <span class="topbar-name">CAPICH</span>
+        <span class="topbar-badge">
+          <span>Crypto Trading</span>
+          <svg class="infinity-loop-svg" viewBox="0 0 52 26" width="26" height="13" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Infinito">
+            <defs>
+              <linearGradient id="inf-cor-grad-idx" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#00f0ff" />
+                <stop offset="30%" stop-color="#0088cc" />
+                <stop offset="48%" stop-color="#060c1d" />
+                <stop offset="52%" stop-color="#060c1d" />
+                <stop offset="70%" stop-color="#4d077d" />
+                <stop offset="100%" stop-color="#8a0ff8" />
+              </linearGradient>
+              <filter id="inf-glow-idx" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="0" stdDeviation="0.8" flood-color="#8a0ff8" flood-opacity="0.6" />
+                <feDropShadow dx="0" dy="0" stdDeviation="1.5" flood-color="#00f0ff" flood-opacity="0.5" />
+              </filter>
+              <radialGradient id="sun-flare-idx" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+                <stop offset="35%" stop-color="#ffffff" stop-opacity="0.85" />
+                <stop offset="65%" stop-color="#e0f2fe" stop-opacity="0.35" />
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+              </radialGradient>
+              <filter id="sun-soft-idx" x="-100%" y="-100%" width="300%" height="300%">
+                <feGaussianBlur stdDeviation="2.2" />
+              </filter>
+            </defs>
+            <!-- Corpo sólido e contínuo nas 3 cores -->
+            <path d="M 26,13 C 21,5 8,5 8,13 C 8,21 21,21 26,13 C 31,5 44,5 44,13 C 44,21 31,21 26,13 Z"
+                  stroke="url(#inf-cor-grad-idx)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+                  filter="url(#inf-glow-idx)" />
+            <!-- Brilho de luz branca suave circulando lentamente como o sol antes de nascer -->
+            <circle r="6.5" fill="url(#sun-flare-idx)" filter="url(#sun-soft-idx)">
+              <animateMotion dur="6.5s" repeatCount="indefinite"
+                path="M 26,13 C 21,5 8,5 8,13 C 8,21 21,21 26,13 C 31,5 44,5 44,13 C 44,21 31,21 26,13 Z" />
+            </circle>
+            <circle r="2.2" fill="#ffffff" opacity="0.95">
+              <animateMotion dur="6.5s" repeatCount="indefinite"
+                path="M 26,13 C 21,5 8,5 8,13 C 8,21 21,21 26,13 C 31,5 44,5 44,13 C 44,21 31,21 26,13 Z" />
+            </circle>
+          </svg>
+        </span>
+      </div>
+    </a>
+    <nav class="topbar-nav">
+      <a href="index.html" class="nav-link active">Painel</a>
+      <a href="crypto_trading_history.html" class="nav-link">Histórico</a>
+      <a href="sobre.html" class="nav-link">Sobre</a>
+      <a href="metodo.html" class="nav-link">Método</a>
+    </nav>
+  </header>
+
+  <!-- Container Principal do Monitor -->
+  <main class="monitor-page">
+
+    <!-- 1. Barra Superior do Monitor -->
+    <section class="monitor-top-bar">
+      <div class="monitor-title-wrap">
+        <div class="monitor-titles">
+          <h1>Monitor Multi-Ativos em Tela Única</h1>
+          <p>Plataforma Profissional CAPICH · Monitoramento Quantitativo em Tempo Real &amp; Métricas Institucionais</p>
+        </div>
+      </div>
+      <div class="monitor-controls">
+        <label class="control-item">
+          <input type="checkbox" id="chk-sound" checked onchange="toggleSound(this)">
+          <span>Som Ativado</span>
+        </label>
+        <button class="btn-silence-all" onclick="silenceAll()">
+          <span>🔕</span>
+          <span>Silenciar Todos</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 2. Índice de Mercado Cripto TOP 10 — PRIMEIRO BLOCO VISÍVEL -->
+    <!-- (macro-bar do índice pessoal foi movida abaixo dos cards) -->
+
+    <!-- 3-B. Seção: Índice de Mercado Cripto TOP 10 (Gráfico de Velas) -->
+    <section class="crypto-index-section" id="crypto-index-section">
+      <div class="crypto-index-header">
+        <div class="crypto-index-title-group">
+          <div class="ci-title-row">
+            <span class="ci-icon">📈</span>
+            <h2 class="ci-title">ÍNDICE DE MERCADO CRIPTO · TOP 10</h2>
+            <button class="btn-section-help" onclick="abrirGuiaSecao('indice_top10')" title="Como interpretar esta seção?">?</button>
+            <span class="ci-live-dot"></span>
+          </div>
+          <p class="ci-subtitle">Cesta ponderada · <span id="ci-basket-chips"></span></p>
+          <div class="ci-legends-bar">
+            <span class="ci-legend-group">
+              <span class="ci-leg-title">Velas:</span>
+              <span class="ci-leg-item" style="color:#0ecb81;">■ Alta</span>
+              <span class="ci-leg-item" style="color:#f6465d;">■ Baixa</span>
+              <span class="ci-leg-item" style="color:#f0b90b;">━ MMA 32</span>
+              <span class="ci-leg-item" style="color:#a855f7;">━ MMA 80</span>
+            </span>
+            <span class="ci-legend-group">
+              <span class="ci-leg-title">Fluxo CEX:</span>
+              <span class="ci-leg-item" style="color:#0ecb81;">━ USD Inflow</span>
+              <span class="ci-leg-item" style="color:#f6465d;">━ USD Outflow</span>
+              <span class="ci-leg-item" style="color:#f0b90b;">━ BTC Inflow</span>
+              <span class="ci-leg-item" style="color:#ec4899;">━ BTC Outflow</span>
+            </span>
+            <span class="ci-legend-group">
+              <span class="ci-leg-title">Volume:</span>
+              <span class="ci-leg-item" style="color:#cbd5e1;">━ Futuros (Prata)</span>
+              <span class="ci-leg-item" style="color:#38bdf8;">━ Spot (Azul)</span>
+            </span>
+          </div>
+        </div>
+        <div class="crypto-index-controls">
+          <div class="ci-tf-group">
+            <button class="ci-tf-btn active" data-tf="15m">15M</button>
+            <button class="ci-tf-btn" data-tf="1h">1H</button>
+            <button class="ci-tf-btn" data-tf="4h">4H</button>
+            <button class="ci-tf-btn" data-tf="1d">1D</button>
+          </div>
+          <div class="ci-stats" id="ci-stats">
+            <span class="ci-stat-item">Abertura: <strong id="ci-open">--</strong></span>
+            <span class="ci-stat-item">Variação: <strong id="ci-change">--</strong></span>
+            <span class="ci-stat-item">Atual: <strong id="ci-current">--</strong></span>
+          </div>
+          <span class="ci-updated" id="ci-updated"></span>
+        </div>
+      </div>
+      <div class="crypto-index-chart-wrap" id="ci-chart-wrap">
+        <canvas id="crypto-index-canvas"></canvas>
+        <div class="ci-tooltip" id="ci-tooltip" style="display:none;"></div>
+        <div class="ci-loading" id="ci-loading">⏳ Calculando índice...</div>
+      </div>
+    </section>
+
+    <!-- 2-B. INDICADORES MACRO GLOBAIS (Fear & Greed · Dominância BTC · Open Interest) -->
+    <section class="macro-indicators-section" id="macro-indicators-section">
+      <div class="macro-ind-header">
+        <span class="macro-ind-title">🌐 INDICADORES MACRO GLOBAIS <button class="btn-section-help" onclick="abrirGuiaSecao('macro_indicadores')" title="Como interpretar os Indicadores Macro?">?</button></span>
+        <span class="macro-ind-sub">Fear &amp; Greed · Dominância BTC · Open Interest em Futuros</span>
+      </div>
+      <div class="macro-ind-grid">
+
+        <!-- Fear & Greed -->
+        <div class="macro-ind-card" id="card-fear-greed">
+          <div class="mind-label">ÍNDICE DE MEDO E GANÂNCIA <button class="btn-section-help sm" onclick="abrirGuiaSecao('macro_fear_greed')" title="O que é Fear &amp; Greed?">?</button></div>
+          <div class="fg-body">
+            <div class="fg-gauge-wrap">
+              <canvas id="fg-gauge-canvas" width="160" height="90"></canvas>
+              <div class="fg-gauge-value" id="fg-value">--</div>
+              <div class="fg-gauge-label" id="fg-label">Carregando...</div>
+            </div>
+            <div class="fg-history" id="fg-history">
+              <!-- últimos 7 dias gerados pelo JS -->
+            </div>
+          </div>
+          <div class="mind-updated" id="fg-updated">Atualizando...</div>
+        </div>
+
+        <!-- Dominância BTC -->
+        <div class="macro-ind-card" id="card-dominance">
+          <div class="mind-label">DOMINÂNCIA DO BITCOIN <button class="btn-section-help sm" onclick="abrirGuiaSecao('macro_dominance')" title="O que é Dominância BTC?">?</button></div>
+          <div class="dom-body">
+            <div class="dom-pct-wrap">
+              <span class="dom-pct-value" id="dom-pct">--%</span>
+              <span class="dom-pct-arrow" id="dom-arrow">──</span>
+            </div>
+            <div class="dom-desc" id="dom-desc">do market cap cripto global pertence ao BTC</div>
+            <div class="dom-bar-wrap">
+              <div class="dom-bar-btc" id="dom-bar" style="width:0%"></div>
+              <div class="dom-bar-alt"></div>
+            </div>
+            <div class="dom-bar-labels">
+              <span style="color:#f0b90b">₿ Bitcoin</span>
+              <span style="color:#848e9c">Altcoins</span>
+            </div>
+            <div class="dom-extra" id="dom-extra">Market Cap Total: --</div>
+          </div>
+          <div class="mind-updated" id="dom-updated">Atualizando...</div>
+        </div>
+
+        <!-- Open Interest -->
+        <div class="macro-ind-card macro-ind-card-wide" id="card-oi">
+          <div class="mind-label">OPEN INTEREST BTC FUTUROS · MULTI-EXCHANGE <button class="btn-section-help sm" onclick="abrirGuiaSecao('macro_open_interest')" title="O que é Open Interest &amp; Taker?">?</button></div>
+          <div class="oi-body">
+            <div class="oi-top-row">
+              <div class="oi-total-wrap">
+                <span class="oi-total-label">OI TOTAL CONSOLIDADO</span>
+                <span class="oi-total-value" id="oi-total">$--</span>
+                <span class="oi-btc-price" id="oi-btc-price">BTC: $--</span>
+              </div>
+              <!-- Taker Buy/Sell Ratio -->
+              <div class="oi-taker-wrap" id="oi-taker">
+                <!-- preenchido pelo JS -->
+              </div>
+            </div>
+            <div class="oi-exchanges" id="oi-exchanges">
+              <!-- barras por exchange + L/S ratio geradas pelo JS -->
+            </div>
+          </div>
+          <div class="mind-updated" id="oi-updated">Atualizando...</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2-C. RADAR QUANTITATIVO DE CONFLUÊNCIA & PROBABILIDADE (ORÁCULO) -->
+    <section class="confluence-radar-section" id="confluence-radar-section">
+      <div class="radar-header">
+        <div class="radar-title-group">
+          <div class="radar-badge-live">
+            <span class="radar-pulse-dot"></span>
+            <span class="radar-title-tag">ORÁCULO QUANTITATIVO · CONFLUÊNCIA EM TEMPO REAL</span>
+            <button class="btn-section-help" onclick="abrirGuiaSecao('oraculo_quantitativo')" title="Como funciona o Oráculo?">?</button>
+          </div>
+          <span class="radar-subtitle">Cruzamento em tempo real de Fluxo On-Chain, Derivativos (OI/Taker/LS), Médias 15m, Análise Diária e Sentimento Macro</span>
+        </div>
+        <div class="radar-timestamp" id="radar-updated-time">Sincronizando dados...</div>
+      </div>
+
+      <div class="radar-content-grid">
+        <!-- Coluna Esquerda: Termômetro e Probabilidade -->
+        <div class="radar-verdict-card" id="radar-verdict-card">
+          <div class="radar-prob-label">PROBABILIDADE SINTÉTICA ESTIMADA</div>
+          <div class="radar-prob-num-wrap">
+            <span class="radar-prob-pct" id="radar-prob-pct">--%</span>
+            <span class="radar-prob-badge" id="radar-prob-badge">CALCULANDO...</span>
+          </div>
+
+          <!-- Barra de Probabilidade Bidirecional com Tooltip Interativo -->
+          <div class="radar-prob-bar-track" id="radar-prob-bar-track" style="cursor: pointer; position: relative;">
+            <div class="radar-prob-center-line"></div>
+            <div class="radar-prob-bar-fill" id="radar-prob-bar" style="left: 50%; width: 0%;"></div>
+            <div class="radar-prob-needle" id="radar-prob-needle" style="left: 50%;"></div>
+            <!-- Tooltip explicativo ao passar o mouse -->
+            <div class="radar-prob-tooltip" id="radar-prob-tooltip" style="display: none;"></div>
+          </div>
+          <div class="radar-prob-scale-numbers">
+            <span>-100%</span>
+            <span>-50%</span>
+            <span class="scale-zero">0%</span>
+            <span>+50%</span>
+            <span>+100%</span>
+          </div>
+          <div class="radar-prob-extremes">
+            <span style="color: #f6465d;">🔴 VENDA (SHORT)</span>
+            <span style="color: #848e9c;">⚪ NEUTRO (0%)</span>
+            <span style="color: #0ecb81;">🟢 COMPRA (LONG)</span>
+          </div>
+
+          <div class="radar-lead-asset-card" id="radar-lead-card">
+            <div class="lead-label">🎯 PAR RECOMENDADO PARA OPERAÇÃO (1H / 15M):</div>
+            <div class="lead-value" id="radar-lead-val">Analisando setup e confluência...</div>
+          </div>
+        </div>
+
+        <!-- Coluna Central/Direita: Diagnóstico Dinâmico em Linguagem Direta + Semáforo de Confluências -->
+        <div class="radar-analysis-card">
+          <div class="radar-narrative-header">
+            <span>DIAGNÓSTICO AUTOMÁTICO DE FLUXO & CENÁRIO</span>
+            <span class="radar-score-pts" id="radar-score-pts">Score Confluência: --/100</span>
+          </div>
+          
+          <div class="radar-narrative-text" id="radar-narrative-text">
+            Coletando métricas do terminal para consolidar o relatório do mercado...
+          </div>
+
+          <!-- Semáforo de Pilares -->
+          <div class="radar-pillars-grid">
+            <div class="pillar-box" id="pillar-flows">
+              <span class="pillar-icon">🌐</span>
+              <div class="pillar-info">
+                <span class="pillar-name">Fluxo CEX (24h)</span>
+                <strong class="pillar-status" id="pstatus-flows">Analisando...</strong>
+              </div>
+            </div>
+
+            <div class="pillar-box" id="pillar-taker">
+              <span class="pillar-icon">⚡</span>
+              <div class="pillar-info">
+                <span class="pillar-name">Agressão Taker (5m)</span>
+                <strong class="pillar-status" id="pstatus-taker">Analisando...</strong>
+              </div>
+            </div>
+
+            <div class="pillar-box" id="pillar-technical">
+              <span class="pillar-icon">📐</span>
+              <div class="pillar-info">
+                <span class="pillar-name">Alinhamento MMA 32/80</span>
+                <strong class="pillar-status" id="pstatus-technical">Analisando...</strong>
+              </div>
+            </div>
+
+            <div class="pillar-box" id="pillar-indices">
+              <span class="pillar-icon">📊</span>
+              <div class="pillar-info">
+                <span class="pillar-name">Índices (Geral &amp; Cesta)</span>
+                <strong class="pillar-status" id="pstatus-indices">Analisando...</strong>
+              </div>
+            </div>
+
+            <div class="pillar-box" id="pillar-derivatives">
+              <span class="pillar-icon">📈</span>
+              <div class="pillar-info">
+                <span class="pillar-name">Alavancagem (OI &amp; L/S)</span>
+                <strong class="pillar-status" id="pstatus-derivatives">Analisando...</strong>
+              </div>
+            </div>
+
+            <div class="pillar-box" id="pillar-sentiment">
+              <span class="pillar-icon">🧭</span>
+              <div class="pillar-info">
+                <span class="pillar-name">Sentimento &amp; Notícias</span>
+                <strong class="pillar-status" id="pstatus-sentiment">Analisando...</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Grid dos 5 Cards de Criptomoedas -->
+    <section class="cards-grid" id="cards-grid">
+      <!-- Cards gerados dinamicamente pelo monitor.js -->
+    </section>
+
+    <!-- 3-C. MEU ÍNDICE PESSOAL — Índice de Força Macro da Cesta (movido para cá) -->
+    <section class="macro-bar macro-bar-personal">
+      <div class="macro-personal-badge">🎯 MEU ÍNDICE PESSOAL <button class="btn-section-help sm" onclick="abrirGuiaSecao('meu_indice_pessoal')" title="O que é o Índice Pessoal?">?</button></div>
+      <div class="macro-left">
+        <h3>📊 Índice de Força da Minha Cesta · BTC · ETH · BNB · BCH · UNI</h3>
+        <div class="macro-status-text" id="macro-status-text" style="color: #848e9c;">
+          Calculando índice macro...
+        </div>
+      </div>
+
+      <div class="macro-center">
+        <div class="gauge-labels">
+          <span class="gauge-label-neg">-4% (BAIXA)</span>
+          <span class="gauge-label-zero">0.00% (NEUTRO)</span>
+          <span class="gauge-label-pos">+4% (ALTA)</span>
+        </div>
+        <div class="gauge-canvas-wrap">
+          <canvas id="gauge-canvas"></canvas>
+        </div>
+      </div>
+
+      <div class="macro-right" id="macro-scoreboard">
+        Carregando cesta...
+      </div>
+    </section>
+
+    <!-- 5. Seção: Análise Diária (Volume Spot vs Futuros com MMA 8 & Fechamento 8 Dias) -->
+    <section class="daily-analysis-section">
+      <div class="daily-analysis-header">
+        <div class="daily-title-group">
+          <h2>📊 Análise Diária (Últimos 8 Dias) · Volume Spot vs Futuros &amp; Fechamento <button class="btn-section-help" onclick="abrirGuiaSecao('analise_diaria')" title="Como interpretar a Análise Diária?">?</button></h2>
+          <p>Histogramas de Volume com MMA 8 · Comparação de Preço vs MMA 8 Dias · Gráfico de Fechamento Diário</p>
+        </div>
+        <div class="daily-header-legend">
+          <span class="legend-item"><span class="legend-dot green"></span> Dia de Alta</span>
+          <span class="legend-item"><span class="legend-dot red"></span> Dia de Baixa</span>
+          <span class="legend-item"><span class="legend-line yellow"></span> Média de 8 Dias</span>
+        </div>
+      </div>
+
+      <div class="daily-rows-table" id="daily-rows-container">
+        <!-- Linhas geradas dinamicamente para BTC, ETH, BNB, BCH, UNI -->
+      </div>
+    </section>
+
+    <!-- 5. Seção: Fluxo Global de Capital nas Maiores Corretoras (CEX Netflow) -->
+    <section class="exchange-flows-section">
+      <div class="flows-header">
+        <div class="flows-title-group">
+          <h2>🌐 Fluxo Global de Capital nas Maiores Corretoras (CEX Netflow) <button class="btn-section-help" onclick="abrirGuiaSecao('fluxo_cex')" title="Como interpretar o Fluxo CEX?">?</button></h2>
+          <p>Rastreamento On-Chain de Reservas e Entrada/Saída Líquida de Capital nas Principais Exchanges Mundiais</p>
+        </div>
+      </div>
+
+      <!-- Métricas Globais Consolidadas -->
+      <div class="flows-stats-grid">
+        <!-- 1. Últimas 24h -->
+        <div class="flow-stat-card">
+          <div class="flow-stat-label">
+            <span>Últimas 24 Horas</span>
+            <span id="flow-verdict-24h" class="flow-verdict-badge">Calculando...</span>
+          </div>
+          <div id="flow-stat-24h">
+            <div class="flow-stat-val">Carregando...</div>
+            <div class="flow-stat-sub">Calculando saldo</div>
+          </div>
+        </div>
+
+        <!-- 2. Últimos 8 Dias -->
+        <div class="flow-stat-card">
+          <div class="flow-stat-label">
+            <span>Últimos 8 Dias</span>
+            <span id="flow-verdict-8d" class="flow-verdict-badge">Calculando...</span>
+          </div>
+          <div id="flow-stat-8d">
+            <div class="flow-stat-val">Carregando...</div>
+            <div class="flow-stat-sub">Calculando tendência</div>
+          </div>
+        </div>
+
+        <!-- 3. Balanço do Mês (30 Dias) -->
+        <div class="flow-stat-card">
+          <div class="flow-stat-label">
+            <span>Balanço do Mês (30D)</span>
+            <span id="flow-verdict-30d" class="flow-verdict-badge">Calculando...</span>
+          </div>
+          <div id="flow-stat-30d">
+            <div class="flow-stat-val">Carregando...</div>
+            <div class="flow-stat-sub">Calculando volume do mês</div>
+          </div>
+        </div>
+
+        <!-- 4. Total sob Custódia -->
+        <div class="flow-stat-card">
+          <div class="flow-stat-label">
+            <span>Total em Custódia</span>
+            <span style="color: #38bdf8;">🌐 Global</span>
+          </div>
+          <div id="flow-stat-tvl">
+            <div class="flow-stat-val">Carregando...</div>
+            <div class="flow-stat-sub">Sincronizando carteiras</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráfico Comparativo: Fluxo de Capital vs Preço BTC vs Nosso Índice -->
+      <div class="flows-compare-chart-card">
+        <div class="flows-compare-header">
+          <div class="flows-compare-title">
+            <span class="compare-icon">📈</span>
+            <div class="compare-title-text">
+              <h3>Histórico Comparativo (8 Dias) · Fluxo de Capital vs Preço BTC vs Nosso Índice</h3>
+              <p>Correlação diária entre a entrada/saída de capital nas corretoras, a cotação do BTC e o nosso índice de força macro</p>
+            </div>
+          </div>
+          <div class="flows-compare-legend">
+            <div class="c-legend-item">
+              <span class="c-legend-line cyan"></span>
+              <span>Preço BTC (USDT)</span>
+            </div>
+            <div class="c-legend-item">
+              <span class="c-legend-line green"></span>
+              <span>Fluxo de Capital CEX</span>
+            </div>
+            <div class="c-legend-item">
+              <span class="c-legend-line yellow"></span>
+              <span>Nosso Índice Macro</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flows-compare-canvas-wrap">
+          <canvas id="flows-compare-canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros e Pesquisa -->
+      <div class="flows-controls-bar">
+        <div class="flows-search-wrap">
+          <input type="text" id="exchange-search-input" class="flows-search-input" placeholder="🔍 Filtrar corretora (ex: Poloniex, Binance, Bybit...)" autocomplete="off">
+        </div>
+        <div class="flows-filters-wrap">
+          <button class="flow-filter-btn active" data-filter="top15">⭐ Principais (Top 15)</button>
+          <button class="flow-filter-btn" data-filter="inflow">🟢 Entrada Líquida (+)</button>
+          <button class="flow-filter-btn" data-filter="outflow">🔴 Saída Líquida (-)</button>
+          <button class="flow-filter-btn" data-filter="all">🌐 Todas as Exchanges</button>
+        </div>
+      </div>
+
+      <!-- Tabela Detalhada por Corretora -->
+      <div class="flows-table-responsive">
+        <table class="flows-table">
+          <thead>
+            <tr>
+              <th style="width: 50px; text-align: center;">#</th>
+              <th>Corretora</th>
+              <th>Reservas em Custódia</th>
+              <th>Fluxo Líquido (24h)</th>
+              <th>Fluxo Líquido (7 Dias)</th>
+              <th>Status do Fluxo</th>
+            </tr>
+          </thead>
+          <tbody id="exchange-table-body">
+            <tr>
+              <td colspan="6" class="flow-empty-msg">Sincronizando dados on-chain das corretoras...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 6. Seção: Portal de Notícias & Atualizações do Mercado -->
+    <section class="crypto-news-section">
+      <div class="news-header">
+        <div class="news-title-group">
+          <h2>📰 Portal de Notícias &amp; Atualizações do Mercado <button class="btn-section-help" onclick="abrirGuiaSecao('portal_noticias')" title="Como utilizar as notícias?">?</button></h2>
+          <p>Principais manchetes, fatos relevantes e análises macroeconômicas do mercado cripto em tempo real</p>
+        </div>
+        <div class="news-live-tag">
+          <span class="live-pulse"></span> Feed Atualizado
+        </div>
+      </div>
+
+      <div class="crypto-news-grid" id="crypto-news-grid">
+        <div class="news-loading-msg">Carregando últimas notícias do mercado cripto...</div>
+      </div>
+    </section>
+
+    <!-- 7. Rodapé do Monitor -->
+    <footer class="monitor-footer-bar" style="justify-content: flex-end;">
+      <div>
+        Atualização: 1.8s (Tempo Real Otimizado)
+      </div>
+    </footer>
+
+    <!-- Tooltip flutuante interativo para gráficos e histogramas -->
+    <div id="daily-chart-tooltip" class="daily-chart-tooltip" style="display: none;"></div>
+
+  </main>
+
+  <script src="js/monitor.js"></script>
+  <script src="js/daily_analysis.js"></script>
+  <script src="js/exchange_flows.js"></script>
+  <script src="js/crypto_news.js"></script>
+  <script src="js/market_indicators.js"></script>
+  <script src="js/crypto_index.js"></script>
+  <script src="js/confluence_radar.js"></script>
+  <script src="js/section_guides.js"></script>
+</body>
+</html>

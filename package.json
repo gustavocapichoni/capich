@@ -1,0 +1,14 @@
+{
+  "name": "crypto-trading-history",
+  "version": "1.0.0",
+  "description": "Crypto Trading History com Firebase",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.9",
+    "express": "^4.18.2",
+    "firebase-admin": "^13.10.0"
+  }
+}
