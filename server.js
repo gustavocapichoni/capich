@@ -1376,9 +1376,64 @@ app.get('/api/btc-history-tactical', async (req, res) => {
       fetch(oiHistUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } }).catch(() => null)
     ]);
 
-    if (!rFut.ok) throw new Error(`Binance Futures ${symbol} error ` + rFut.status);
-    const rawFut = await rFut.json();
-    const rawSpot = (rSpot && rSpot.ok) ? await rSpot.json() : [];
+    const BROWSER_HEADERS = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+      'Accept': 'application/json'
+    };
+
+    let rawFut = null;
+    let rawSpot = null;
+
+    if (rFut && rFut.ok) {
+      try { rawFut = await rFut.json(); } catch (_) {}
+    }
+    if (rSpot && rSpot.ok) {
+      try { rawSpot = await rSpot.json(); } catch (_) {}
+    }
+
+    // Se Futuros sofreu rate-limit/bloqueio 418 de datacenter, tenta espelhos alternativos de Futuros
+    if (!rawFut || !Array.isArray(rawFut)) {
+      for (const mirror of ['https://fapi1.binance.com', 'https://fapi2.binance.com', 'https://fapi3.binance.com']) {
+        try {
+          const mRes = await fetch(`${mirror}/fapi/v1/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`, { headers: BROWSER_HEADERS });
+          if (mRes.ok) {
+            const mJson = await mRes.json();
+            if (Array.isArray(mJson) && mJson.length > 0) {
+              rawFut = mJson;
+              break;
+            }
+          }
+        } catch (_) {}
+      }
+    }
+
+    // Se ainda assim Futuros não respondeu, utiliza Spot como fonte principal (zero tela preta)
+    if (!rawFut && rawSpot && Array.isArray(rawSpot) && rawSpot.length > 0) {
+      rawFut = rawSpot;
+    }
+
+    // Se Spot também não respondeu no primário, tenta espelhos Spot da Binance
+    if (!rawFut) {
+      for (const mirror of ['https://api1.binance.com', 'https://api2.binance.com', 'https://api3.binance.com']) {
+        try {
+          const mRes = await fetch(`${mirror}/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`, { headers: BROWSER_HEADERS });
+          if (mRes.ok) {
+            const mJson = await mRes.json();
+            if (Array.isArray(mJson) && mJson.length > 0) {
+              rawFut = mJson;
+              rawSpot = mJson;
+              break;
+            }
+          }
+        } catch (_) {}
+      }
+    }
+
+    if (!rawFut || !Array.isArray(rawFut) || rawFut.length === 0) {
+      throw new Error(`Binance ${symbol} temporariamente indisponível. Tentando reconectar...`);
+    }
+
+    if (!rawSpot) rawSpot = rawFut;
 
     // Mapeia Spot por timestamp para alinhamento temporal perfeito
     const spotMap = new Map();

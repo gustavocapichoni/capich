@@ -125,13 +125,42 @@ let lastExchangeInfoTime = 0;
 
 async function getSymbolPrecision(symbol) {
   const now = Date.now();
+  const BROWSER_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    'Accept': 'application/json'
+  };
+
   if (!exchangeInfoCache || now - lastExchangeInfoTime > 3600000) {
-    const res = await fetch(`${FAPI_URL}/fapi/v1/exchangeInfo`);
-    exchangeInfoCache = await res.json();
-    lastExchangeInfoTime = now;
+    try {
+      let res = await fetch(`${FAPI_URL}/fapi/v1/exchangeInfo`, { headers: BROWSER_HEADERS });
+      if (!res.ok) {
+        res = await fetch(`https://fapi1.binance.com/fapi/v1/exchangeInfo`, { headers: BROWSER_HEADERS });
+      }
+      if (res.ok) {
+        const json = await res.json();
+        if (json && Array.isArray(json.symbols)) {
+          exchangeInfoCache = json;
+          lastExchangeInfoTime = now;
+        }
+      }
+    } catch (_) {}
   }
 
-  const s = exchangeInfoCache.symbols.find(x => x.symbol === symbol);
+  const KNOWN_DEFAULTS = {
+    'BTCUSDT': { stepSize: 0.001, minQty: 0.001, decimals: 3, priceDecimals: 1, tickSize: 0.1 },
+    'ETHUSDT': { stepSize: 0.001, minQty: 0.001, decimals: 3, priceDecimals: 2, tickSize: 0.01 },
+    'BCHUSDT': { stepSize: 0.01, minQty: 0.01, decimals: 2, priceDecimals: 2, tickSize: 0.01 },
+    'BNBUSDT': { stepSize: 0.01, minQty: 0.01, decimals: 2, priceDecimals: 2, tickSize: 0.01 },
+    'UNIUSDT': { stepSize: 1, minQty: 1, decimals: 0, priceDecimals: 4, tickSize: 0.0001 }
+  };
+
+  const s = (exchangeInfoCache && Array.isArray(exchangeInfoCache.symbols))
+    ? exchangeInfoCache.symbols.find(x => x.symbol === symbol)
+    : null;
+
+  if (!s && KNOWN_DEFAULTS[symbol]) {
+    return KNOWN_DEFAULTS[symbol];
+  }
   if (!s) return { stepSize: 0.001, minQty: 0.001, precision: 3 };
 
   const lotFilter = s.filters.find(f => f.filterType === 'LOT_SIZE') || {};
