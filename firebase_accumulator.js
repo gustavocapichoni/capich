@@ -66,8 +66,14 @@ function daysAgo(n) {
 // ─── Busca candles da Binance Futures ─────────────────────────────────────────
 
 async function fetchBinanceCandles(symbol, interval, limit = 500) {
-  const url = `https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`;
-  const res = await fetch(url);
+  const headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+    'Accept': 'application/json'
+  };
+  let res = await fetch(`https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`, { headers });
+  if (!res.ok) {
+    res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`, { headers });
+  }
   if (!res.ok) throw new Error(`Binance ${symbol} ${interval}: HTTP ${res.status}`);
   const raw = await res.json();
 
@@ -162,7 +168,7 @@ async function runAccumulation() {
         await saveCandles(symbol, interval, candles);
 
         // Aguarda 300ms entre requests para não sobrecarregar a API da Binance
-        await new Promise(r => setTimeout(r, 300));
+        await new Promise(r => setTimeout(r, 1200));
       } catch (err) {
         console.warn(`[Accumulator] ⚠️ Erro ${symbol} ${interval}:`, err.message);
       }
