@@ -1,4 +1,4 @@
-/**
+﻿/**
  * btc_tactical_chart.js
  * Gráfico Tático Multi-Pares — TradingView Lightweight Charts v4.1.1
  *  - 5 Pares: BTCUSDT, ETHUSDT, BCHUSDT, BNBUSDT, UNIUSDT
@@ -697,6 +697,47 @@
               </div>
               <canvas id="tac-truck-canvas" style="width:100%;height:32px;display:block;margin-top:2px;"></canvas>
               <div id="tac-truck-label" style="font-size:9px;font-weight:700;margin-top:2px;text-align:center;">Sintonizando fluxo institucional...</div>
+            </div>
+
+            <!-- FLUXO CEX: Entrada e Saida de Capital das Corretoras (DefiLlama) -->
+            <div class="tac-hud-divider" style="margin:5px 0 4px;"></div>
+            <div id="cefi-flow-bars" style="width:100%;">
+              <!-- USD -->
+              <div class="cefi-flow-group">
+                <div class="cefi-flow-label">💵 USD NAS CORRETORAS (24H)</div>
+                <div class="cefi-bar-row">
+                  <span class="cefi-bar-title cefi-green">▲</span>
+                  <div class="cefi-bar-track">
+                    <div class="cefi-bar-fill cefi-green" id="bar-usd-in" style="width:0%"></div>
+                  </div>
+                  <span class="cefi-bar-value" id="val-usd-in">-</span>
+                </div>
+                <div class="cefi-bar-row">
+                  <span class="cefi-bar-title cefi-red">▼</span>
+                  <div class="cefi-bar-track">
+                    <div class="cefi-bar-fill cefi-red" id="bar-usd-out" style="width:0%"></div>
+                  </div>
+                  <span class="cefi-bar-value" id="val-usd-out">-</span>
+                </div>
+              </div>
+              <!-- BTC -->
+              <div class="cefi-flow-group" style="margin-top:4px;">
+                <div class="cefi-flow-label">₿ BTC NAS CORRETORAS (24H)</div>
+                <div class="cefi-bar-row">
+                  <span class="cefi-bar-title cefi-green">▲</span>
+                  <div class="cefi-bar-track">
+                    <div class="cefi-bar-fill cefi-green" id="bar-btc-in" style="width:0%"></div>
+                  </div>
+                  <span class="cefi-bar-value" id="val-btc-in">-</span>
+                </div>
+                <div class="cefi-bar-row">
+                  <span class="cefi-bar-title cefi-red">▼</span>
+                  <div class="cefi-bar-track">
+                    <div class="cefi-bar-fill cefi-red" id="bar-btc-out" style="width:0%"></div>
+                  </div>
+                  <span class="cefi-bar-value" id="val-btc-out">-</span>
+                </div>
+              </div>
             </div>
 
             <!-- Popover Informativo Unificado: Dinheiro Institucional -->

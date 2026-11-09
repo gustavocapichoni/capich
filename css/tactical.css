@@ -1005,3 +1005,77 @@
   margin-top: 2px;
   line-height: 1.25;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   CEFI FLOW BARS — Entrada e Saída de Capital das Corretoras
+   Exibido no card DINHEIRO INSTITUCIONAL (HUD tático)
+═══════════════════════════════════════════════════════════════ */
+#cefi-flow-bars {
+  margin-top: 2px;
+}
+
+.cefi-flow-group {
+  margin-bottom: 2px;
+}
+
+.cefi-flow-label {
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--tac-text-muted, #8b9ab1);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.cefi-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-bottom: 2px;
+}
+
+.cefi-bar-title {
+  font-size: 8px;
+  font-weight: 800;
+  width: 10px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.cefi-bar-title.cefi-green { color: #0ecb81; }
+.cefi-bar-title.cefi-red   { color: #f6465d; }
+
+.cefi-bar-track {
+  flex: 1;
+  height: 7px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.cefi-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+  min-width: 0;
+}
+
+.cefi-bar-fill.cefi-green {
+  background: linear-gradient(90deg, #0a7f4f 0%, #0ecb81 100%);
+  box-shadow: 0 0 4px rgba(14, 203, 129, 0.4);
+}
+
+.cefi-bar-fill.cefi-red {
+  background: linear-gradient(90deg, #8c1a28 0%, #f6465d 100%);
+  box-shadow: 0 0 4px rgba(246, 70, 93, 0.4);
+}
+
+.cefi-bar-value {
+  font-size: 8px;
+  font-weight: 700;
+  color: #c8d6e5;
+  min-width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
