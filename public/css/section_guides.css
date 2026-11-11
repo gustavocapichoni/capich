@@ -1,0 +1,249 @@
+/* ═══════════════════════════════════════════════════════════════
+   section_guides.css — Botão (?) e Modal Educativo / Guia Rápido
+   Visual Institucional Escuro · Padrão CAPICH Terminal
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Botãozinho (?) no canto dos títulos */
+.btn-section-help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 800;
+  font-family: inherit;
+  background: rgba(240, 185, 11, 0.12);
+  border: 1px solid rgba(240, 185, 11, 0.4);
+  color: #f0b90b;
+  cursor: pointer;
+  margin-left: 8px;
+  vertical-align: middle;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  line-height: 1;
+  padding: 0;
+  user-select: none;
+}
+
+.btn-section-help:hover {
+  background: #f0b90b;
+  color: #0b0e11;
+  border-color: #f0b90b;
+  transform: scale(1.15);
+  box-shadow: 0 0 12px rgba(240, 185, 11, 0.5);
+}
+
+.btn-section-help.sm {
+  width: 17px;
+  height: 17px;
+  min-width: 17px;
+  font-size: 10px;
+  margin-left: 6px;
+}
+
+/* Modal Overlay */
+.modal-guia-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 7, 10, 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.modal-guia-overlay.ativo {
+  display: flex;
+  opacity: 1;
+}
+
+/* Modal Card */
+.modal-guia-card {
+  background: #14171d;
+  border: 1px solid #2b313a;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 660px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(240, 185, 11, 0.15);
+  transform: translateY(12px) scale(0.98);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.modal-guia-overlay.ativo .modal-guia-card {
+  transform: translateY(0) scale(1);
+}
+
+/* Header do Modal */
+.modal-guia-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: #1a1e24;
+  border-bottom: 1px solid #2b313a;
+}
+
+.modal-guia-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-guia-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.modal-guia-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #eaecef;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-guia-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  background: rgba(240, 185, 11, 0.15);
+  color: #f0b90b;
+  border: 1px solid rgba(240, 185, 11, 0.35);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.modal-guia-fechar {
+  background: transparent;
+  border: none;
+  color: #848e9c;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.modal-guia-fechar:hover {
+  color: #f6465d;
+  background: rgba(246, 70, 93, 0.15);
+}
+
+/* Conteúdo com rolagem suave */
+.modal-guia-body {
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  line-height: 1.5;
+  color: #eaecef;
+}
+
+/* Blocos estilizados */
+.guia-bloco {
+  border-radius: 8px;
+  padding: 12px 16px;
+  border: 1px solid transparent;
+}
+
+.guia-bloco-oque {
+  background: rgba(56, 189, 248, 0.08);
+  border-color: rgba(56, 189, 248, 0.25);
+}
+
+.guia-bloco-como {
+  background: rgba(30, 35, 41, 0.6);
+  border-color: #2b313a;
+}
+
+.guia-bloco-gatilho {
+  background: rgba(240, 185, 11, 0.08);
+  border-color: rgba(240, 185, 11, 0.28);
+}
+
+.guia-bloco-dica {
+  background: rgba(14, 203, 129, 0.08);
+  border-color: rgba(14, 203, 129, 0.25);
+}
+
+.guia-bloco-header {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.guia-bloco-oque .guia-bloco-header { color: #38bdf8; }
+.guia-bloco-como .guia-bloco-header { color: #eaecef; }
+.guia-bloco-gatilho .guia-bloco-header { color: #f0b90b; }
+.guia-bloco-dica .guia-bloco-header { color: #0ecb81; }
+
+.guia-bloco p {
+  margin: 0;
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+.guia-bloco ul {
+  margin: 6px 0 0 16px;
+  padding: 0;
+  font-size: 12.5px;
+  color: #cbd5e1;
+}
+
+.guia-bloco li {
+  margin-bottom: 5px;
+}
+
+.guia-bloco li strong {
+  color: #eaecef;
+}
+
+/* Footer com botão fechar */
+.modal-guia-footer {
+  padding: 12px 20px;
+  background: #1a1e24;
+  border-top: 1px solid #2b313a;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.btn-guia-entendi {
+  background: #f0b90b;
+  color: #0b0e11;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 7px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-guia-entendi:hover {
+  background: #fcd535;
+  box-shadow: 0 0 12px rgba(240, 185, 11, 0.4);
+}

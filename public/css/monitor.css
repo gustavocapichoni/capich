@@ -1,0 +1,2672 @@
+/* ── Estilos do Monitor Multi-Ativos (Inspirado no py-alert) ── */
+
+.monitor-page {
+  width: 100%;
+  max-width: 1720px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: -10px;
+}
+
+/* 1. Barra Superior do Monitor */
+.monitor-top-bar {
+  background-color: #12161f;
+  border: 1px solid #212631;
+  border-radius: 8px;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.monitor-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.monitor-logo {
+  height: 42px;
+  width: auto;
+  border-radius: 8px;
+  border: 1px solid #3b424d;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(0, 168, 255, 0.75)) drop-shadow(0 0 20px rgba(0, 102, 255, 0.4));
+  transition: filter 0.3s ease;
+}
+
+.monitor-logo:hover {
+  filter: drop-shadow(0 0 14px rgba(0, 210, 255, 0.95)) drop-shadow(0 0 28px rgba(0, 140, 255, 0.6));
+}
+
+.monitor-titles h1 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #eaecef;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.monitor-titles p {
+  font-size: 0.78rem;
+  color: #848e9c;
+  margin-top: 2px;
+}
+
+.monitor-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.control-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: #eaecef;
+  cursor: pointer;
+  user-select: none;
+}
+
+.control-item input[type="checkbox"] {
+  accent-color: #f0b90b;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+.btn-silence-all {
+  background-color: #2b3139;
+  color: #eaecef;
+  border: 1px solid #474d57;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.btn-silence-all:hover {
+  background-color: #3b424d;
+  color: #ffffff;
+  border-color: #f0b90b;
+}
+
+/* 2. Barra Macro (Cesta 3D vs 8D) */
+.macro-bar {
+  background-color: #151a24;
+  border: 1px solid #212631;
+  border-radius: 8px;
+  padding: 12px 20px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+}
+
+.macro-bar-personal {
+  background: linear-gradient(180deg, #161c28 0%, #121620 100%);
+  border: 1px solid #2e3a4e;
+  border-left: 4px solid #f0b90b;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  margin-top: 4px;
+}
+
+.macro-personal-badge {
+  position: absolute;
+  top: -10px;
+  left: 18px;
+  background: #f0b90b;
+  color: #0b0e14;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(240, 185, 11, 0.4);
+}
+
+.macro-left h3 {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #eaecef;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.macro-status-text {
+  font-size: 1rem;
+  font-weight: 800;
+  margin-top: 3px;
+  letter-spacing: 0.3px;
+}
+
+/* Gauge / Termômetro */
+.macro-center {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gauge-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.gauge-label-neg { color: #f6465d; }
+.gauge-label-zero { color: #848e9c; }
+.gauge-label-pos { color: #0ecb81; }
+
+.gauge-canvas-wrap {
+  width: 100%;
+  height: 34px;
+  background-color: #0e121a;
+  border: 1px solid #2b3139;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.gauge-canvas-wrap canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.macro-right {
+  text-align: right;
+  font-size: 0.78rem;
+  color: #848e9c;
+  line-height: 1.4;
+}
+
+.macro-right strong {
+  color: #eaecef;
+}
+
+/* 3. Grid de Cards das Moedas */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  width: 100%;
+}
+
+.coin-card {
+  background-color: #12161f;
+  border: 1px solid #212631;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.2s;
+}
+
+.coin-card:hover {
+  border-color: #3b424d;
+}
+
+/* Header do Card */
+.card-coin-header {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-coin-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.coin-icon-img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.card-coin-subtitle {
+  font-size: 0.72rem;
+  color: #848e9c;
+  margin-top: 1px;
+}
+
+/* Bloco Preço Atual */
+.card-price-box {
+  background-color: #1a202c;
+  border: 1px solid #2d3748;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.card-box-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #848e9c;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.card-price-val {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-top: 2px;
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+  transition: color 0.2s ease;
+}
+
+/* Bloco Máx / Mín */
+.card-hl-box {
+  background-color: #151a24;
+  border-radius: 6px;
+  padding: 6px 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.hl-col-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.hl-max-label { color: #0ecb81; }
+.hl-min-label { color: #f6465d; }
+
+.hl-val {
+  font-size: 0.88rem;
+  font-weight: 700;
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+
+.hl-max-val { color: #0ecb81; }
+.hl-min-val { color: #f6465d; }
+
+/* Bloco Médias Móveis */
+.card-ma-box {
+  background-color: #151a24;
+  border-radius: 6px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ma-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.ma-col-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.ma-32-label { color: #f0b90b; }
+.ma-80-label { color: #627eea; }
+
+.ma-32-val {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #eaecef;
+}
+
+.ma-80-val {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #848e9c;
+}
+
+/* Bloco Tendência */
+.card-trend-box {
+  background-color: #151a24;
+  border-radius: 6px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.trend-status-val {
+  font-size: 0.9rem;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+.trend-status-val.alta { color: #0ecb81; }
+.trend-status-val.baixa { color: #f6465d; }
+.trend-status-val.neutra { color: #f0b90b; }
+.trend-status-val.indef { color: #848e9c; }
+
+.trend-detail-val {
+  font-size: 0.68rem;
+  color: #848e9c;
+}
+
+.trend-macro-val {
+  font-size: 0.68rem;
+  font-style: italic;
+  margin-top: 2px;
+}
+
+/* Bloco Alerta */
+.card-alert-box {
+  background-color: #1a202c;
+  border: 1px solid #2d3748;
+  border-radius: 6px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 105px;
+  transition: all 0.25s ease;
+}
+
+.alert-header {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #eaecef;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.alert-desc {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: #848e9c;
+  min-height: 34px;
+}
+
+.alert-desc.armed-alta { color: #0ecb81; }
+.alert-desc.armed-baixa { color: #f6465d; }
+.alert-desc.triggered {
+  color: #f0b90b;
+  font-weight: 700;
+}
+
+.btn-reset-alert {
+  background-color: #2b3139;
+  color: #eaecef;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.btn-reset-alert:hover {
+  background-color: #3b424d;
+  color: #ffffff;
+}
+
+.btn-reset-alert.active-alarm {
+  background-color: #f0b90b;
+  color: #0b0e14;
+  animation: pulse-btn 0.8s infinite alternate;
+}
+
+@keyframes pulse-btn {
+  from { opacity: 0.85; transform: scale(0.99); }
+  to { opacity: 1; transform: scale(1.01); }
+}
+
+/* Card piscando quando em alerta */
+.card-alert-box.flashing {
+  border: 2px solid #f0b90b !important;
+  background-color: #2e2412 !important;
+  box-shadow: 0 0 14px rgba(240, 185, 11, 0.45);
+}
+
+/* Rodapé do Card */
+.card-foot {
+  font-size: 0.65rem;
+  color: #848e9c;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: 2px;
+}
+
+.card-foot-live {
+  color: #0ecb81;
+}
+
+/* 4. Rodapé Global do Monitor */
+.monitor-footer-bar {
+  background-color: #0b0e14;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  color: #4a525e;
+  border-top: 1px solid #1a202c;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Responsividade */
+@media (max-width: 1300px) {
+  .cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 860px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .macro-bar {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .macro-right {
+    text-align: center;
+  }
+}
+
+@media (max-width: 560px) {
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .monitor-top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+
+/* ── 5. Seção de Análise Diária (Volume Spot vs Futuros com MMA 8 & Fechamento 8 Dias) ── */
+.daily-analysis-section {
+  background-color: #12161f;
+  border: 1px solid #212631;
+  border-radius: 8px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+.daily-analysis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #212631;
+}
+
+.daily-title-group h2 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #eaecef;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.daily-title-group p {
+  font-size: 0.78rem;
+  color: #848e9c;
+  margin-top: 2px;
+}
+
+.daily-header-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.75rem;
+  color: #848e9c;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.legend-dot.green { background-color: #0ecb81; }
+.legend-dot.red { background-color: #f6465d; }
+
+.legend-line.yellow {
+  width: 16px;
+  height: 3px;
+  background-color: #f0b90b;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+/* Tabela de Linhas das Moedas */
+.daily-rows-table {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.daily-card-row {
+  background-color: #151a24;
+  border: 1px solid #212631;
+  border-radius: 6px;
+  padding: 12px 16px;
+  display: grid;
+  grid-template-columns: 150px 1.4fr 1fr 1.2fr;
+  align-items: center;
+  gap: 16px;
+  transition: border-color 0.2s;
+}
+
+.daily-card-row:hover {
+  border-color: #3b424d;
+}
+
+/* Coluna 1: Moeda */
+.daily-col-coin {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.daily-coin-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.daily-coin-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.daily-coin-sub {
+  font-size: 0.7rem;
+  color: #848e9c;
+  margin-top: 1px;
+}
+
+/* Coluna 2: Volumes */
+.daily-col-volumes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vol-box-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.vol-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.7rem;
+}
+
+.vol-label {
+  color: #848e9c;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.vol-val {
+  color: #eaecef;
+  font-weight: 700;
+}
+
+.vol-mma-info {
+  color: #f0b90b;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.vol-canvas-wrap {
+  width: 100%;
+  height: 32px;
+  background-color: #0e121a;
+  border: 1px solid #212631;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.vol-canvas-wrap canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Coluna 3: Candle Diário vs MMA 8D */
+.daily-col-candle {
+  background-color: #1a202c;
+  border: 1px solid #2d3748;
+  border-radius: 6px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.candle-box-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #848e9c;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.candle-badge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+.candle-badge.acima {
+  background: rgba(14, 203, 129, 0.18);
+  color: #0ecb81;
+  border: 1px solid rgba(14, 203, 129, 0.45);
+}
+
+.candle-badge.abaixo {
+  background: rgba(246, 70, 93, 0.18);
+  color: #f6465d;
+  border: 1px solid rgba(246, 70, 93, 0.45);
+}
+
+.candle-badge.neutro {
+  background: #2b313a;
+  color: #eaecef;
+  border: 1px solid #3b424d;
+}
+
+.candle-data-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 10px;
+  font-size: 0.72rem;
+}
+
+.c-sublabel {
+  color: #848e9c;
+}
+
+.c-value {
+  color: #eaecef;
+  margin-left: 4px;
+  font-feature-settings: "tnum";
+}
+
+/* Coluna 4: Gráfico de Fechamento */
+.daily-col-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chart-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chart-box-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #848e9c;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.chart-range-label {
+  font-size: 0.68rem;
+  color: #848e9c;
+  font-feature-settings: "tnum";
+}
+
+.chart-canvas-wrap {
+  width: 100%;
+  height: 64px;
+  background-color: #0e121a;
+  border: 1px solid #212631;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.chart-canvas-wrap canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Responsividade da Análise Diária */
+@media (max-width: 1200px) {
+  .daily-card-row {
+    grid-template-columns: 140px 1.2fr 1fr;
+  }
+  .daily-col-chart {
+    grid-column: span 3;
+  }
+}
+
+@media (max-width: 768px) {
+  .daily-card-row {
+    grid-template-columns: 1fr;
+  }
+  .daily-col-chart {
+    grid-column: span 1;
+  }
+  .daily-analysis-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ==========================================================================
+   Seção 3: Fluxo Global de Capital nas Maiores Corretoras (CEX Netflow)
+   ========================================================================== */
+.exchange-flows-section {
+  background-color: #1a1e29;
+  border: 1px solid #282f3d;
+  border-radius: 8px;
+  padding: 18px 20px;
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.flows-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 1px solid #282f3d;
+  padding-bottom: 14px;
+}
+
+.flows-title-group h2 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #eaecef;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.flows-title-group p {
+  font-size: 0.78rem;
+  color: #848e9c;
+  margin-top: 2px;
+}
+
+/* Cards de Métricas Globais */
+.flows-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.flow-stat-card {
+  background-color: #121620;
+  border: 1px solid #232a38;
+  border-radius: 6px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.flow-stat-card.poloniex-card {
+  border-color: rgba(240, 185, 11, 0.4);
+  background: linear-gradient(135deg, #121620 0%, #1c1d12 100%);
+  box-shadow: 0 0 12px rgba(240, 185, 11, 0.08);
+}
+
+.flow-stat-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #848e9c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flow-verdict-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 3px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.flow-verdict-badge.green {
+  background: rgba(14, 203, 129, 0.18);
+  color: #0ecb81;
+  border: 1px solid rgba(14, 203, 129, 0.4);
+}
+
+.flow-verdict-badge.red {
+  background: rgba(246, 70, 93, 0.18);
+  color: #f6465d;
+  border: 1px solid rgba(246, 70, 93, 0.4);
+}
+
+.flow-stat-val {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  font-feature-settings: "tnum";
+}
+
+.flow-stat-val.green { color: #0ecb81; }
+.flow-stat-val.red { color: #f6465d; }
+.flow-stat-val.gold { color: #f0b90b; }
+
+.flow-stat-sub {
+  font-size: 0.72rem;
+  color: #848e9c;
+  font-feature-settings: "tnum";
+}
+
+.flow-stat-sub.green { color: #0ecb81; }
+.flow-stat-sub.red { color: #f6465d; }
+
+.flow-coins-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.flow-coin-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #d1d4dc;
+}
+.flow-coin-pill.green {
+  background: rgba(14, 203, 129, 0.12);
+  color: #0ecb81;
+  border: 1px solid rgba(14, 203, 129, 0.25);
+}
+.flow-coin-pill.red {
+  background: rgba(246, 70, 93, 0.12);
+  color: #f6465d;
+  border: 1px solid rgba(246, 70, 93, 0.25);
+}
+.flow-coin-pill.etf {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.flow-plain-explain {
+  font-size: 0.68rem;
+  line-height: 1.35;
+  color: #a0aec0;
+  margin-top: 6px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.25);
+  border-left: 2px solid #848e9c;
+}
+.flow-plain-explain.green { border-left-color: #0ecb81; }
+.flow-plain-explain.red { border-left-color: #f6465d; }
+
+
+/* ==========================================================================
+   Gráfico Comparativo em Largura Total (Fluxo vs BTC vs Índice)
+   ========================================================================== */
+.flows-compare-chart-card {
+  background-color: #121620;
+  border: 1px solid #232a38;
+  border-radius: 6px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.flows-compare-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 1px solid #1c2230;
+  padding-bottom: 10px;
+}
+
+.flows-compare-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.compare-icon {
+  font-size: 1.3rem;
+}
+
+.compare-title-text h3 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #eaecef;
+  letter-spacing: 0.4px;
+}
+
+.compare-title-text p {
+  font-size: 0.72rem;
+  color: #848e9c;
+  margin-top: 2px;
+}
+
+.flows-compare-legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.75rem;
+  color: #848e9c;
+}
+
+.c-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.c-legend-line {
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.c-legend-line.cyan { background-color: #38bdf8; box-shadow: 0 0 6px rgba(56, 189, 248, 0.5); }
+.c-legend-line.green { background-color: #0ecb81; box-shadow: 0 0 6px rgba(14, 203, 129, 0.5); }
+.c-legend-line.yellow { background-color: #f0b90b; box-shadow: 0 0 6px rgba(240, 185, 11, 0.5); }
+
+.flows-compare-canvas-wrap {
+  width: 100%;
+  height: 140px;
+  background-color: #0a0d14;
+  border: 1px solid #1c2230;
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+  cursor: crosshair;
+}
+
+.flows-compare-canvas-wrap canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Barra de Controles e Filtros */
+.flows-controls-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.flows-search-wrap {
+  position: relative;
+  min-width: 280px;
+  flex: 1;
+  max-width: 420px;
+}
+
+.flows-search-input {
+  width: 100%;
+  background-color: #121620;
+  border: 1px solid #282f3d;
+  border-radius: 5px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  color: #eaecef;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.flows-search-input:focus {
+  border-color: #3861fb;
+  box-shadow: 0 0 0 1px #3861fb;
+}
+
+.flows-filters-wrap {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.flow-filter-btn {
+  background-color: #151a24;
+  border: 1px solid #282f3d;
+  color: #848e9c;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.flow-filter-btn:hover {
+  background-color: #212631;
+  color: #eaecef;
+}
+
+.flow-filter-btn.active {
+  background-color: #2a3447;
+  border-color: #4b6cb7;
+  color: #ffffff;
+}
+
+/* Tabela de Exchanges */
+.flows-table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #232a38;
+  border-radius: 6px;
+  background-color: #121620;
+}
+
+.flows-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  text-align: left;
+}
+
+.flows-table th {
+  background-color: #171d29;
+  color: #848e9c;
+  font-weight: 700;
+  padding: 10px 14px;
+  border-bottom: 1px solid #282f3d;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.flows-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #1c2230;
+  color: #eaecef;
+  vertical-align: middle;
+}
+
+.flows-table tr:hover td {
+  background-color: #18202d;
+}
+
+/* Linha Destaque Poloniex */
+.exchange-row-polo td {
+  background-color: rgba(240, 185, 11, 0.05);
+  border-bottom: 1px solid rgba(240, 185, 11, 0.25) !important;
+}
+
+.exchange-row-polo:hover td {
+  background-color: rgba(240, 185, 11, 0.1) !important;
+}
+
+.polo-highlight {
+  color: #f0b90b !important;
+  font-weight: 800;
+  text-shadow: 0 0 8px rgba(240, 185, 11, 0.4);
+}
+
+.polo-tag {
+  font-size: 0.6rem;
+  background: rgba(240, 185, 11, 0.15);
+  color: #f0b90b;
+  border: 1px solid rgba(240, 185, 11, 0.4);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-weight: 700;
+}
+
+/* Elementos da Tabela */
+.col-rank { width: 50px; text-align: center; }
+.rank-badge {
+  font-size: 0.75rem;
+  color: #636d7e;
+  font-weight: 700;
+}
+.rank-badge.top-rank {
+  color: #3861fb;
+  font-weight: 800;
+}
+.rank-badge.gold-rank {
+  color: #f0b90b;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.exchange-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.exchange-logo {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: contain;
+  background-color: #212631;
+}
+
+.exchange-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.exchange-title {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.tvl-val {
+  font-weight: 700;
+  font-size: 0.85rem;
+  font-feature-settings: "tnum";
+}
+
+.tvl-share {
+  font-size: 0.68rem;
+  color: #848e9c;
+}
+
+.flow-num-box {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-weight: 700;
+  font-feature-settings: "tnum";
+}
+
+.flow-num-box small {
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.flow-num-box.green { color: #0ecb81; }
+.flow-num-box.red { color: #f6465d; }
+
+.flow-mini-bar-track {
+  width: 100%;
+  max-width: 110px;
+  height: 3px;
+  background-color: #1e2633;
+  border-radius: 2px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.flow-mini-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+/* Badges de Status */
+.flow-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.flow-badge.inflow-strong {
+  background: rgba(14, 203, 129, 0.2);
+  color: #0ecb81;
+  border: 1px solid rgba(14, 203, 129, 0.4);
+}
+
+.flow-badge.inflow-mod {
+  background: rgba(14, 203, 129, 0.12);
+  color: #0ecb81;
+}
+
+.flow-badge.outflow-strong {
+  background: rgba(246, 70, 93, 0.2);
+  color: #f6465d;
+  border: 1px solid rgba(246, 70, 93, 0.4);
+}
+
+.flow-badge.outflow-mod {
+  background: rgba(246, 70, 93, 0.12);
+  color: #f6465d;
+}
+
+.flow-badge.neutral {
+  background: rgba(132, 142, 156, 0.12);
+  color: #848e9c;
+}
+
+.flow-empty-msg {
+  text-align: center;
+  padding: 30px !important;
+  color: #848e9c;
+  font-style: italic;
+}
+
+/* Responsividade da Seção de Fluxo */
+@media (max-width: 992px) {
+  .flows-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .flows-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .flows-controls-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .flows-search-wrap {
+    max-width: 100%;
+  }
+}
+
+/* ==========================================================================
+   Tooltip Pop-up Interativo para Histogramas e Gráfico de Linha (Hover)
+   ========================================================================== */
+.daily-chart-tooltip {
+  position: absolute;
+  z-index: 99999;
+  pointer-events: none;
+  background: rgba(14, 18, 26, 0.96);
+  border: 1px solid #38bdf8;
+  border-radius: 6px;
+  padding: 8px 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7), 0 0 12px rgba(56, 189, 248, 0.3);
+  font-family: inherit;
+  font-size: 0.75rem;
+  color: #eaecef;
+  min-width: 160px;
+  line-height: 1.45;
+  backdrop-filter: blur(8px);
+  transform: translate(-50%, -120%);
+  transition: opacity 0.08s ease;
+}
+
+.daily-chart-tooltip .tt-title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #848e9c;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+  border-bottom: 1px solid #212631;
+  padding-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.daily-chart-tooltip .tt-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 3px;
+}
+
+.daily-chart-tooltip .tt-label {
+  color: #848e9c;
+}
+
+.daily-chart-tooltip .tt-val {
+  font-weight: 700;
+  color: #ffffff;
+  font-feature-settings: "tnum";
+}
+
+.daily-chart-tooltip .tt-val.green { color: #0ecb81; }
+.daily-chart-tooltip .tt-val.red { color: #f6465d; }
+.daily-chart-tooltip .tt-val.yellow { color: #f0b90b; }
+.daily-chart-tooltip .tt-val.cyan { color: #38bdf8; }
+
+.vol-canvas-wrap, .chart-canvas-wrap {
+  cursor: crosshair;
+}
+
+/* ==========================================================================
+   Seção 6: Portal de Notícias e Atualizações do Mercado Cripto
+   ========================================================================== */
+.crypto-news-section {
+  background-color: #1a1e29;
+  border: 1px solid #282f3d;
+  border-radius: 8px;
+  padding: 18px 20px;
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.news-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 1px solid #282f3d;
+  padding-bottom: 12px;
+}
+
+.news-title-group h2 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #eaecef;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.news-title-group p {
+  font-size: 0.78rem;
+  color: #848e9c;
+  margin-top: 2px;
+}
+
+.news-live-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: #0ecb81;
+  background: rgba(14, 203, 129, 0.1);
+  border: 1px solid rgba(14, 203, 129, 0.3);
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-weight: 600;
+}
+
+.live-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #0ecb81;
+  box-shadow: 0 0 8px #0ecb81;
+  display: inline-block;
+  animation: pulse-live 1.8s infinite;
+}
+
+@keyframes pulse-live {
+  0% { transform: scale(0.95); opacity: 0.7; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.7; }
+}
+
+.crypto-news-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.news-card {
+  background-color: #121620;
+  border: 1px solid #232a38;
+  border-radius: 6px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  min-height: 140px;
+}
+
+.news-card:hover {
+  background-color: #171d29;
+  border-color: #38bdf8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), 0 0 10px rgba(56, 189, 248, 0.15);
+}
+
+.news-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.news-cat-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.4px;
+}
+
+.news-time {
+  font-size: 0.68rem;
+  color: #848e9c;
+}
+
+.news-card-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+}
+
+.news-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.7rem;
+  border-top: 1px solid #1c2230;
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+.news-source {
+  color: #848e9c;
+}
+
+.news-source-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+}
+
+.news-read-more {
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.news-loading-msg, .news-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 24px;
+  color: #848e9c;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 1200px) {
+  .crypto-news-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .crypto-news-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Seção: Indicadores Macro Globais ─────────────────────────────────────── */
+
+.macro-indicators-section {
+  background: #12161f;
+  border: 1px solid #212631;
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+
+.macro-ind-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.macro-ind-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #eaecef;
+  text-transform: uppercase;
+}
+
+.macro-ind-sub {
+  font-size: 0.72rem;
+  color: #848e9c;
+}
+
+.macro-ind-grid {
+  display: grid;
+  grid-template-columns: 260px 240px 1fr;
+  gap: 14px;
+}
+
+/* ── Card base ── */
+.macro-ind-card {
+  background: #0e1117;
+  border: 1px solid #1c2230;
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+}
+
+.macro-ind-card-wide {
+  /* ocupa a coluna restante */
+}
+
+.mind-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #848e9c;
+  text-transform: uppercase;
+}
+
+.mind-updated {
+  font-size: 0.62rem;
+  color: #3b424d;
+  margin-top: auto;
+  padding-top: 6px;
+  border-top: 1px solid #1c2230;
+}
+
+/* ── Fear & Greed ── */
+.fg-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.fg-gauge-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  width: 100%;
+}
+
+#fg-gauge-canvas {
+  display: block;
+  max-width: 100%;
+}
+
+.fg-gauge-value {
+  font-size: 1.6rem;
+  font-weight: 900;
+  line-height: 1;
+  margin-top: -4px;
+}
+
+.fg-gauge-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+/* Histórico 7 dias — abaixo do gauge */
+.fg-history {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.fg-hist-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.fg-hist-bar-wrap {
+  width: 100%;
+  height: 36px;
+  background: #1c2230;
+  border-radius: 3px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.fg-hist-bar {
+  width: 100%;
+  border-radius: 3px 3px 0 0;
+  min-height: 2px;
+  transition: height 0.3s;
+}
+
+.fg-hist-val {
+  font-size: 0.6rem;
+  font-weight: 700;
+}
+
+.fg-hist-date {
+  font-size: 0.55rem;
+  color: #3b424d;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ── Dominância BTC ── */
+.dom-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dom-pct-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.dom-pct-value {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #f0b90b;
+  line-height: 1;
+}
+
+.dom-pct-arrow {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.dom-desc {
+  font-size: 0.68rem;
+  color: #848e9c;
+  line-height: 1.4;
+}
+
+.dom-bar-wrap {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #1c2230;
+}
+
+.dom-bar-btc {
+  background: #f0b90b;
+  border-radius: 4px 0 0 4px;
+  transition: width 0.6s ease;
+}
+
+.dom-bar-alt {
+  flex: 1;
+  background: #1c2230;
+}
+
+.dom-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.62rem;
+  font-weight: 600;
+}
+
+.dom-extra {
+  font-size: 0.65rem;
+  color: #3b424d;
+}
+
+/* ── Open Interest ── */
+.oi-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.oi-top-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.oi-total-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.oi-total-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #848e9c;
+  text-transform: uppercase;
+}
+
+.oi-total-value {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #38bdf8;
+  line-height: 1;
+}
+
+.oi-btc-price {
+  font-size: 0.72rem;
+  color: #f0b90b;
+  font-weight: 600;
+}
+
+/* Taker Buy/Sell */
+.oi-taker-wrap {
+  flex: 1;
+  min-width: 200px;
+  background: #0b0e14;
+  border: 1px solid #1c2230;
+  border-radius: 6px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.taker-title {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #848e9c;
+  text-transform: uppercase;
+}
+
+.taker-dominance {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #eaecef;
+}
+
+.taker-bar-wrap {
+  display: flex;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  background: #1c2230;
+}
+
+.taker-bar-buy {
+  background: #0ecb81;
+  transition: width 0.4s ease;
+  min-width: 2px;
+}
+
+.taker-bar-sell {
+  background: #f6465d;
+  transition: width 0.4s ease;
+  min-width: 2px;
+}
+
+.taker-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+/* OI exchanges grid */
+.oi-exchanges {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.oi-exchange-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 76px 88px 40px 120px 72px 72px;
+  align-items: center;
+  gap: 8px;
+}
+
+.oi-ex-name {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #eaecef;
+}
+
+.oi-ex-bar-wrap {
+  height: 6px;
+  background: #1c2230;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.oi-ex-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+  min-width: 2px;
+}
+
+.oi-ex-usd {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+.oi-ex-btc {
+  font-size: 0.63rem;
+  color: #848e9c;
+  text-align: right;
+}
+
+.oi-ex-share {
+  font-size: 0.63rem;
+  color: #3b424d;
+  text-align: right;
+}
+
+/* Long/Short dentro da linha */
+.oi-ls-bar-wrap {
+  display: flex;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #1c2230;
+  cursor: default;
+}
+
+.oi-ls-bar-long {
+  background: #0ecb81;
+  transition: width 0.4s ease;
+  min-width: 1px;
+}
+
+.oi-ls-bar-short {
+  background: #f6465d;
+  transition: width 0.4s ease;
+  min-width: 1px;
+}
+
+.oi-ls-long-pct {
+  font-size: 0.63rem;
+  font-weight: 700;
+  color: #0ecb81;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.oi-ls-short-pct {
+  font-size: 0.63rem;
+  font-weight: 700;
+  color: #f6465d;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.oi-no-data {
+  font-size: 0.72rem;
+  color: #3b424d;
+}
+
+/* ── Responsivo ── */
+@media (max-width: 1100px) {
+  .macro-ind-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .macro-ind-card-wide {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .macro-ind-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Seção: Índice de Mercado Cripto TOP 10 ───────────────────────────────── */
+
+.crypto-index-section {
+  background: #12161f;
+  border: 1px solid #212631;
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.crypto-index-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.ci-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ci-icon { font-size: 1rem; }
+
+.ci-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #eaecef;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.ci-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #0ecb81;
+  box-shadow: 0 0 6px #0ecb81;
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.ci-subtitle {
+  font-size: 0.68rem;
+  color: #848e9c;
+  margin: 4px 0 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Chips dos ativos da cesta */
+.ci-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.63rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border: 1px solid;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.03);
+  white-space: nowrap;
+}
+
+.ci-chip em {
+  font-style: normal;
+  font-weight: 400;
+  opacity: 0.65;
+  font-size: 0.58rem;
+}
+
+/* Controles direita */
+.crypto-index-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.ci-tf-group {
+  display: flex;
+  gap: 4px;
+  background: #0b0e14;
+  border: 1px solid #1c2230;
+  border-radius: 6px;
+  padding: 3px;
+}
+
+.ci-tf-btn {
+  background: transparent;
+  border: none;
+  color: #848e9c;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.5px;
+}
+
+.ci-tf-btn:hover { color: #eaecef; background: #1c2230; }
+
+.ci-tf-btn.active {
+  background: #1c2a3e;
+  color: #38bdf8;
+  border: 1px solid #38bdf8;
+}
+
+/* Stats no header */
+.ci-stats {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.ci-stat-item {
+  font-size: 0.68rem;
+  color: #848e9c;
+}
+
+.ci-stat-item strong {
+  color: #eaecef;
+  font-size: 0.75rem;
+}
+
+.ci-updated {
+  font-size: 0.62rem;
+  color: #3b424d;
+}
+
+/* Área do gráfico */
+.ci-legends-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  font-size: 0.68rem;
+  margin-top: 6px;
+  padding: 4px 0;
+}
+
+.ci-legend-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ci-leg-title {
+  color: #848e9c;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.62rem;
+  letter-spacing: 0.4px;
+}
+
+.ci-leg-item {
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.crypto-index-chart-wrap {
+  position: relative;
+  width: 100%;
+  min-height: 540px;
+  background: #0b0e14;
+  border: 1px solid #1c2230;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#crypto-index-canvas {
+  display: block;
+  width: 100%;
+}
+
+.ci-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: #848e9c;
+  background: #0b0e14;
+  z-index: 2;
+}
+
+/* Tooltip hover */
+.ci-tooltip {
+  position: absolute;
+  background: rgba(18, 22, 32, 0.96);
+  border: 1px solid #2a3448;
+  border-radius: 8px;
+  padding: 10px 14px;
+  pointer-events: none;
+  z-index: 10;
+  min-width: 210px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+}
+
+.ci-tt-date {
+  font-size: 0.68rem;
+  color: #38bdf8;
+  font-weight: 700;
+  margin-bottom: 6px;
+  border-bottom: 1px solid #1c2230;
+  padding-bottom: 4px;
+}
+
+.ci-tt-section {
+  font-size: 0.60rem;
+  font-weight: 800;
+  color: #848e9c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 6px;
+  margin-bottom: 3px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  padding-top: 4px;
+}
+
+.ci-tt-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.68rem;
+  margin-bottom: 2px;
+  color: #848e9c;
+}
+
+.ci-tt-row span:last-child {
+  color: #eaecef;
+  font-weight: 600;
+  font-feature-settings: "tnum";
+}
+
+.ci-tt-change {
+  font-size: 0.8rem;
+  font-weight: 800;
+  margin-top: 4px;
+  text-align: center;
+}
+
+/* ── Seção: Radar Quantitativo de Confluência & Probabilidade (Oráculo) ── */
+
+.confluence-radar-section {
+  background: linear-gradient(180deg, #131722 0%, #0d1017 100%);
+  border: 1px solid #283245;
+  border-left: 4px solid #38bdf8;
+  border-radius: 10px;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.radar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 1px solid #1c2433;
+  padding-bottom: 12px;
+}
+
+.radar-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.radar-badge-live {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.radar-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+  animation: pulse-blue 1.8s infinite;
+}
+
+@keyframes pulse-blue {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.radar-title-tag {
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  color: #38bdf8;
+  text-transform: uppercase;
+}
+
+.radar-subtitle {
+  font-size: 0.72rem;
+  color: #848e9c;
+}
+
+.radar-timestamp {
+  font-size: 0.65rem;
+  color: #5d6778;
+  font-family: monospace;
+}
+
+/* Grid do Conteúdo do Radar */
+.radar-content-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+}
+
+/* Coluna 1: Card de Veredito e Probabilidade */
+.radar-verdict-card {
+  background: #090c12;
+  border: 1px solid #1c2433;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.radar-prob-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #848e9c;
+  text-transform: uppercase;
+}
+
+.radar-prob-num-wrap {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.radar-prob-pct {
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1;
+  color: #eaecef;
+  font-family: 'Courier New', monospace;
+}
+
+.radar-prob-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  text-align: right;
+}
+
+.badge-bull-strong {
+  background: rgba(14, 203, 129, 0.18);
+  color: #0ecb81;
+  border: 1px solid #0ecb81;
+}
+
+.badge-bull-mod {
+  background: rgba(46, 189, 133, 0.15);
+  color: #2ebd85;
+  border: 1px solid #2ebd85;
+}
+
+.badge-bear-strong {
+  background: rgba(246, 70, 93, 0.18);
+  color: #f6465d;
+  border: 1px solid #f6465d;
+}
+
+.badge-bear-mod {
+  background: rgba(224, 83, 101, 0.15);
+  color: #e05365;
+  border: 1px solid #e05365;
+}
+
+.badge-neutral {
+  background: rgba(132, 142, 156, 0.15);
+  color: #848e9c;
+  border: 1px solid #848e9c;
+}
+
+/* Barra de Probabilidade */
+.radar-prob-bar-track {
+  width: 100%;
+  height: 12px;
+  background: #181e2b;
+  border-radius: 6px;
+  position: relative;
+  overflow: visible;
+  border: 1px solid #242c3d;
+}
+
+.radar-prob-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  position: absolute;
+  top: 0;
+  transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1), width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Linha central do zero (Oráculo Bidirecional) */
+.radar-prob-center-line {
+  position: absolute;
+  left: 50%;
+  top: -3px;
+  width: 2px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 1px;
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
+.radar-prob-needle {
+  position: absolute;
+  top: -4px;
+  width: 3px;
+  height: 20px;
+  background: #ffffff;
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+  transform: translateX(-50%);
+  transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 4;
+}
+
+/* Tooltip Interativo ao passar o mouse na barra do Oráculo */
+.radar-prob-tooltip {
+  position: absolute;
+  bottom: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0b0f17;
+  border: 1px solid #38bdf8;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.76rem;
+  color: #eaecef;
+  line-height: 1.45;
+  width: 290px;
+  pointer-events: none;
+  z-index: 99;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.75);
+}
+
+.radar-prob-tooltip-title {
+  font-weight: 800;
+  font-size: 0.82rem;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.radar-prob-tooltip-desc {
+  color: #c9d1d9;
+}
+
+.radar-prob-tooltip-action {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #1c2433;
+  font-weight: 700;
+}
+
+.radar-prob-extremes {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+.radar-prob-scale-numbers {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4px;
+  margin-top: -6px;
+  font-size: 0.65rem;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  color: #5d6778;
+}
+
+.radar-prob-scale-numbers span.scale-zero {
+  color: #eaecef;
+  font-weight: 900;
+}
+
+/* Card Líder */
+.radar-lead-asset-card {
+  background: #111622;
+  border: 1px solid #1f2737;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-top: 4px;
+}
+
+.lead-label {
+  font-size: 0.6rem;
+  color: #848e9c;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.lead-value {
+  font-size: 0.78rem;
+  color: #eaecef;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* Coluna 2: Análise Narrativa + Semáforo */
+.radar-analysis-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  justify-content: space-between;
+}
+
+.radar-narrative-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #848e9c;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.radar-score-pts {
+  color: #38bdf8;
+  font-family: monospace;
+}
+
+.radar-narrative-text {
+  background: #090c12;
+  border: 1px solid #1c2433;
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: #c9d1d9;
+}
+
+.radar-narrative-text strong {
+  color: #ffffff;
+}
+
+.narrative-verdict-highlight {
+  display: block;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #242c3d;
+  font-weight: 700;
+}
+
+.narrative-verdict-highlight.green { color: #0ecb81; }
+.narrative-verdict-highlight.red { color: #f6465d; }
+.narrative-verdict-highlight.gray { color: #848e9c; }
+
+/* Grid dos 6 Pilares */
+.radar-pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.pillar-box {
+  background: #090c12;
+  border: 1px solid #1c2433;
+  border-radius: 6px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: border-color 0.3s ease;
+}
+
+.pillar-icon {
+  font-size: 1.1rem;
+}
+
+.pillar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.pillar-name {
+  font-size: 0.62rem;
+  color: #848e9c;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pillar-status {
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Estados do Semáforo */
+.pillar-box.pillar-bull {
+  border-color: rgba(14, 203, 129, 0.4);
+  background: linear-gradient(135deg, rgba(14, 203, 129, 0.05) 0%, #090c12 100%);
+}
+.pillar-box.pillar-bull .pillar-status {
+  color: #0ecb81;
+}
+
+.pillar-box.pillar-bear {
+  border-color: rgba(246, 70, 93, 0.4);
+  background: linear-gradient(135deg, rgba(246, 70, 93, 0.05) 0%, #090c12 100%);
+}
+.pillar-box.pillar-bear .pillar-status {
+  color: #f6465d;
+}
+
+.pillar-box.pillar-neutral {
+  border-color: #1c2433;
+}
+.pillar-box.pillar-neutral .pillar-status {
+  color: #848e9c;
+}
+
+/* Responsividade do Radar */
+@media (max-width: 1024px) {
+  .radar-content-grid {
+    grid-template-columns: 1fr;
+  }
+  .radar-pillars-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .radar-pillars-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,1549 @@
+/* ═══════════════════════════════════════════════════════════════
+   tactical.css — Gráfico Tático BTCUSDT 1H / TradingView Style
+   Baseado no design system construído no bot_trader (Lightweight Charts)
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --tac-bg-dark:      #0b0e11;
+  --tac-bg-card:      #1e2329;
+  --tac-bg-toolbar:   #181a20;
+  --tac-border-color: #2b313a;
+  --tac-text-primary: #eaecef;
+  --tac-text-muted:   #848e9c;
+  --tac-color-green:  #0ecb81;
+  --tac-color-red:    #f6465d;
+  --tac-color-yellow: #f0b90b;
+  --tac-color-cyan:   #38b6ff;
+  --tac-color-purple: #9b59b6;
+}
+
+/* Container do Painel Principal */
+.tac-wrapper {
+  background: var(--tac-bg-dark);
+  border: 1px solid var(--tac-border-color);
+  border-radius: 8px;
+  overflow: visible;
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  position: relative;
+}
+
+/* Layout da Linha Central: Painel de Controle + Gráfico lado a lado */
+.tac-charts-row-with-panel {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0;
+  min-height: 0;
+}
+
+/* Coluna do gráfico — expande para preencher o espaço disponível */
+/* Quando o Painel de Controle está oculto (visitantes), ocupa 100% da largura */
+.tac-charts-col-right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Titlebar do Painel — Estilo Bot Trader */
+.tac-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px;
+  background: var(--tac-bg-toolbar);
+  border-bottom: 1px solid var(--tac-border-color);
+  flex-wrap: nowrap;
+  gap: 8px;
+  min-height: 38px;
+}
+
+.tac-titlebar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.tac-empire-header-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', -apple-system, monospace;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tac-empire-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tac-drag-icon {
+  font-size: 13px;
+  color: var(--tac-color-yellow);
+  opacity: 0.8;
+  letter-spacing: -2px;
+}
+
+.tac-titlebar-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tac-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tac-badge-fut {
+  background: rgba(240, 185, 11, 0.15);
+  color: var(--tac-color-yellow);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(240, 185, 11, 0.3);
+}
+
+.tac-live-dot {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--tac-color-green);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Pílula do Par Ativo no topo (substituindo o AO VIVO estático) */
+.tac-ticker-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(30, 35, 41, 0.9);
+  border: 1px solid #2b313a;
+  border-radius: 4px;
+  padding: 3px 8px;
+  height: 25px;
+  box-sizing: border-box;
+  font-size: 11.5px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  user-select: none;
+}
+
+.tac-ticker-badge .tac-live-indicator {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0ecb81;
+  box-shadow: 0 0 6px #0ecb81;
+}
+
+.tac-ticker-badge.connecting .tac-live-indicator {
+  background: #f0b90b;
+  box-shadow: 0 0 6px #f0b90b;
+}
+
+/* Grupo de Pares (BTC, ETH, BCH, BNB, UNI) */
+.tac-pair-group {
+  display: inline-flex;
+  align-items: center;
+  background: #14171d;
+  border: 1px solid var(--tac-border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-right: 8px;
+}
+
+.tac-pair-btn {
+  background: transparent;
+  border: none;
+  color: var(--tac-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-right: 1px solid var(--tac-border-color);
+}
+
+.tac-pair-btn:last-child {
+  border-right: none;
+}
+
+.tac-pair-btn:hover {
+  color: var(--tac-text-primary);
+}
+
+.tac-pair-btn.active {
+  background: rgba(240, 185, 11, 0.2);
+  color: var(--tac-color-yellow);
+}
+
+/* Grupo de Timeframe (15m / 1h) */
+.tac-tf-group {
+  display: inline-flex;
+  align-items: center;
+  background: #14171d;
+  border: 1px solid var(--tac-border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-right: 8px;
+}
+
+.tac-tf-btn {
+  background: transparent;
+  border: none;
+  color: var(--tac-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-right: 1px solid var(--tac-border-color);
+}
+
+.tac-tf-btn:last-child {
+  border-right: none;
+}
+
+.tac-tf-btn:hover {
+  color: var(--tac-text-primary);
+}
+
+.tac-tf-btn.active {
+  background: rgba(240, 185, 11, 0.2);
+  color: var(--tac-color-yellow);
+}
+
+/* Cronômetro de Fechamento da Vela (15m / 1h) */
+.tac-candle-timer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #14171d;
+  border: 1px solid var(--tac-border-color);
+  border-radius: 4px;
+  padding: 4px 9px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  color: #eaecef;
+  letter-spacing: 0.5px;
+  user-select: none;
+  transition: all 0.2s ease;
+  height: 25px;
+  box-sizing: border-box;
+  margin-right: 4px;
+}
+
+.tac-candle-timer-badge .tac-timer-icon {
+  font-size: 11px;
+  line-height: 1;
+}
+
+.tac-candle-timer-badge .tac-timer-val {
+  color: #f0b90b;
+  font-weight: 700;
+  min-width: 38px;
+  text-align: center;
+  display: inline-block;
+  font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+}
+
+.tac-candle-timer-badge.closing-soon {
+  border-color: #f6465d;
+  background: rgba(246, 70, 93, 0.18);
+  color: #f6465d;
+  animation: pulse-timer 1s infinite alternate;
+}
+
+.tac-candle-timer-badge.closing-soon .tac-timer-val {
+  color: #f6465d;
+}
+
+@keyframes pulse-timer {
+  from { box-shadow: 0 0 0 rgba(246, 70, 93, 0); }
+  to { box-shadow: 0 0 8px rgba(246, 70, 93, 0.5); }
+}
+
+/* Botão Guia Mestre: Diagnóstico & Recomendações */
+.tac-btn-advisor {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(240, 185, 11, 0.12);
+  border: 1px solid rgba(240, 185, 11, 0.45);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #f0b90b;
+  cursor: pointer;
+  height: 25px;
+  box-sizing: border-box;
+  margin-right: 4px;
+  transition: all 0.2s ease;
+}
+
+.tac-btn-advisor:hover {
+  background: rgba(240, 185, 11, 0.25);
+  border-color: #f0b90b;
+  box-shadow: 0 0 10px rgba(240, 185, 11, 0.35);
+  transform: translateY(-1px);
+}
+
+.tac-btn-advisor:active {
+  transform: translateY(0);
+}
+
+/* ── Menus Dropdown (Indicadores e Ferramentas) ── */
+.tac-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.tac-dropdown-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #1e2329;
+  border: 1px solid var(--tac-border-color);
+  color: var(--tac-text-light);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  height: 25px;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.tac-dropdown-btn:hover,
+.tac-dropdown.open .tac-dropdown-btn {
+  background: rgba(240, 185, 11, 0.15);
+  border-color: var(--tac-color-yellow);
+  color: var(--tac-color-yellow);
+}
+
+.tac-dropdown-arrow {
+  font-size: 9px;
+  transition: transform 0.2s ease;
+  color: var(--tac-text-muted);
+}
+
+.tac-dropdown.open .tac-dropdown-arrow {
+  transform: rotate(180deg);
+  color: var(--tac-color-yellow);
+}
+
+.tac-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: #181a20;
+  border: 1px solid #2b313a;
+  border-radius: 6px;
+  padding: 6px;
+  min-width: 175px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  z-index: 10001;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Alinhamento à direita para dropdowns próximos à borda da tela */
+.tac-dropdown-menu.align-right {
+  left: auto;
+  right: 0;
+}
+
+.tac-dropdown.open .tac-dropdown-menu {
+  display: flex;
+}
+
+.tac-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--tac-text-light);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.tac-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.tac-dropdown-item.advisor-item {
+  color: #f0b90b;
+  background: rgba(240, 185, 11, 0.08);
+  border-color: rgba(240, 185, 11, 0.25);
+  margin-bottom: 2px;
+}
+
+.tac-dropdown-item.advisor-item:hover {
+  background: rgba(240, 185, 11, 0.2);
+  border-color: #f0b90b;
+}
+
+.tac-dropdown-item.active {
+  background: rgba(240, 185, 11, 0.12);
+  border-color: rgba(240, 185, 11, 0.35);
+  color: var(--tac-color-yellow);
+}
+
+.tac-dropdown-status {
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--tac-text-muted);
+}
+
+.tac-dropdown-item.active .tac-dropdown-status {
+  background: rgba(240, 185, 11, 0.25);
+  color: var(--tac-color-yellow);
+}
+
+/* Itens de Ferramentas com botão limpar */
+.tac-dropdown-tool-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.tac-dropdown-tool-row .tac-dropdown-item {
+  flex: 1;
+}
+
+.tac-btn-toggle-ma,
+.tac-btn-toggle-ind,
+.tac-btn-toggle-zones,
+.tac-btn-toggle-tags,
+.tac-btn-toggle-priceline,
+.tac-btn-fibo {
+  background: #1e2329;
+  border: 1px solid var(--tac-border-color);
+  color: var(--tac-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.tac-btn-toggle-ma:hover,
+.tac-btn-toggle-ma.active,
+.tac-btn-toggle-ind:hover,
+.tac-btn-toggle-ind.active,
+.tac-btn-toggle-zones:hover,
+.tac-btn-toggle-zones.active,
+.tac-btn-toggle-tags:hover,
+.tac-btn-toggle-tags.active,
+.tac-btn-toggle-priceline:hover,
+.tac-btn-toggle-priceline.active {
+  background: rgba(240, 185, 11, 0.15);
+  border-color: var(--tac-color-yellow);
+  color: var(--tac-color-yellow);
+}
+
+.tac-btn-fibo:hover,
+.tac-btn-fibo.active {
+  background: rgba(240, 185, 11, 0.18) !important;
+  border-color: var(--tac-color-yellow) !important;
+  color: var(--tac-color-yellow) !important;
+}
+
+.tac-btn-fibo-2:hover,
+.tac-btn-fibo-2.active {
+  background: rgba(56, 182, 255, 0.18) !important;
+  border-color: #38b6ff !important;
+  color: #38b6ff !important;
+}
+
+.tac-fibo-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  vertical-align: middle;
+}
+
+.tac-btn-fibo {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 25px;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.tac-btn-fibo.drawing {
+  background: rgba(240, 185, 11, 0.22) !important;
+  border-color: var(--tac-color-yellow) !important;
+  color: var(--tac-color-yellow) !important;
+  animation: pulse-fibo 1.2s infinite;
+}
+
+.tac-btn-fibo-2.drawing {
+  background: rgba(56, 182, 255, 0.22) !important;
+  border-color: #38b6ff !important;
+  color: #38b6ff !important;
+  animation: pulse-fibo 1.2s infinite;
+}
+
+.tac-btn-fibo-clear {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: #1e2329;
+  border: 1px solid var(--tac-border-color);
+  color: var(--tac-color-red);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 0 7px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  height: 25px;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.tac-btn-fibo-clear:hover {
+  background: rgba(246, 70, 93, 0.2);
+  border-color: var(--tac-color-red);
+}
+
+@keyframes pulse-fibo {
+  0% { box-shadow: 0 0 0 0 rgba(56, 182, 255, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(56, 182, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(56, 182, 255, 0); }
+}
+
+/* Legenda Dinâmica — Estilo Bot Trader */
+.tac-legend {
+  padding: 6px 14px;
+  background: #14171d;
+  border-bottom: 1px solid var(--tac-border-color);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--tac-text-muted);
+  min-height: 32px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace, sans-serif;
+}
+
+/* Badges da Legenda */
+.badge-closed {
+  background: rgba(240, 185, 11, 0.15);
+  color: var(--tac-color-yellow);
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(240, 185, 11, 0.35);
+  font-weight: 700;
+  font-size: 10px;
+}
+
+.badge-live {
+  background: rgba(14, 203, 129, 0.15);
+  color: var(--tac-color-green);
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(14, 203, 129, 0.35);
+  font-weight: 700;
+  font-size: 10px;
+}
+
+.badge-inspect {
+  background: rgba(56, 182, 255, 0.15);
+  color: var(--tac-color-cyan);
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(56, 182, 255, 0.35);
+  font-weight: 700;
+  font-size: 10px;
+}
+
+/* Classes Auxiliares de Cores */
+.text-cyan    { color: var(--tac-color-cyan); }
+.text-yellow  { color: var(--tac-color-yellow); }
+.text-green   { color: var(--tac-color-green); }
+.text-red     { color: var(--tac-color-red); }
+.text-purple  { color: var(--tac-color-purple); }
+.text-white   { color: #ffffff; }
+
+/* Áreas dos Gráficos (Lightweight Charts + Volume Bicolor) */
+.tac-charts-container {
+  display: flex;
+  flex-direction: column;
+  background: var(--tac-bg-dark);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  gap: 0;
+}
+
+.tac-chart-main {
+  width: 100%;
+  flex: 1;
+  min-height: 420px;
+  position: relative;
+}
+
+.tac-chart-main.fibo-mode {
+  cursor: crosshair !important;
+}
+
+#tac-zones-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.tac-chart-vol {
+  width: 100%;
+  height: 80px;
+  min-height: 80px;
+  max-height: 80px;
+  border-top: none;
+  position: relative;
+  background: #090c0f;
+  overflow: visible;
+  margin-top: auto;
+  margin-bottom: 0;
+  padding-bottom: 0;
+  z-index: 25;
+}
+
+#tac-vol-canvas {
+  display: block;
+  width: 100%;
+  height: 80px;
+  cursor: crosshair;
+}
+
+/* ── Mini Popup / Tooltip do Histograma de Volume ─────────────────────────── */
+.tac-vol-tooltip {
+  position: absolute;
+  bottom: 84px;
+  left: 0;
+  transform: translateX(-50%);
+  background: #14171a;
+  border: 1px solid #282d35;
+  border-top: 2px solid #00f0ff;
+  border-radius: 6px;
+  padding: 8px 12px;
+  min-width: 195px;
+  pointer-events: none;
+  z-index: 1000;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.85);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 11px;
+  color: #c7cdd6;
+  white-space: nowrap;
+}
+
+.tac-vol-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0 6px;
+  border-style: solid;
+  border-color: #282d35 transparent transparent transparent;
+}
+
+.tac-vol-tooltip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #282d35;
+}
+
+.tac-vol-tooltip-time {
+  color: #f0b90b;
+  font-weight: 600;
+  font-size: 10.5px;
+}
+
+.tac-vol-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.tac-vol-badge.buy {
+  background: rgba(14, 203, 129, 0.2);
+  color: #0ecb81;
+}
+
+.tac-vol-badge.sell {
+  background: rgba(246, 70, 93, 0.2);
+  color: #f6465d;
+}
+
+.tac-vol-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 3px;
+  font-size: 11px;
+}
+
+.tac-vol-row:last-child {
+  margin-bottom: 0;
+}
+
+.tac-vol-row .green { color: #0ecb81; }
+.tac-vol-row .red   { color: #f6465d; }
+.tac-vol-row .bold  { font-weight: 700; }
+
+.tac-vol-divider {
+  height: 1px;
+  background: #282d35;
+  margin: 5px 0;
+}
+
+/* ── Tooltip Flutuante de Candle (Hover 3s) ─────────────────────────── */
+.tac-candle-tooltip {
+  position: absolute;
+  background: #14171a;
+  border: 1px solid #282d35;
+  border-top: 2px solid #00f0ff;
+  border-radius: 6px;
+  padding: 8px 12px;
+  min-width: 180px;
+  pointer-events: none;
+  z-index: 1000;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.9);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 11px;
+  color: #c7cdd6;
+  white-space: nowrap;
+}
+
+.tac-candle-tooltip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #282d35;
+}
+
+.tac-candle-tooltip-time {
+  color: #f0b90b;
+  font-weight: 600;
+  font-size: 10.5px;
+}
+
+.tac-candle-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.tac-candle-badge.buy {
+  background: rgba(14, 203, 129, 0.2);
+  color: #0ecb81;
+}
+
+.tac-candle-badge.sell {
+  background: rgba(246, 70, 93, 0.2);
+  color: #f6465d;
+}
+
+.tac-candle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 3px;
+  font-size: 11px;
+}
+
+.tac-candle-row:last-child {
+  margin-bottom: 0;
+}
+
+.tac-candle-lbl {
+  color: #848e9c;
+  font-size: 10.5px;
+}
+
+.tac-candle-val {
+  font-family: 'Roboto Mono', monospace, -apple-system;
+  font-weight: 600;
+}
+
+.tac-candle-val.green { color: #0ecb81; }
+.tac-candle-val.red   { color: #f6465d; }
+.tac-candle-val.white { color: #eaecef; }
+
+
+/* HUD Tático Inferior (Oráculo, Kelly, Thorp, Sinal) */
+.tac-hud {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  background: var(--tac-bg-toolbar);
+  border-top: none;
+  flex-wrap: nowrap;
+  margin-top: 0;
+  overflow: visible;
+  width: 100%;
+}
+
+.tac-hud-block {
+  flex: 1;
+  min-width: 115px;
+  padding: 8px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.tac-hud-block:last-child {
+  border-right: none;
+}
+
+.tac-hud-label {
+  font-size: 9.5px;
+  color: var(--tac-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-weight: 600;
+}
+
+.tac-hud-val {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--tac-text-primary);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  transition: color 0.3s ease;
+}
+
+/* Termômetro / Progress Bar para HUD Institucional */
+.tac-meter-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+}
+
+.tac-meter-bar {
+  display: flex;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #14171d;
+  width: 100%;
+}
+
+.tac-meter-fill-long {
+  background: var(--tac-color-green);
+  transition: width 0.4s ease;
+}
+
+.tac-meter-fill-short {
+  background: var(--tac-color-red);
+  transition: width 0.4s ease;
+}
+
+.tac-meter-text {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-weight: 600;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Novos Componentes Avançados do HUD Tático
+───────────────────────────────────────────────────────────── */
+
+/* Card 1: Top 10 + Meu Índice */
+.tac-top10-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 5px;
+  padding: 4px 8px;
+  margin-top: 2px;
+}
+
+.tac-top10-tag {
+  font-size: 9px;
+  color: #38bdf8;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.tac-top10-numbers {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tac-top10-desc {
+  font-size: 8.5px;
+  color: #848e9c;
+  margin-top: 2px;
+  line-height: 1.2;
+}
+
+/* Card 2: Oráculo Quantitativo com Probabilidade e Par Recomendado */
+.tac-oracle-prob-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 1px;
+}
+
+.tac-oracle-prob-pct {
+  font-size: 1.35rem;
+  font-weight: 900;
+  line-height: 1;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.tac-oracle-verdict-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* Barra de Probabilidade Bidirecional (-100% a +100%) */
+.tac-oracle-bar-track {
+  width: 100%;
+  height: 9px;
+  background: #14171d;
+  border-radius: 5px;
+  position: relative;
+  overflow: visible;
+  border: 1px solid #242c3d;
+  margin-top: 3px;
+}
+
+.tac-oracle-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  position: absolute;
+  top: 0;
+  transition: left 0.4s ease, width 0.4s ease;
+}
+
+.tac-oracle-bar-center {
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  width: 2px;
+  height: 13px;
+  background: rgba(255, 255, 255, 0.45);
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.tac-oracle-bar-needle {
+  position: absolute;
+  top: -3px;
+  width: 3px;
+  height: 15px;
+  background: #ffffff;
+  border-radius: 2px;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.9);
+  transform: translateX(-50%);
+  transition: left 0.4s ease;
+  z-index: 3;
+}
+
+.tac-oracle-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 7.5px;
+  color: #5d6778;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  margin-top: 2px;
+  padding: 0 2px;
+}
+
+.tac-oracle-extremes {
+  display: flex;
+  justify-content: space-between;
+  font-size: 7.5px;
+  font-weight: 700;
+  margin-top: 1px;
+}
+
+/* Card Par Recomendado */
+.tac-lead-card {
+  background: #11151f;
+  border: 1px solid #1f2737;
+  border-radius: 5px;
+  padding: 5px 8px;
+  margin-top: 4px;
+}
+
+.tac-lead-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #848e9c;
+  text-transform: uppercase;
+}
+
+.tac-lead-pair-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.tac-lead-pair-name {
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.tac-lead-setup-badge {
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 700;
+}
+
+.tac-lead-details {
+  font-size: 8.5px;
+  color: #848e9c;
+  margin-top: 3px;
+  line-height: 1.35;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.tac-lead-action {
+  font-size: 8.5px;
+  color: #eaecef;
+  font-weight: 600;
+  margin-top: 3px;
+  line-height: 1.35;
+}
+
+@media (max-width: 768px) {
+  .tac-chart-main { height: 300px; }
+  .tac-chart-vol  { height: 70px; }
+  #tac-vol-canvas { height: 70px; }
+  .tac-hud-block  { min-width: 95px; padding: 6px 10px; }
+  .tac-hud-val    { font-size: 12px; }
+}
+
+/* Popover do Oráculo Macro com os 5 Pilares */
+.tac-oracle-help-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #848e9c;
+  font-size: 9px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1;
+  padding: 0;
+  margin-left: 3px;
+}
+
+.tac-oracle-help-btn:hover {
+  background: var(--tac-color-yellow);
+  color: #0b0e11;
+  border-color: var(--tac-color-yellow);
+  box-shadow: 0 0 6px rgba(240, 185, 11, 0.4);
+}
+
+.tac-oracle-popover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 320px;
+  background: #181a20;
+  border: 1px solid #2b313a;
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.75);
+  padding: 12px 14px;
+  z-index: 9999;
+  display: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  animation: tacFadeIn 0.15s ease-out;
+}
+
+.tac-oracle-popover.tac-popover-right {
+  /* right override removido — posicionamento agora é feito via JS */
+}
+
+.tac-popover-body {
+  font-size: 10px;
+  color: #c9d1d9;
+  line-height: 1.45;
+}
+
+.tac-popover-section {
+  margin-bottom: 7px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.07);
+}
+
+.tac-popover-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.tac-popover-tag {
+  display: inline-block;
+  font-weight: 700;
+  color: #f0b90b;
+  margin-bottom: 2px;
+}
+
+@keyframes tacFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tac-popover-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tac-popover-close {
+  background: transparent;
+  border: none;
+  color: #848e9c;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.tac-popover-close:hover {
+  color: #fff;
+}
+
+.tac-pillar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tac-pillar-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  padding: 3px 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+}
+
+.tac-pillar-item:last-child {
+  border-bottom: none;
+}
+
+.tac-pillar-title {
+  color: #848e9c;
+  font-weight: 500;
+}
+
+.tac-pillar-val {
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  color: #eaecef;
+}
+
+/* ─── HUD REORGANIZADO: ÍNDICES, ORÁCULO E INSTITUCIONAL ─── */
+.tac-top10-box {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+  padding: 4px 6px;
+  margin-bottom: 4px;
+}
+.tac-top10-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #f0b90b;
+}
+.tac-top10-val-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 2px;
+}
+.tac-top10-val {
+  font-size: 13.5px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  color: #eaecef;
+}
+.tac-top10-change {
+  font-size: 10px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+}
+.tac-top10-status {
+  font-size: 9px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.tac-hud-divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  margin: 5px 0;
+}
+
+/* Oráculo Quantitativo na Coluna 2 */
+.tac-oracle-prob-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2px;
+  margin-bottom: 4px;
+}
+.tac-oracle-prob-pct {
+  font-size: 17px;
+  font-weight: 900;
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1;
+}
+.tac-oracle-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.badge-bull {
+  background: rgba(14, 203, 129, 0.15);
+  color: #0ecb81;
+  border: 1px solid rgba(14, 203, 129, 0.3);
+}
+.badge-bear {
+  background: rgba(246, 70, 93, 0.15);
+  color: #f6465d;
+  border: 1px solid rgba(246, 70, 93, 0.3);
+}
+.badge-neutral {
+  background: rgba(132, 142, 156, 0.15);
+  color: #eaecef;
+  border: 1px solid rgba(132, 142, 156, 0.3);
+}
+
+.tac-oracle-bar-track {
+  height: 8px;
+  background: #181c24;
+  border-radius: 4px;
+  position: relative;
+  overflow: visible;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 4px;
+  margin-bottom: 2px;
+}
+.tac-oracle-center-line {
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: #ffffff;
+  transform: translateX(-50%);
+  z-index: 2;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
+}
+.tac-oracle-bar-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 3px;
+  transition: all 0.35s ease;
+  z-index: 1;
+}
+.tac-oracle-bar-needle {
+  position: absolute;
+  top: -3px;
+  width: 3px;
+  height: 14px;
+  background: #ffffff;
+  border-radius: 1.5px;
+  transform: translateX(-50%);
+  z-index: 3;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.9);
+  transition: left 0.35s ease;
+}
+.tac-oracle-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  color: #848e9c;
+  font-family: 'JetBrains Mono', monospace;
+  margin-top: 2px;
+}
+.tac-oracle-extremes {
+  display: flex;
+  justify-content: space-between;
+  font-size: 7.5px;
+  font-weight: 700;
+  margin-top: 2px;
+  margin-bottom: 5px;
+}
+
+/* Card Par Recomendado no Oráculo */
+.tac-lead-card {
+  background: rgba(20, 24, 32, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  padding: 5px 7px;
+  margin-top: 4px;
+}
+.tac-lead-label {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #f0b90b;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 3px;
+}
+.tac-lead-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 2px;
+}
+.tac-lead-symbol {
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+}
+.tac-lead-setup-badge {
+  font-size: 8.5px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+.tac-lead-metrics {
+  font-size: 8.5px;
+  color: #848e9c;
+  line-height: 1.35;
+}
+.tac-lead-action {
+  font-size: 8px;
+  color: #a0aec0;
+  font-style: italic;
+  margin-top: 2px;
+  line-height: 1.25;
+}
+
+/* ── Overlay OHLC Dentro do Gráfico (Canto Superior Esquerdo - Estilo Binance/TradingView) ── */
+.tac-ohlc-overlay {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', -apple-system, monospace;
+  font-size: 11.5px;
+  font-weight: 600;
+  pointer-events: none;
+  user-select: none;
+  background: rgba(19, 23, 34, 0.45);
+  padding: 2px 6px;
+  border-radius: 3px;
+  backdrop-filter: blur(2px);
+}
+
+.tac-ohlc-overlay .ohlc-label {
+  color: #848e9c;
+  margin-right: 2px;
+}
+
+.tac-ohlc-overlay .ohlc-val {
+  color: var(--tac-text-primary);
+}
+
+/* ── Cronômetro de Vela na Escala de Preços (Estilo TradingView / Binance Futures) ── */
+.tac-price-countdown-badge {
+  position: absolute;
+  right: 0;
+  z-index: 12;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: #181a20;
+  border-left: 1px solid #2b313a;
+  border-bottom: 1px solid #2b313a;
+  color: #f0b90b;
+  font-family: 'JetBrains Mono', -apple-system, monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 2px;
+  box-sizing: border-box;
+  pointer-events: none;
+  user-select: none;
+  border-bottom-left-radius: 3px;
+  box-shadow: -1px 1px 3px rgba(0, 0, 0, 0.4);
+  line-height: 1.15;
+}
+
+.tac-price-countdown-badge.closing-soon {
+  color: #f6465d;
+  background: rgba(246, 70, 93, 0.15);
+  border-left-color: rgba(246, 70, 93, 0.5);
+  border-bottom-color: rgba(246, 70, 93, 0.5);
+}
+
+/* ── Badges Flutuantes no Lado Esquerdo das Linhas de Posição / TP / SL (Estilo Binance) ── */
+.chart-line-badge {
+  position: absolute;
+  left: 18px;
+  z-index: 15;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'JetBrains Mono', -apple-system, monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  line-height: 1.35;
+  pointer-events: auto;
+  user-select: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.80);
+  cursor: default;
+}
+
+.chart-line-badge.pos-badge.profit {
+  background: #131722;
+  border: 1px solid rgba(14, 203, 129, 0.55);
+  color: #0ecb81;
+}
+
+.chart-line-badge.pos-badge.loss {
+  background: #131722;
+  border: 1px solid rgba(246, 70, 93, 0.55);
+  color: #f6465d;
+}
+
+.chart-line-badge .badge-price {
+  color: #d1d4dc;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-size: 10.5px;
+}
+
+.chart-line-badge .badge-qty {
+  font-size: 9.5px;
+  color: #848e9c;
+}
+
+.chart-line-badge .badge-close-btn {
+  background: transparent;
+  border: none;
+  color: #848e9c;
+  cursor: pointer;
+  padding: 0 2px;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 1;
+  margin-left: 2px;
+  transition: color 0.15s ease;
+}
+
+.chart-line-badge .badge-close-btn:hover {
+  color: #f6465d;
+}
+
+.chart-line-badge.tp-badge {
+  background: #131722;
+  border: 1px solid rgba(14, 203, 129, 0.55);
+  color: #0ecb81;
+  cursor: ns-resize;
+}
+
+.chart-line-badge.sl-badge {
+  background: #131722;
+  border: 1px solid rgba(246, 70, 93, 0.55);
+  color: #f6465d;
+  cursor: ns-resize;
+}
