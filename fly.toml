@@ -1,19 +1,15 @@
-# fly.toml app configuration file generated for capich-trade on 2026-11-11T21:11:57Z
-#
-# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
-#
-
-app = 'capich-trade'
-primary_region = 'gru'
+app = "capich-trade"
+primary_region = "gru"
 
 [build]
+
 [http_service]
   internal_port = 3000
   force_https = true
-  auto_stop_machines = 'off'
+  auto_stop_machines = false
   auto_start_machines = true
   min_machines_running = 1
 
 [[vm]]
-  size = 'shared-cpu-1x'
-  memory = '256mb'
+  size = "shared-cpu-1x"
+  memory = "512mb"

@@ -9,4 +9,5 @@ COPY . .
 
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+ENV NODE_ENV=production
+CMD ["node", "--max-old-space-size=400", "server.js"]

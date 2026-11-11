@@ -1043,9 +1043,11 @@ if (!process.env.VERCEL) {
     console.log(`\n✅ Servidor rodando em: http://localhost:${PORT}\n`);
     console.log('   Pressione Ctrl+C para parar.\n');
 
-    // Inicia o acumulador histórico do Firestore (a cada 1 hora)
+    // Inicia o acumulador histórico do Firestore após 5 segundos (evita pico de memória no boot)
     if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY) {
-      startAccumulator();
+      setTimeout(() => {
+        startAccumulator();
+      }, 5000);
     }
   });
 }
