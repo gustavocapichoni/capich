@@ -3,20 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CAPICH – Crypto Trading ∞</title>
+  <title>CAPICH ♾️ Crypto Trading History</title>
   <link rel="shortcut icon" href="assets/icons/favicon.ico">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/tactical.css?v=3">
-  <link rel="stylesheet" href="css/order_panel.css?v=3">
+  <link rel="stylesheet" href="css/style.css?v=5">
+  <link rel="stylesheet" href="css/tactical.css?v=16">
+  <link rel="stylesheet" href="css/order_panel.css?v=4">
   <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
 </head>
 <body>
 
-  <!-- Indicador de admin (visível só após login) -->
-  <div id="admin-indicator" class="admin-indicator" style="display:none;">
-    <span>🛡️ Admin: <strong id="admin-user-name"></strong></span>
-    <button class="btn-admin-sair" onclick="fazerLogout()">Sair</button>
-  </div>
+  <!-- Indicador de admin removido da barra — Sair está no menu lateral -->
+  <div id="admin-indicator" style="display:none;" aria-hidden="true"></div>
 
   <!-- Topbar -->
   <header class="topbar-binance">
@@ -69,7 +66,7 @@
     </a>
     <nav class="topbar-nav">
       <a href="index.html" class="nav-link">Painel</a>
-      <a href="crypto_trading_history.html" class="nav-link active">Histórico</a>
+      <a href="crypto_trading_history.html" class="nav-link active">Trading</a>
       <a href="sobre.html" class="nav-link">Sobre</a>
       <a href="metodo.html" class="nav-link">Método</a>
     </nav>
@@ -77,6 +74,12 @@
 
   <!-- Menu lateral (admin only) -->
   <aside class="menu-vertical-lateral admin-only">
+    <!-- Identidade do admin -->
+    <div class="menu-admin-identity" id="menu-admin-identity">
+      <span class="menu-admin-icon">🛡️</span>
+      <span class="menu-admin-name" id="menu-admin-name-label">Admin</span>
+    </div>
+
     <button class="menu-item-btn" onclick="criarNovaSecao()" title="Nova sessão">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -84,12 +87,25 @@
       </svg>
       <span>Nova sessão</span>
     </button>
+
+    <!-- Spacer para empurrar Sair para baixo -->
+    <div style="flex:1;"></div>
+
+    <!-- Botão Sair -->
+    <button class="menu-item-btn menu-btn-sair" onclick="fazerLogout()" title="Sair da conta admin">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+        <polyline points="16 17 21 12 16 7"></polyline>
+        <line x1="21" y1="12" x2="9" y2="12"></line>
+      </svg>
+      <span>Sair</span>
+    </button>
   </aside>
 
-  <!-- ═══════════════════════════════════════════════════
-       GRÁFICO TÁTICO BTCUSDT 1H — Acumulação / Distribuição
+  <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+       GRÁFICO TÁTICO BTCUSDT 1H â€” Acumulação / Distribuição
        Inserido no topo do conteúdo, antes das sessões
-  ═══════════════════════════════════════════════════ -->
+  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
   <div id="btc-tactical-section" style="width:100%;max-width:100%;margin:0 auto 12px;padding:0 8px;box-sizing:border-box"></div>
 
   <!-- Conteúdo principal -->
@@ -133,10 +149,35 @@
     <img id="modal-img" src="" alt="Visualização em alta resolução">
   </div>
 
-  <script src="js/chart_positions.js"></script>
-  <script src="js/order_panel.js?v=2"></script>
-  <script src="js/btc_tactical_chart.js?v=3"></script>
-  <script type="module" src="js/app.js"></script>
+  <!-- Modal: Deixar Comentário na Operação -->
+  <div id="modal-comentario" class="modal-admin" onclick="if(event.target===this)fecharModalComentario()">
+    <div class="modal-admin-content modal-comentario-content">
+      <h2>💬 Deixar Comentário</h2>
+      <p>Compartilhe sua visão, dúvida ou análise sobre esta operação.</p>
+      <form id="form-comentario" onsubmit="enviarComentario(event)">
+        <input type="hidden" id="comentario-secao-id" value="">
+        <div class="campo-grupo">
+          <label for="comentario-autor">Seu Nome ou Apelido</label>
+          <input type="text" id="comentario-autor" placeholder="Ex: Trader Anônimo" maxlength="40" required autocomplete="name">
+        </div>
+        <div class="campo-grupo">
+          <label for="comentario-texto">Seu Comentário</label>
+          <textarea id="comentario-texto" placeholder="Descreva sua visão ou pergunta sobre este trade..." rows="4" maxlength="800" required></textarea>
+        </div>
+        <div class="modal-botoes">
+          <button type="button" class="btn-cancelar-admin" onclick="fecharModalComentario()">Cancelar</button>
+          <button type="submit" id="btn-submit-comentario" class="btn-salvar-comentario">Enviar Comentário</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/chart_positions.js?v=4"></script>
+  <script src="js/order_panel.js?v=5"></script>
+  <script type="module" src="js/btc_tactical_chart.js?v=30"></script>
+  <script type="module" src="js/app.js?v=4"></script>
 </body>
 </html>
+
+
 

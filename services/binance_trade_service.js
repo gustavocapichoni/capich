@@ -118,67 +118,93 @@ async function setLeverage(apiKey, apiSecret, symbol, leverage) {
 }
 
 /**
- * Obtém regras de precisão do símbolo na Binance (stepSize e minQty)
+ * Obtém regras de precisão do símbolo na Binance (stepSize e minQty real).
+ *
+ * A Binance Futures impõe um VALOR MÍNIMO em USDT (MIN_NOTIONAL) por ordem.
+ * A quantidade mínima real exigida pela corretora é:
+ *   minQty = max(LOT_SIZE.minQty, ceil(MIN_NOTIONAL / precoAtual / stepSize) * stepSize).
+ * Isso significa que o minQty varia conforme o preço do ativo em tempo real.
+ *
+ * Cache de 10 minutos para o exchangeInfo (estrutura de filtros).
+ * O preço ao vivo é consultado para garantir cálculo exato.
  */
 let exchangeInfoCache = null;
 let lastExchangeInfoTime = 0;
+const EXCHANGE_INFO_TTL = 10 * 60 * 1000; // 10 minutos
 
 async function getSymbolPrecision(symbol) {
   const now = Date.now();
-  const BROWSER_HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-    'Accept': 'application/json'
-  };
+  if (!exchangeInfoCache || now - lastExchangeInfoTime > EXCHANGE_INFO_TTL) {
+    const res = await fetch(`${FAPI_URL}/fapi/v1/exchangeInfo`);
+    if (!res.ok) throw new Error(`Falha ao buscar exchangeInfo da Binance: HTTP ${res.status}`);
+    exchangeInfoCache = await res.json();
+    lastExchangeInfoTime = now;
+    console.log('[getSymbolPrecision] exchangeInfo atualizado da Binance.');
+  }
 
-  if (!exchangeInfoCache || now - lastExchangeInfoTime > 3600000) {
+  const s = exchangeInfoCache.symbols.find(x => x.symbol === symbol);
+  if (!s) return { stepSize: 0.001, minQty: 0.001, lotMinQty: 0.001, minNotional: 0, minQtyByNotional: 0.001, decimals: 3, tickSize: 0.01, priceDecimals: 2, livePrice: 0 };
+
+  const lotFilter      = s.filters.find(f => f.filterType === 'LOT_SIZE')        || {};
+  const mktFilter      = s.filters.find(f => f.filterType === 'MARKET_LOT_SIZE') || {};
+  const priceFilter    = s.filters.find(f => f.filterType === 'PRICE_FILTER')    || {};
+  const notionalFilter = s.filters.find(f => f.filterType === 'MIN_NOTIONAL' || f.filterType === 'NOTIONAL')  || {};
+
+  const stepSize    = parseFloat(mktFilter.stepSize || lotFilter.stepSize) || 0.001;
+  const lotMinQty   = parseFloat(mktFilter.minQty   || lotFilter.minQty)  || 0.001;
+  const minNotional = parseFloat(notionalFilter.notional || notionalFilter.minNotional) || 0;
+
+  const decimals = (s.quantityPrecision !== undefined && s.quantityPrecision !== null)
+    ? s.quantityPrecision
+    : (stepSize.toString().includes('.') ? stepSize.toString().split('.')[1].replace(/0+$/, '').length || 0 : 0);
+
+  // Busca preço atual ao vivo para calcular minQty baseado no notional mínimo
+  let minQtyByNotional = lotMinQty;
+  let livePrice = 0;
+  if (minNotional > 0) {
     try {
-      let res = await fetch(`${FAPI_URL}/fapi/v1/exchangeInfo`, { headers: BROWSER_HEADERS });
-      if (!res.ok) {
-        res = await fetch(`https://fapi1.binance.com/fapi/v1/exchangeInfo`, { headers: BROWSER_HEADERS });
-      }
-      if (res.ok) {
-        const json = await res.json();
-        if (json && Array.isArray(json.symbols)) {
-          exchangeInfoCache = json;
-          lastExchangeInfoTime = now;
+      const tickerRes = await fetch(`${FAPI_URL}/fapi/v1/ticker/price?symbol=${symbol}`);
+      const ticker = await tickerRes.json();
+      livePrice = parseFloat(ticker.price) || 0;
+      if (livePrice > 0) {
+        // quantidade mínima para atingir o notional mínimo, arredondada para cima no stepSize
+        const rawMinByNotional = minNotional / livePrice;
+        let steps = Math.ceil((rawMinByNotional / stepSize) - 1e-9);
+        while ((steps * stepSize * livePrice) < minNotional) {
+          steps++;
         }
+        minQtyByNotional = parseFloat((steps * stepSize).toFixed(decimals));
       }
-    } catch (_) {}
+    } catch (e) {
+      console.warn(`[getSymbolPrecision] Não foi possível buscar preço de ${symbol}:`, e.message);
+    }
   }
 
-  const KNOWN_DEFAULTS = {
-    'BTCUSDT': { stepSize: 0.001, minQty: 0.001, decimals: 3, priceDecimals: 1, tickSize: 0.1 },
-    'ETHUSDT': { stepSize: 0.001, minQty: 0.001, decimals: 3, priceDecimals: 2, tickSize: 0.01 },
-    'BCHUSDT': { stepSize: 0.01, minQty: 0.01, decimals: 2, priceDecimals: 2, tickSize: 0.01 },
-    'BNBUSDT': { stepSize: 0.01, minQty: 0.01, decimals: 2, priceDecimals: 2, tickSize: 0.01 },
-    'UNIUSDT': { stepSize: 1, minQty: 1, decimals: 0, priceDecimals: 4, tickSize: 0.0001 }
-  };
+  // minQty efetivo = maior entre o mínimo de lote e o mínimo por notional
+  let minQty = Math.max(lotMinQty, minQtyByNotional);
+  minQty = parseFloat(minQty.toFixed(decimals));
 
-  const s = (exchangeInfoCache && Array.isArray(exchangeInfoCache.symbols))
-    ? exchangeInfoCache.symbols.find(x => x.symbol === symbol)
-    : null;
-
-  if (!s && KNOWN_DEFAULTS[symbol]) {
-    return KNOWN_DEFAULTS[symbol];
-  }
-  if (!s) return { stepSize: 0.001, minQty: 0.001, precision: 3 };
-
-  const lotFilter = s.filters.find(f => f.filterType === 'LOT_SIZE') || {};
-  const priceFilter = s.filters.find(f => f.filterType === 'PRICE_FILTER') || {};
-  const stepSize = parseFloat(lotFilter.stepSize) || 0.001;
-  const minQty = parseFloat(lotFilter.minQty) || 0.001;
   const tickSize = parseFloat(priceFilter.tickSize) || 0.01;
 
-  // Calcula casas decimais a partir do stepSize
-  const decimals = stepSize.toString().includes('.') 
-    ? stepSize.toString().split('.')[1].length 
-    : 0;
-
   const priceDecimals = tickSize.toString().includes('.')
-    ? tickSize.toString().split('.')[1].length
+    ? tickSize.toString().split('.')[1].replace(/0+$/, '').length || 0
     : (s.pricePrecision || 2);
 
-  return { stepSize, minQty, decimals, tickSize, priceDecimals };
+  console.log(`[getSymbolPrecision] ${symbol}: lotMinQty=${lotMinQty}, minNotional=$${minNotional}, livePrice=$${livePrice}, minQtyByNotional=${minQtyByNotional} → minQty FINAL=${minQty}`);
+
+  return {
+    symbol,
+    stepSize,
+    minQty,
+    lotMinQty,
+    marketMinQty: lotMinQty,
+    minNotional,
+    minQtyByNotional,
+    decimals,
+    tickSize,
+    priceDecimals,
+    livePrice
+  };
 }
 
 /**
@@ -428,7 +454,7 @@ async function setStopLossTakeProfit(apiKey, apiSecret, symbol, { stopLoss, take
  * Executa ordem a mercado (BUY ou SELL) informando diretamente a quantidade da moeda
  */
 async function executeMarketOrder(apiKey, apiSecret, symbol, side, rawQuantity, tpSlOptions = null) {
-  const { decimals, minQty, stepSize } = await getSymbolPrecision(symbol);
+  const { decimals, minQty, stepSize, minNotional } = await getSymbolPrecision(symbol);
 
   let quantity = parseFloat(rawQuantity);
   if (!quantity || isNaN(quantity) || quantity <= 0) {
@@ -436,7 +462,8 @@ async function executeMarketOrder(apiKey, apiSecret, symbol, side, rawQuantity, 
   }
 
   if (quantity < minQty) {
-    throw new Error(`Quantidade mínima exigida pela Binance para ${symbol} é ${minQty}`);
+    const notionalMsg = minNotional > 0 ? ` (~$${minNotional} USDT)` : '';
+    throw new Error(`Quantidade mínima exigida pela Binance para ${symbol} é ${minQty}${notionalMsg}.`);
   }
 
   // Ajusta ao múltiplo do stepSize e arredonda para casas decimais corretas
@@ -526,6 +553,7 @@ module.exports = {
   setStopLossTakeProfit,
   setLeverage,
   getSymbolPrecision,
+  clearExchangeInfoCache: () => { exchangeInfoCache = null; lastExchangeInfoTime = 0; },
   executeMarketOrder,
   closeCurrentPosition
 };

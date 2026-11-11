@@ -67,6 +67,40 @@
   gap: 6px;
 }
 
+.bop-btn-visibility {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid #333a44;
+  color: #848e9c;
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.bop-btn-visibility:hover {
+  background: #2b313a;
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+.bop-btn-visibility.hidden-lines {
+  background: rgba(160, 160, 170, 0.12);
+  border-color: #9ca3af;
+  color: #b0b8c4;
+  box-shadow: none;
+}
+
+.bop-btn-visibility.hidden-lines:hover {
+  background: rgba(160, 160, 170, 0.22);
+  border-color: #c8cdd5;
+  color: #d1d5db;
+}
+
 .bop-btn-lock {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid #333a44;
@@ -90,15 +124,15 @@
 }
 
 .bop-btn-lock.locked {
-  background: rgba(246, 70, 93, 0.16);
-  border-color: #f6465d;
-  color: #f6465d;
-  box-shadow: 0 0 6px rgba(246, 70, 93, 0.35);
+  background: rgba(160, 160, 170, 0.12);
+  border-color: #9ca3af;
+  color: #b0b8c4;
+  box-shadow: none;
 }
 
 .bop-btn-lock.locked:hover {
-  background: rgba(246, 70, 93, 0.28);
-  border-color: #f6465d;
+  background: rgba(160, 160, 170, 0.22);
+  border-color: #c8cdd5;
 }
 
 .bop-btn-config {
@@ -124,7 +158,7 @@
 
 /* Painel Bloqueado */
 #binance-order-panel.bop-locked {
-  border-color: rgba(246, 70, 93, 0.35);
+  border-color: rgba(160, 160, 170, 0.30);
 }
 
 #binance-order-panel.bop-locked .bop-symbol-bar,
@@ -139,9 +173,15 @@
   transition: opacity 0.2s ease, filter 0.2s ease;
 }
 
-#binance-order-panel.bop-locked button:not(#bop-btn-lock):not(#bop-btn-open-config),
+#binance-order-panel.bop-locked button:not(#bop-btn-lock):not(#bop-btn-open-config):not(#bop-btn-pos-visibility),
 #binance-order-panel.bop-locked input {
   cursor: not-allowed !important;
+}
+
+/* Inputs do modal de chaves sempre com cursor de texto — especificidade maior para sobrescrever o not-allowed */
+#binance-order-panel .bop-modal-field input,
+#binance-order-panel.bop-locked .bop-modal-field input {
+  cursor: text !important;
 }
 
 /* Badge de Símbolo Ativo */
@@ -708,6 +748,60 @@
   color: #f6465d;
   border-color: #f6465d;
 }
+
+/* ── Projeção de P&L (Lucro / Prejuízo Futuro) ─────────────────────────── */
+.bop-pnl-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 6px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bop-pnl-header {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #848e9c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.bop-pnl-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bop-pnl-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bop-pnl-rr-row {
+  margin-top: 4px;
+  padding-top: 5px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.bop-pnl-label {
+  font-size: 9.5px;
+  color: #848e9c;
+}
+
+.bop-pnl-val {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  letter-spacing: 0.3px;
+}
+
+.bop-pnl-val.tp { color: #0ecb81; }
+.bop-pnl-val.sl { color: #f6465d; }
+.bop-pnl-val.rr { color: #f0b90b; }
 
 @media (max-width: 900px) {
   .tac-charts-row-with-panel {

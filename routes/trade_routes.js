@@ -9,18 +9,22 @@ const router = express.Router();
 const tradeService = require('../services/binance_trade_service');
 
 /**
- * Extrai credenciais exclusivamente enviadas pelo navegador do usuário (100% isolado e seguro)
+ * Extrai credenciais dos headers ou do corpo da requisição ou do .env
  */
 function getCredentials(req) {
-  const apiKey = req.headers['x-api-key'] || req.body.apiKey;
-  const apiSecret = req.headers['x-api-secret'] || req.body.apiSecret;
+  const apiKey = req.headers['x-api-key'] || req.body.apiKey || process.env.BINANCE_API_KEY;
+  const apiSecret = req.headers['x-api-secret'] || req.body.apiSecret || process.env.BINANCE_API_SECRET;
   return { apiKey, apiSecret };
 }
 
 // ─── 0. Obter Regras do Símbolo (minQty, stepSize, decimais) ──────────────────
+// Busca MARKET_LOT_SIZE da Binance (minQty real para ordens a mercado).
+// Suporta ?fresh=true para ignorar o cache e buscar direto da Binance.
 router.get('/symbol-info', async (req, res) => {
   try {
     const symbol = (req.query.symbol || 'BTCUSDT').toUpperCase();
+    const fresh  = req.query.fresh === 'true';
+    if (fresh) tradeService.clearExchangeInfoCache();
     const info = await tradeService.getSymbolPrecision(symbol);
     res.json({ success: true, symbol, ...info });
   } catch (err) {

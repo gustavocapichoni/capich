@@ -57,10 +57,13 @@ onAuthStateChanged(auth, async (user) => {
       if (adminOk) {
         isAdmin = true;
         document.body.classList.add('admin-mode');
-        const indicator = document.getElementById('admin-indicator');
-        const nameEl    = document.getElementById('admin-user-name');
-        if (indicator) indicator.style.display = 'flex';
-        if (nameEl)    nameEl.textContent = user.displayName || user.email;
+        // Preenche identidade do admin no menu lateral
+        const menuNameEl = document.getElementById('menu-admin-name-label');
+        const adminUserNameEl = document.getElementById('admin-user-name');
+        const displayName = user.displayName || user.email || 'Admin';
+        const firstName = displayName.split(' ')[0];
+        if (menuNameEl) menuNameEl.textContent = firstName;
+        if (adminUserNameEl) adminUserNameEl.textContent = displayName;
       } else {
         alert('Acesso negado: essa conta Google não tem permissão de administrador.');
         await signOut(auth);
@@ -73,6 +76,9 @@ onAuthStateChanged(auth, async (user) => {
     document.body.classList.remove('admin-mode');
     const indicator = document.getElementById('admin-indicator');
     if (indicator) indicator.style.display = 'none';
+    // Limpa nome do menu lateral
+    const menuNameEl = document.getElementById('menu-admin-name-label');
+    if (menuNameEl) menuNameEl.textContent = 'Admin';
   }
 });
 
@@ -111,13 +117,117 @@ function abrirModalImagem(src) {
 function fecharModalImagem() { document.getElementById('modal-zoom').classList.remove('ativo'); }
 
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') { fecharModalImagem(); fecharModalAdmin(); }
+  // Atalhos Globais:
+  // Ctrl+E → Abrir login admin
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'e' || e.key === 'E')) {
+    e.preventDefault();
+    abrirModalAdmin();
+    return;
+  }
+
+  // Ctrl+S → Fazer logout / Sair
+  if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+    // Evita o comportamento padrão do navegador de abrir a janela "Salvar página como"
+    e.preventDefault();
+    if (document.body.classList.contains('admin-mode')) {
+      fazerLogout();
+    }
+    return;
+  }
+
+  if (e.key === 'Escape') {
+    fecharModalImagem();
+    fecharModalAdmin();
+    fecharModalComentario();
+  }
 });
+
+// ── Atalho M+L: ocultar/exibir menu lateral ─────────────────────────────────
+(function () {
+  const STORAGE_KEY_MENU = 'capich_menu_collapsed';
+  let mPressed = false;
+  let mTimer = null;
+
+  // Restaura estado salvo
+  if (localStorage.getItem(STORAGE_KEY_MENU) === 'true') {
+    document.body.classList.add('menu-collapsed');
+  }
+
+  function toggleMenu() {
+    const isCollapsed = document.body.classList.toggle('menu-collapsed');
+    try { localStorage.setItem(STORAGE_KEY_MENU, isCollapsed ? 'true' : 'false'); } catch (_) {}
+    // Notifica o gráfico tático para re-ajustar o tamanho se possível
+    setTimeout(() => {
+      if (window._syncTacChartHeight) window._syncTacChartHeight();
+      if (window.dispatchEvent) window.dispatchEvent(new Event('resize'));
+    }, 280);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    // Ignora se o foco está em input, textarea ou contenteditable
+    const tag = document.activeElement && document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement.isContentEditable) return;
+
+    if (e.key === 'm' || e.key === 'M') {
+      mPressed = true;
+      clearTimeout(mTimer);
+      mTimer = setTimeout(() => { mPressed = false; }, 600);
+    }
+    if ((e.key === 'l' || e.key === 'L') && mPressed) {
+      mPressed = false;
+      clearTimeout(mTimer);
+      e.preventDefault();
+      toggleMenu();
+    }
+  });
+
+  window.toggleAdminMenu = toggleMenu;
+})();
 
 window.abrirModalImagem  = abrirModalImagem;
 window.fecharModalImagem = fecharModalImagem;
 
+// ─── Modal comentários ────────────────────────────────────────────────────────
+function abrirModalComentario(secaoId) {
+  const modal = document.getElementById('modal-comentario');
+  const inputSecao = document.getElementById('comentario-secao-id');
+  const inputAutor = document.getElementById('comentario-autor');
+  const inputTexto = document.getElementById('comentario-texto');
+  if (!modal) return;
+
+  if (inputSecao) inputSecao.value = secaoId;
+  if (inputTexto) inputTexto.value = '';
+
+  const nomeSalvo = localStorage.getItem('capich_trader_nome');
+  if (nomeSalvo && inputAutor && !inputAutor.value) {
+    inputAutor.value = nomeSalvo;
+  }
+
+  modal.classList.add('ativo');
+  setTimeout(() => {
+    if (inputAutor && !inputAutor.value) inputAutor.focus();
+    else if (inputTexto) inputTexto.focus();
+  }, 100);
+}
+
+function fecharModalComentario() {
+  const modal = document.getElementById('modal-comentario');
+  if (modal) modal.classList.remove('ativo');
+}
+
+window.abrirModalComentario  = abrirModalComentario;
+window.fecharModalComentario = fecharModalComentario;
+
 // ─── Utilitários ──────────────────────────────────────────────────────────────
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
 function obterDataHoraAtual() {
   const now = new Date();
   return now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR');
@@ -163,6 +273,21 @@ function renderizarSecao(dados, noTopo = false) {
     </div>
   `).join('');
 
+  const comentarios = dados.comentarios || [];
+  const comentariosHTML = comentarios.map(c => `
+    <div class="comentario-item" data-comentario-id="${c.id}">
+      <div class="comentario-top">
+        <div class="comentario-autor-wrap">
+          <span style="font-size:0.95rem;">💬</span>
+          <span class="comentario-autor-nome">${escapeHtml(c.autor || 'Anônimo')}</span>
+          <span class="comentario-data">${c.dataHora || ''}</span>
+        </div>
+        <button class="btn-remover-comentario admin-only" onclick="removerComentario(this,'${dados.id}','${c.id}')" title="Remover comentário (Admin)">🗑️ Excluir</button>
+      </div>
+      <div class="comentario-texto">${escapeHtml(c.texto).replace(/\n/g, '<br>')}</div>
+    </div>
+  `).join('');
+
   secao.innerHTML = `
     <div class="section-header">
       <div class="section-date-wrap">
@@ -187,6 +312,22 @@ function renderizarSecao(dados, noTopo = false) {
 
     <!-- Blocos de texto salvos (visível para todos) -->
     <div class="blocos-container">${blocosHTML}</div>
+
+    <!-- Bloco de Comentários (visível para todos) -->
+    <div class="comentarios-bloco">
+      <div class="comentarios-header-row">
+        <div class="comentarios-titulo">
+          <span>Comentários</span>
+          <span class="comentarios-count" id="count-comentarios-${dados.id}">${comentarios.length}</span>
+        </div>
+        <button class="btn-abrir-comentario" onclick="abrirModalComentario('${dados.id}')">
+          💬 Deixe seu comentário
+        </button>
+      </div>
+      <div class="comentarios-lista" id="lista-comentarios-${dados.id}">
+        ${comentariosHTML || '<div class="comentarios-vazio">Nenhum comentário ainda. Seja o primeiro a comentar!</div>'}
+      </div>
+    </div>
 
     <!-- Área de critérios – sempre visível para admin -->
     <div class="criterios-area admin-only">
@@ -309,6 +450,132 @@ async function removerBloco(btn, secaoId, blocoId) {
   }
 }
 window.removerBloco = removerBloco;
+
+// ─── Enviar comentário na operação ──────────────────────────────────────────
+async function enviarComentario(event) {
+  event.preventDefault();
+  const secaoId    = document.getElementById('comentario-secao-id').value;
+  const autorInput = document.getElementById('comentario-autor');
+  const textoInput = document.getElementById('comentario-texto');
+  const btnSubmit  = document.getElementById('btn-submit-comentario');
+
+  const autor = (autorInput?.value || '').trim() || 'Anônimo';
+  const texto = (textoInput?.value || '').trim();
+
+  if (!secaoId || !texto) {
+    alert('Por favor, escreva seu comentário antes de enviar.');
+    return;
+  }
+
+  try { localStorage.setItem('capich_trader_nome', autor); } catch (e) {}
+
+  if (btnSubmit) {
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = 'Enviando...';
+  }
+
+  try {
+    // Salva via backend com Firebase Admin (permite usuários públicos sem bloqueio de regras do Firestore)
+    const resp = await fetch(`/api/operacoes/${secaoId}/comentarios`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ autor, texto })
+    });
+
+    const data = await resp.json();
+    if (!resp.ok || !data.success) {
+      throw new Error(data.error || 'Erro ao enviar comentário.');
+    }
+
+    const comentarioSalvo = data.comentario;
+
+    const lista = document.getElementById(`lista-comentarios-${secaoId}`);
+    if (lista) {
+      const vazio = lista.querySelector('.comentarios-vazio');
+      if (vazio) vazio.remove();
+
+      const item = document.createElement('div');
+      item.className = 'comentario-item';
+      item.dataset.comentarioId = comentarioSalvo.id;
+      item.innerHTML = `
+        <div class="comentario-top">
+          <div class="comentario-autor-wrap">
+            <span style="font-size:0.95rem;">💬</span>
+            <span class="comentario-autor-nome">${escapeHtml(comentarioSalvo.autor)}</span>
+            <span class="comentario-data">${comentarioSalvo.dataHora}</span>
+          </div>
+          <button class="btn-remover-comentario admin-only" onclick="removerComentario(this,'${secaoId}','${comentarioSalvo.id}')" title="Remover comentário (Admin)">🗑️ Excluir</button>
+        </div>
+        <div class="comentario-texto">${escapeHtml(comentarioSalvo.texto).replace(/\n/g, '<br>')}</div>
+      `;
+      lista.appendChild(item);
+
+      const countEl = document.getElementById(`count-comentarios-${secaoId}`);
+      if (countEl) {
+        const total = lista.querySelectorAll('.comentario-item').length;
+        countEl.textContent = total;
+      }
+    }
+
+    if (textoInput) textoInput.value = '';
+    fecharModalComentario();
+  } catch (err) {
+    console.error('Erro ao enviar comentário:', err);
+    alert(`Erro ao salvar comentário: ${err.message || err}`);
+  } finally {
+    if (btnSubmit) {
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = 'Enviar Comentário';
+    }
+  }
+}
+window.enviarComentario = enviarComentario;
+
+// ─── Remover comentário (Admin only) ──────────────────────────────────────────
+async function removerComentario(btn, secaoId, comentarioId) {
+  if (!isAdmin) {
+    alert('Apenas o administrador pode remover comentários.');
+    return;
+  }
+  if (!confirm('Deseja realmente excluir este comentário nocivo/indesejado?')) return;
+
+  try {
+    let idToken = '';
+    if (auth.currentUser) {
+      idToken = await auth.currentUser.getIdToken();
+    }
+
+    const resp = await fetch(`/api/operacoes/${secaoId}/comentarios/${comentarioId}`, {
+      method:  'DELETE',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${idToken}`
+      }
+    });
+
+    const data = await resp.json();
+    if (!resp.ok || !data.success) {
+      throw new Error(data.error || 'Erro ao excluir comentário no servidor.');
+    }
+
+    const item = btn.closest('.comentario-item');
+    const lista = item ? item.parentElement : null;
+    if (item) item.remove();
+
+    if (lista) {
+      const total = lista.querySelectorAll('.comentario-item').length;
+      const countEl = document.getElementById(`count-comentarios-${secaoId}`);
+      if (countEl) countEl.textContent = total;
+      if (total === 0) {
+        lista.innerHTML = '<div class="comentarios-vazio">Nenhum comentário ainda. Seja o primeiro a comentar!</div>';
+      }
+    }
+  } catch (err) {
+    console.error('Erro ao remover comentário:', err);
+    alert(`Erro ao remover comentário: ${err.message || err}`);
+  }
+}
+window.removerComentario = removerComentario;
 
 // ─── Excluir seção inteira ────────────────────────────────────────────────────
 async function excluirSecao(btn) {

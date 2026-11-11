@@ -11,8 +11,9 @@
   const STORAGE_KEY_SEC = 'capich_binance_api_secret';
   const STORAGE_KEY_LOCKED = 'capich_order_panel_locked';
 
-  let currentSymbol = 'UNIUSDT';
-  let baseAsset = 'UNI';
+  const defaultInitialSym = localStorage.getItem('capich_tac_symbol') || 'BTCUSDT';
+  let currentSymbol = defaultInitialSym;
+  let baseAsset = defaultInitialSym.replace('USDT', '');
   let currentPrice = 0;
   let currentPositionData = null;
   let isPanelLocked = localStorage.getItem(STORAGE_KEY_LOCKED) === 'true';
@@ -20,10 +21,30 @@
 
   // Informações de precisão da Binance para o ativo atual
   let symbolInfo = {
-    minQty: 1,
-    stepSize: 1,
-    decimals: 0
+    minQty: 0.001,
+    lotMinQty: 0.001,
+    marketMinQty: 0.001,
+    stepSize: 0.001,
+    decimals: 3,
+    minNotional: 0
   };
+
+  const ICON_EYE_OPEN = `<svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+  const ICON_EYE_OFF = `<svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+
+  function updateVisibilityButtonUI(visible) {
+    const btn = document.getElementById('bop-btn-pos-visibility');
+    if (!btn) return;
+    if (visible) {
+      btn.innerHTML = ICON_EYE_OPEN;
+      btn.classList.remove('hidden-lines');
+      btn.title = 'Ocultar linhas no gráfico (Posição, Take e Stop)';
+    } else {
+      btn.innerHTML = ICON_EYE_OFF;
+      btn.classList.add('hidden-lines');
+      btn.title = 'Exibir linhas no gráfico (Posição, Take e Stop)';
+    }
+  }
 
   /**
    * Obtém credenciais salvas no navegador
@@ -44,20 +65,58 @@
   }
 
   /**
-   * Busca as regras de quantidade mínima da Binance para o símbolo ativo
+   * Recalcula dinamicamente a quantidade mínima exigida pela Binance com base no preço atual e no MIN_NOTIONAL.
+   * Regra Binance Futures:
+   *   minQty = max(lotMinQty, ceil(minNotional / currentPrice / stepSize) * stepSize)
+   * Como o preço oscila continuamente, este cálculo garante que a quantidade seja sempre válida na corretora.
    */
-  async function fetchSymbolPrecision(sym) {
+  function recalculateDynamicMinQty() {
+    if (!symbolInfo.stepSize || !currentPrice || currentPrice <= 0) return false;
+
+    let minByNotional = symbolInfo.lotMinQty || 0.001;
+    if (symbolInfo.minNotional > 0) {
+      const raw = symbolInfo.minNotional / currentPrice;
+      let steps = Math.ceil((raw / symbolInfo.stepSize) - 1e-9);
+      while ((steps * symbolInfo.stepSize * currentPrice) < symbolInfo.minNotional) {
+        steps++;
+      }
+      minByNotional = parseFloat((steps * symbolInfo.stepSize).toFixed(symbolInfo.decimals));
+    }
+
+    const calculatedMin = Math.max(symbolInfo.lotMinQty || 0.001, minByNotional);
+    const finalMin = parseFloat(calculatedMin.toFixed(symbolInfo.decimals));
+
+    const changed = (symbolInfo.minQty !== finalMin);
+    symbolInfo.minQty = finalMin;
+    return changed;
+  }
+
+  /**
+   * Busca as regras de quantidade mínima da Binance para o símbolo ativo.
+   * Sempre usa ?fresh=true ao trocar de par para garantir o valor atual da corretora.
+   * @param {string} sym - Símbolo do par (ex: ETHUSDT)
+   * @param {boolean} [forceFresh=false] - Se true, ignora cache e busca direto da Binance
+   */
+  async function fetchSymbolPrecision(sym, forceFresh = false) {
     try {
-      const res = await fetch(`/api/trade/symbol-info?symbol=${sym}`);
+      const url = `/api/trade/symbol-info?symbol=${sym}${forceFresh ? '&fresh=true' : ''}`;
+      const res = await fetch(url);
       if (!res.ok) return;
       const data = await res.json();
       if (data.success) {
         symbolInfo = {
-          minQty: data.minQty || 0.001,
-          stepSize: data.stepSize || 0.001,
-          decimals: data.decimals || 0
+          minQty:       data.minQty       || 0.001,
+          stepSize:     data.stepSize     || 0.001,
+          decimals:     data.decimals     !== undefined ? data.decimals : 3,
+          lotMinQty:    data.lotMinQty    || data.minQty || 0.001,
+          marketMinQty: data.marketMinQty || data.minQty || 0.001,
+          minNotional:  data.minNotional  || 0
         };
-        updateQuantityUI();
+        if (currentPrice > 0) {
+          recalculateDynamicMinQty();
+        }
+        console.log(`[OrderPanel] ${sym} → minQty=${symbolInfo.minQty} (LOT=${symbolInfo.lotMinQty} / MIN_NOTIONAL=$${symbolInfo.minNotional})`);
+        updateQuantityUI(false);
       }
     } catch (e) {
       console.warn('[OrderPanel] Erro ao buscar precisão do par:', e.message);
@@ -77,10 +136,10 @@
     container.innerHTML = `
       <div class="bop-header">
         <div class="bop-title-wrap">
-          <span style="font-size: 14px;">⚡</span>
-          <span class="bop-title">Execução Binance</span>
+          <span class="bop-title">Painel de Controle</span>
         </div>
         <div class="bop-header-actions">
+          <button class="bop-btn-visibility" id="bop-btn-pos-visibility" title="Ocultar / Exibir linhas de trade no gráfico"></button>
           <button class="bop-btn-lock" id="bop-btn-lock" title="Bloquear / Desbloquear painel">🔓</button>
           <button class="bop-btn-config" id="bop-btn-open-config" title="Configurar Chaves API da Binance">🔑</button>
         </div>
@@ -152,6 +211,25 @@
         </div>
       </div>
 
+      <!-- Projeção de Lucro / Prejuízo -->
+      <div class="bop-pnl-box" id="bop-pnl-box" style="display:none;">
+        <div class="bop-pnl-header">📊 Projeção P&L</div>
+        <div class="bop-pnl-grid">
+          <div class="bop-pnl-row">
+            <span class="bop-pnl-label tp">🎯 Se TP atingido</span>
+            <span class="bop-pnl-val tp" id="bop-pnl-tp-val">--</span>
+          </div>
+          <div class="bop-pnl-row">
+            <span class="bop-pnl-label sl">🛑 Se SL atingido</span>
+            <span class="bop-pnl-val sl" id="bop-pnl-sl-val">--</span>
+          </div>
+          <div class="bop-pnl-row bop-pnl-rr-row">
+            <span class="bop-pnl-label rr">⚖️ Risco : Retorno</span>
+            <span class="bop-pnl-val rr" id="bop-pnl-rr-val">--</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Botões de Compra e Venda -->
       <div class="bop-actions-grid">
         <button class="bop-btn-trade bop-btn-buy" id="bop-btn-buy">
@@ -192,7 +270,7 @@
     `;
 
     bindEvents();
-    fetchSymbolPrecision(currentSymbol);
+    fetchSymbolPrecision(currentSymbol, true); // busca fresca da Binance na inicialização
     syncSymbolPrice();
     startDataPolling();
     if (window._syncTacChartHeight) {
@@ -243,6 +321,31 @@
    * Associa eventos aos elementos da interface
    */
   function bindEvents() {
+    // Olho para Ocultar / Exibir linhas de Posição, Take e Stop no gráfico
+    const btnVis = document.getElementById('bop-btn-pos-visibility');
+    if (btnVis) {
+      const isVisible = (window.ChartPositions && typeof window.ChartPositions.isLinesVisible === 'function')
+        ? window.ChartPositions.isLinesVisible()
+        : true;
+      updateVisibilityButtonUI(isVisible);
+
+      btnVis.onclick = () => {
+        if (window.ChartPositions && typeof window.ChartPositions.toggleLinesVisible === 'function') {
+          const nextVisible = window.ChartPositions.toggleLinesVisible();
+          updateVisibilityButtonUI(nextVisible);
+          if (nextVisible) {
+            setToast('👁️ Linhas de trade exibidas no gráfico!', 'success');
+          } else {
+            setToast('🙈 Linhas de trade ocultadas no gráfico!', 'info');
+          }
+        }
+      };
+
+      if (window.ChartPositions && typeof window.ChartPositions.onVisibilityChange === 'function') {
+        window.ChartPositions.onVisibilityChange(updateVisibilityButtonUI);
+      }
+    }
+
     // Cadeado de Bloqueio / Desbloqueio do painel
     const btnLock = document.getElementById('bop-btn-lock');
     if (btnLock) {
@@ -307,6 +410,7 @@
     function setQtyMultiplier(mult) {
       if (isPanelLocked) return;
       if (!inputQty) return;
+      recalculateDynamicMinQty();
       const target = (symbolInfo.minQty * mult);
       inputQty.value = symbolInfo.decimals > 0 ? target.toFixed(symbolInfo.decimals) : Math.round(target);
       validateAndCalcCost();
@@ -337,12 +441,14 @@
       inputTp.oninput = () => {
         const val = parseFloat(String(inputTp.value).replace(',', '.')) || 0;
         if (window.ChartPositions) window.ChartPositions.updateTpLine(val);
+        updatePnlProjection();
       };
     }
     if (inputSl) {
       inputSl.oninput = () => {
         const val = parseFloat(String(inputSl.value).replace(',', '.')) || 0;
         if (window.ChartPositions) window.ChartPositions.updateSlLine(val);
+        updatePnlProjection();
       };
     }
 
@@ -351,9 +457,10 @@
   }
 
   /**
-   * Atualiza as labels, sufixos e valores padrão conforme o par ativo
+   * Atualiza as labels, sufixos e valores padrão conforme o par ativo.
+   * @param {boolean} [resetInput=false] - Se true, substitui o valor do input pela quantidade mínima
    */
-  function updateQuantityUI() {
+  function updateQuantityUI(resetInput = false) {
     baseAsset = currentSymbol.replace('USDT', '');
     const labelQty = document.getElementById('bop-qty-label');
     const suffix = document.getElementById('bop-input-suffix');
@@ -362,12 +469,20 @@
 
     if (labelQty) labelQty.textContent = `QUANTIDADE (${baseAsset})`;
     if (suffix) suffix.textContent = baseAsset;
-    if (minValEl) minValEl.textContent = `${symbolInfo.minQty} ${baseAsset}`;
+
+    const notionalTag = symbolInfo.minNotional > 0
+      ? ` <span style="font-size:10px;color:#848e9c;font-weight:400;">(Mín. $${symbolInfo.minNotional} USDT)</span>`
+      : '';
+
+    if (minValEl) {
+      minValEl.innerHTML = `${symbolInfo.minQty} ${baseAsset}${notionalTag}`;
+    }
 
     if (inputQty) {
       inputQty.step = symbolInfo.stepSize.toString();
-      // Se estiver vazio ou zerado, preenche com a quantidade mínima padrão
-      if (!inputQty.value || parseFloat(inputQty.value) <= 0) {
+      const currentVal = parseFloat(inputQty.value) || 0;
+      // Se resetInput for true (troca de par), ou se o campo estiver vazio ou zerado, preenche com o mínimo
+      if (resetInput || !inputQty.value || currentVal <= 0) {
         inputQty.value = symbolInfo.minQty.toString();
       }
     }
@@ -384,20 +499,104 @@
     const hintEl = document.getElementById('bop-min-qty-hint');
     if (!inputQty || !costEl) return;
 
+    recalculateDynamicMinQty();
+
     const qty = parseFloat(inputQty.value) || 0;
     const cost = qty * currentPrice;
 
     costEl.textContent = `Custo aprox: $${cost.toFixed(2)} USDT`;
 
-    // Validação visual de quantidade mínima
-    if (qty > 0 && qty < symbolInfo.minQty) {
+    const isBelowMinQty = qty > 0 && qty < symbolInfo.minQty;
+    const isBelowNotional = qty > 0 && symbolInfo.minNotional > 0 && cost < (symbolInfo.minNotional - 0.01);
+
+    // Validação visual de quantidade mínima e valor mínimo (MIN_NOTIONAL)
+    if (isBelowMinQty || isBelowNotional) {
       if (hintEl) {
-        hintEl.innerHTML = `<span style="color:#f6465d;font-weight:700;">⚠️ Qtd mínima é ${symbolInfo.minQty} ${baseAsset}</span>`;
+        hintEl.innerHTML = `<span style="color:#f6465d;font-weight:700;">⚠️ Mínimo Binance: ${symbolInfo.minQty} ${baseAsset} ($${symbolInfo.minNotional || 0} USDT)</span>`;
       }
     } else {
+      const notionalTag = symbolInfo.minNotional > 0
+        ? ` <span style="font-size:10px;color:#848e9c;font-weight:400;">(Mín. $${symbolInfo.minNotional} USDT)</span>`
+        : '';
       if (hintEl) {
-        hintEl.innerHTML = `ℹ️ Mínimo Binance: <strong>${symbolInfo.minQty} ${baseAsset}</strong>`;
+        hintEl.innerHTML = `ℹ️ Mínimo Binance: <strong id="bop-min-val">${symbolInfo.minQty} ${baseAsset}</strong>${notionalTag}`;
       }
+    }
+  }
+
+  /**
+   * Calcula e exibe a projeção de Lucro/Prejuízo com base na posição aberta + TP/SL definidos.
+   * Funciona para LONG e SHORT. Atualiza automaticamente ao digitar TP ou SL.
+   */
+  function updatePnlProjection() {
+    const box   = document.getElementById('bop-pnl-box');
+    const tpEl  = document.getElementById('bop-pnl-tp-val');
+    const slEl  = document.getElementById('bop-pnl-sl-val');
+    const rrEl  = document.getElementById('bop-pnl-rr-val');
+    if (!box || !tpEl || !slEl || !rrEl) return;
+
+    const tpPrice = parseFloat(document.getElementById('bop-input-tp')?.value) || 0;
+    const slPrice = parseFloat(document.getElementById('bop-input-sl')?.value) || 0;
+
+    // Precisa de posição aberta + ao menos um dos valores
+    const pos = currentPositionData;
+    const hasPos = pos && pos.hasPosition && Math.abs(pos.positionAmt) > 0 && pos.entryPrice > 0;
+
+    if (!hasPos || (!tpPrice && !slPrice)) {
+      box.style.display = 'none';
+      return;
+    }
+
+    box.style.display = 'block';
+
+    const qty      = Math.abs(pos.positionAmt);
+    const entry    = pos.entryPrice;
+    const isLong   = pos.side === 'LONG';
+
+    // Lucro projetado (TP)
+    let tpPnl = null;
+    if (tpPrice > 0) {
+      tpPnl = isLong
+        ? (tpPrice - entry) * qty
+        : (entry - tpPrice) * qty;
+    }
+
+    // Prejuízo projetado (SL)
+    let slPnl = null;
+    if (slPrice > 0) {
+      slPnl = isLong
+        ? (slPrice - entry) * qty   // será negativo para SL abaixo da entrada (LONG)
+        : (entry - slPrice) * qty;  // será negativo para SL acima da entrada (SHORT)
+    }
+
+    // Exibe TP
+    if (tpPnl !== null) {
+      const sign = tpPnl >= 0 ? '+' : '';
+      tpEl.textContent = `${sign}$${tpPnl.toFixed(2)} USDT`;
+      tpEl.style.color = tpPnl >= 0 ? '#0ecb81' : '#f6465d';
+    } else {
+      tpEl.textContent = '--';
+      tpEl.style.color = '#848e9c';
+    }
+
+    // Exibe SL
+    if (slPnl !== null) {
+      const sign = slPnl >= 0 ? '+' : '';
+      slEl.textContent = `${sign}$${slPnl.toFixed(2)} USDT`;
+      slEl.style.color = slPnl >= 0 ? '#0ecb81' : '#f6465d';
+    } else {
+      slEl.textContent = '--';
+      slEl.style.color = '#848e9c';
+    }
+
+    // Risco:Retorno (apenas se tiver os dois)
+    if (tpPnl !== null && slPnl !== null && slPnl !== 0) {
+      const rr = Math.abs(tpPnl) / Math.abs(slPnl);
+      rrEl.textContent = `1 : ${rr.toFixed(2)}`;
+      rrEl.style.color = rr >= 2 ? '#0ecb81' : rr >= 1 ? '#f0b90b' : '#f6465d';
+    } else {
+      rrEl.textContent = '--';
+      rrEl.style.color = '#848e9c';
     }
   }
 
@@ -536,6 +735,9 @@
             statusEl.innerHTML = '<span style="color:#848e9c;">(Opcional)</span>';
           }
         }
+
+        // Atualiza projeção de P&L sempre que TP/SL ou posição mudar
+        updatePnlProjection();
       }
 
       if (window._syncTacChartHeight) {
@@ -568,8 +770,14 @@
       return;
     }
 
-    if (qty < symbolInfo.minQty) {
-      alert(`Quantidade abaixo do mínimo permitido pela Binance!\nO mínimo para ${currentSymbol} é ${symbolInfo.minQty} ${baseAsset}.`);
+    recalculateDynamicMinQty();
+    const estCost = qty * currentPrice;
+
+    if (qty < symbolInfo.minQty || (symbolInfo.minNotional > 0 && estCost < (symbolInfo.minNotional - 0.01))) {
+      const notionalInfo = symbolInfo.minNotional > 0
+        ? `\nRegra Binance Futures: O valor da ordem deve ser de no mínimo $${symbolInfo.minNotional} USDT (atual: ~$${estCost.toFixed(2)} USDT).`
+        : '';
+      alert(`Quantidade abaixo do mínimo permitido pela Binance!\n\nO mínimo atual para ${currentSymbol} é ${symbolInfo.minQty} ${baseAsset} (~$${(symbolInfo.minQty * currentPrice).toFixed(2)} USDT).${notionalInfo}`);
       return;
     }
 
@@ -802,7 +1010,7 @@
   /**
    * Notifica troca de símbolo ou preço a partir do gráfico tático
    */
-  function setMarketContext(symbol, price) {
+  async function setMarketContext(symbol, price) {
     let changedSymbol = false;
     if (symbol && symbol !== currentSymbol) {
       currentSymbol = symbol;
@@ -817,16 +1025,28 @@
       if (inputTp) inputTp.value = '';
       if (inputSl) inputSl.value = '';
 
-      fetchSymbolPrecision(symbol);
       fetchAccountData();
     }
     if (price && price > 0) {
       currentPrice = price;
     }
-    syncSymbolPrice();
+
     if (changedSymbol) {
-      updateQuantityUI();
+      // Ao trocar de par, busca regras atualizadas direto da Binance e reseta quantidade para o mínimo
+      await fetchSymbolPrecision(symbol, true);
+      recalculateDynamicMinQty();
+      updateQuantityUI(true);
+    } else if (price && price > 0) {
+      // Quando o preço oscila em tempo real, recalcula dinamicamente se o minQty mudou
+      const changed = recalculateDynamicMinQty();
+      if (changed) {
+        updateQuantityUI(false);
+      } else {
+        validateAndCalcCost();
+      }
     }
+
+    syncSymbolPrice();
   }
 
   // Exporta globalmente

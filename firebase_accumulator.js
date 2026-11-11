@@ -40,7 +40,7 @@ function getDb() {
 
 // ─── Configurações ─────────────────────────────────────────────────────────────
 const PAIRS      = ['BTCUSDT', 'ETHUSDT', 'BCHUSDT', 'BNBUSDT', 'UNIUSDT'];
-const TIMEFRAMES = ['15m', '1h'];
+const TIMEFRAMES = ['15m', '1h', '1d'];
 const COLLECTION = 'candle_history';
 const MAX_DAYS   = 365; // Rotação automática: apaga documentos mais antigos
 
@@ -66,14 +66,8 @@ function daysAgo(n) {
 // ─── Busca candles da Binance Futures ─────────────────────────────────────────
 
 async function fetchBinanceCandles(symbol, interval, limit = 500) {
-  const headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-    'Accept': 'application/json'
-  };
-  let res = await fetch(`https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`, { headers });
-  if (!res.ok) {
-    res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`, { headers });
-  }
+  const url = `https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`;
+  const res = await fetch(url);
   if (!res.ok) throw new Error(`Binance ${symbol} ${interval}: HTTP ${res.status}`);
   const raw = await res.json();
 
@@ -168,7 +162,7 @@ async function runAccumulation() {
         await saveCandles(symbol, interval, candles);
 
         // Aguarda 300ms entre requests para não sobrecarregar a API da Binance
-        await new Promise(r => setTimeout(r, 1200));
+        await new Promise(r => setTimeout(r, 300));
       } catch (err) {
         console.warn(`[Accumulator] ⚠️ Erro ${symbol} ${interval}:`, err.message);
       }
@@ -265,4 +259,4 @@ function startAccumulator() {
   console.log('[Accumulator] 🚀 Acumulador Firebase iniciado (ciclo a cada 1h)');
 }
 
-module.exports = { startAccumulator, getHistoricalCandles, runAccumulation };
+module.exports = { startAccumulator, getHistoricalCandles, runAccumulation, getDb, admin };
