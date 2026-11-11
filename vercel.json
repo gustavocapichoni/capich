@@ -2,6 +2,12 @@
   "version": 2,
   "regions": ["gru1"],
   "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/api/trade/:path*",
+      "destination": "https://capich-trade.fly.dev/api/trade/:path*"
+    }
+  ],
   "crons": [
     {
       "path": "/api/cron-accumulate",
