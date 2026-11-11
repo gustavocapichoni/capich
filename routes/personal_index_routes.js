@@ -39,15 +39,26 @@ async function fetchDailyVolumes() {
   const results = {};
   await Promise.all(symbols.map(async (sym) => {
     try {
-      const [resSpot, resFut] = await Promise.all([
-        fetch(`https://api.binance.com/api/v3/klines?symbol=${sym}&interval=1d&limit=10`, { headers: { 'User-Agent': 'Mozilla/5.0' } }),
-        fetch(`https://fapi.binance.com/fapi/v1/klines?symbol=${sym}&interval=1d&limit=10`, { headers: { 'User-Agent': 'Mozilla/5.0' } })
-      ]);
-      if (!resSpot.ok || !resFut.ok) return;
-      const [spotK, futK] = await Promise.all([resSpot.json(), resFut.json()]);
-      if (Array.isArray(spotK) && spotK.length >= 8 && Array.isArray(futK) && futK.length >= 8) {
-        const spotVols = spotK.map(k => parseFloat(k[7]));
-        const futVols  = futK.map(k => parseFloat(k[7]));
+      let resSpot = null;
+      for (const host of ['data-api.binance.vision', 'api.binance.com', 'api1.binance.com']) {
+        try {
+          const r = await fetch(`https://${host}/api/v3/klines?symbol=${sym}&interval=1d&limit=10`, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+          if (r.ok) { resSpot = r; break; }
+        } catch (_) {}
+      }
+      let resFut = null;
+      for (const host of ['fapi.binance.com', 'fapi1.binance.com']) {
+        try {
+          const r = await fetch(`https://${host}/fapi/v1/klines?symbol=${sym}&interval=1d&limit=10`, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+          if (r.ok) { resFut = r; break; }
+        } catch (_) {}
+      }
+      if (!resSpot && !resFut) return;
+      const spotK = resSpot ? await resSpot.json() : null;
+      const futK = resFut ? await resFut.json() : spotK;
+      if (Array.isArray(spotK || futK) && (spotK || futK).length >= 8) {
+        const spotVols = (spotK || futK).map(k => parseFloat(k[7]));
+        const futVols  = (futK || spotK).map(k => parseFloat(k[7]));
         const todaySpot = spotVols[spotVols.length - 1];
         const todayFut  = futVols[futVols.length - 1];
         const spotMma8 = spotVols.slice(-8).reduce((a, b) => a + b, 0) / 8.0;
@@ -96,16 +107,24 @@ router.get('/api/personal-index', async (req, res) => {
       Promise.all(
         BASKET.map(async ({ symbol, name, decimals }) => {
           try {
-            const ctrl = new AbortController();
-            const t = setTimeout(() => ctrl.abort(), 6000);
-            const r = await fetch(`https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=15m&limit=300`, {
-              headers: { 'User-Agent': 'Mozilla/5.0' },
-              signal: ctrl.signal
-            });
-            clearTimeout(t);
-            if (!r.ok) return null;
-            const data = await r.json();
-            if (!Array.isArray(data) || data.length < 80) return null;
+            let data = null;
+            for (const url of [
+              `https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=15m&limit=300`,
+              `https://data-api.binance.vision/api/v3/klines?symbol=${symbol}&interval=15m&limit=300`,
+              `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=15m&limit=300`
+            ]) {
+              try {
+                const ctrl = new AbortController();
+                const t = setTimeout(() => ctrl.abort(), 6000);
+                const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: ctrl.signal });
+                clearTimeout(t);
+                if (r.ok) {
+                  const json = await r.json();
+                  if (Array.isArray(json) && json.length >= 80) { data = json; break; }
+                }
+              } catch (_) {}
+            }
+            if (!data) return null;
 
             const N = data.length;
             const closes = data.map(k => parseFloat(k[4]));

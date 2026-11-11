@@ -41,31 +41,35 @@ router.get('/api/crypto-index', async (req, res) => {
     const [klinesAll, futKlines] = await Promise.all([
       Promise.all(
         INDEX_BASKET.map(async ({ symbol }) => {
-          const ctrl = new AbortController();
-          const t = setTimeout(() => ctrl.abort(), 8000);
-          const r = await fetch(
-            `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,
-            { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: ctrl.signal }
-          );
-          clearTimeout(t);
-          if (!r.ok) return null;
-          return r.json();
+          for (const host of ['api.binance.com', 'data-api.binance.vision', 'api1.binance.com']) {
+            try {
+              const ctrl = new AbortController();
+              const t = setTimeout(() => ctrl.abort(), 6000);
+              const r = await fetch(
+                `https://${host}/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,
+                { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: ctrl.signal }
+              );
+              clearTimeout(t);
+              if (r.ok) return await r.json();
+            } catch (_) {}
+          }
+          return null;
         })
       ),
       (async () => {
-        try {
-          const ctrl = new AbortController();
-          const t = setTimeout(() => ctrl.abort(), 8000);
-          const r = await fetch(
-            `https://fapi.binance.com/fapi/v1/klines?symbol=BTCUSDT&interval=${interval}&limit=${limit}`,
-            { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: ctrl.signal }
-          );
-          clearTimeout(t);
-          if (!r.ok) return null;
-          return r.json();
-        } catch (e) {
-          return null;
+        for (const host of ['fapi.binance.com', 'fapi1.binance.com']) {
+          try {
+            const ctrl = new AbortController();
+            const t = setTimeout(() => ctrl.abort(), 6000);
+            const r = await fetch(
+              `https://${host}/fapi/v1/klines?symbol=BTCUSDT&interval=${interval}&limit=${limit}`,
+              { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: ctrl.signal }
+            );
+            clearTimeout(t);
+            if (r.ok) return await r.json();
+          } catch (_) {}
         }
+        return null;
       })()
     ]);
 

@@ -521,9 +521,7 @@ app.get('/api/btc-history-tactical', async (req, res) => {
     const win8h       = is15m ? 32 : (is1d ? 1 : 8);   // 8h em velas (1d = 1 vela diária)
     const outputCount = is15m ? 700 : (is1d ? 350 : 350);
 
-    // 1. Busca dados em paralelo: Futuros + Spot + Open Interest + Long/Short + Taker + Funding Rate + Histórico OI
-    const futUrl     = `https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`;
-    const spotUrl    = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`;
+    // 1. Busca dados: Futuros com fallback para Binance Vision (garante funcionamento global mesmo em servidores nos EUA/Vercel)
     const oiUrl      = `https://fapi.binance.com/fapi/v1/openInterest?symbol=${symbol}`;
     const lsUrl      = `https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=${symbol}&period=5m&limit=1`;
     const topLsUrl   = `https://fapi.binance.com/futures/data/topLongShortPositionRatio?symbol=${symbol}&period=5m&limit=1`;
@@ -531,9 +529,32 @@ app.get('/api/btc-history-tactical', async (req, res) => {
     const premiumUrl = `https://fapi.binance.com/fapi/v1/premiumIndex?symbol=${symbol}`;
     const oiHistUrl  = `https://fapi.binance.com/futures/data/openInterestHist?symbol=${symbol}&period=15m&limit=2`;
 
-    const [rFut, rSpot, rOi, rLs, rTopLs, rTaker, rPrem, rOiHist] = await Promise.all([
-      fetch(futUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } }),
-      fetch(spotUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } }).catch(() => null),
+    const [rFutData, rawSpot, rOi, rLs, rTopLs, rTaker, rPrem, rOiHist] = await Promise.all([
+      (async () => {
+        for (const url of [
+          `https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,
+          `https://data-api.binance.vision/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,
+          `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`
+        ]) {
+          try {
+            const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+            if (r.ok) {
+              const j = await r.json();
+              if (Array.isArray(j) && j.length > 0) return j;
+            }
+          } catch (_) {}
+        }
+        return null;
+      })(),
+      (async () => {
+        for (const host of ['data-api.binance.vision', 'api.binance.com', 'api1.binance.com']) {
+          try {
+            const r = await fetch(`https://${host}/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+            if (r.ok) return await r.json();
+          } catch (_) {}
+        }
+        return [];
+      })(),
       fetch(oiUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } }).catch(() => null),
       fetch(lsUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } }).catch(() => null),
       fetch(topLsUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } }).catch(() => null),
@@ -542,9 +563,8 @@ app.get('/api/btc-history-tactical', async (req, res) => {
       fetch(oiHistUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } }).catch(() => null)
     ]);
 
-    if (!rFut.ok) throw new Error(`Binance Futures ${symbol} error ` + rFut.status);
-    const rawFut = await rFut.json();
-    const rawSpot = (rSpot && rSpot.ok) ? await rSpot.json() : [];
+    if (!rFutData) throw new Error(`Binance klines ${symbol} unavailable`);
+    const rawFut = rFutData;
 
     // Mapeia Spot por timestamp para alinhamento temporal perfeito
     const spotMap = new Map();

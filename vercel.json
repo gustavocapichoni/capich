@@ -1,23 +1,23 @@
 {
   "version": 2,
-  "builds": [
+  "regions": ["gru1"],
+  "cleanUrls": true,
+  "rewrites": [
     {
-      "src": "server.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": [
-          "css/**",
-          "js/**",
-          "assets/**",
-          "*.html"
-        ]
-      }
-    }
-  ],
-  "routes": [
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
+    },
     {
-      "src": "/(.*)",
-      "dest": "/server.js"
+      "source": "/sobre",
+      "destination": "/sobre.html"
+    },
+    {
+      "source": "/metodo",
+      "destination": "/metodo.html"
+    },
+    {
+      "source": "/crypto_trading_history",
+      "destination": "/crypto_trading_history.html"
     }
   ],
   "crons": [
