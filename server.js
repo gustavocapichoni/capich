@@ -7,6 +7,26 @@ const app  = express();
 const PORT = 3000;
 
 app.use(express.json());
+
+// CORS para permitir comunicação entre Vercel e Fly.io
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, X-MBX-APIKEY, x-api-key, x-api-secret');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
+
+// Endpoint para descobrir o IP de saída real (Outbound IP) visto pela Binance
+app.get('/api/my-ip', async (req, res) => {
+  try {
+    const r = await fetch('https://api.ipify.org?format=json');
+    const data = await r.json();
+    res.json({ outboundIp: data.ip });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname)));
 app.use('/css', express.static(path.join(__dirname, 'css')));

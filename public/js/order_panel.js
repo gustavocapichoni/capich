@@ -648,6 +648,16 @@
         if (balEl) {
           balEl.textContent = `$${Number(balData.availableBalance).toFixed(2)}`;
         }
+      } else {
+        const balEl = document.getElementById('bop-val-balance');
+        if (balEl) {
+          balEl.textContent = 'Erro na chave/IP';
+          balEl.title = balData.error || 'Verifique se o IP está salvo na Binance';
+        }
+        console.warn('[/api/trade/balance] Erro:', balData.error);
+        if (balData.error && (balData.error.includes('-2015') || balData.error.includes('IP') || balData.error.includes('Invalid API-key'))) {
+          showToast('⚠️ Binance: ' + balData.error, 'error');
+        }
       }
 
       // 2. Posição no par ativo
