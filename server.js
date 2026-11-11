@@ -8,6 +8,16 @@ const PORT = 3000;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
+app.use('/css', express.static(path.join(__dirname, 'css')));
+app.use('/js', express.static(path.join(__dirname, 'js')));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+
+// Rotas para páginas estáticas
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/index', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/sobre', (req, res) => res.sendFile(path.join(__dirname, 'sobre.html')));
+app.get('/metodo', (req, res) => res.sendFile(path.join(__dirname, 'metodo.html')));
+app.get('/crypto_trading_history', (req, res) => res.sendFile(path.join(__dirname, 'crypto_trading_history.html')));
 
 // Endpoint para Vercel Cron (acumulador em background na nuvem)
 app.get('/api/cron-accumulate', async (req, res) => {
