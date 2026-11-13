@@ -22,19 +22,37 @@ function getDb() {
   if (_db) return _db;
 
   if (!admin.apps.length) {
-    let privateKey = (process.env.FIREBASE_PRIVATE_KEY || '').trim();
-    if ((privateKey.startsWith('"') && privateKey.endsWith('"')) || (privateKey.startsWith("'") && privateKey.endsWith("'"))) {
-      privateKey = privateKey.slice(1, -1);
+    let rawKey = (process.env.FIREBASE_PRIVATE_KEY || '').trim();
+    if ((rawKey.startsWith('"') && rawKey.endsWith('"')) || (rawKey.startsWith("'") && rawKey.endsWith("'"))) {
+      rawKey = rawKey.slice(1, -1);
     }
-    privateKey = privateKey.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
+    rawKey = rawKey.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
 
-    admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId:   process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey
-      })
-    });
+    // Sanitização rigorosa para OpenSSL 3 (Linux/Docker no Fly.io):
+    // Extrai o conteúdo entre BEGIN e END e remonta com quebras de linha limpas
+    let privateKey = rawKey;
+    if (rawKey.includes('-----BEGIN PRIVATE KEY-----')) {
+      const cleanBody = rawKey
+        .replace(/-----BEGIN PRIVATE KEY-----/g, '')
+        .replace(/-----END PRIVATE KEY-----/g, '')
+        .replace(/\s+/g, ''); // remove todos os espaços e quebras internas quebradas
+      
+      // Quebra em blocos de 64 caracteres (padrão estrito PEM)
+      const lines = cleanBody.match(/.{1,64}/g) || [];
+      privateKey = `-----BEGIN PRIVATE KEY-----\n${lines.join('\n')}\n-----END PRIVATE KEY-----\n`;
+    }
+
+    try {
+      admin.initializeApp({
+        credential: admin.credential.cert({
+          projectId:   process.env.FIREBASE_PROJECT_ID,
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          privateKey
+        })
+      });
+    } catch (initErr) {
+      console.warn('[Firebase] Falha na inicialização do cert:', initErr.message);
+    }
   }
 
   _db = admin.firestore();
