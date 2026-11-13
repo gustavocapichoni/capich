@@ -136,6 +136,54 @@ router.post('/order', async (req, res) => {
   }
 });
 
+// ─── 3.0b Executar Ordem Condicional a Mercado (Gatilho Stop Price) ───────────
+router.post('/conditional-order', async (req, res) => {
+  try {
+    const { apiKey, apiSecret } = getCredentials(req);
+    const { symbol, side, quantity, stopPrice, reduceOnly } = req.body;
+
+    if (!apiKey || !apiSecret) {
+      return res.status(400).json({ error: 'Chaves de API não configuradas.' });
+    }
+    if (!symbol || !side || !quantity || !stopPrice) {
+      return res.status(400).json({ error: 'Par, lado (BUY/SELL), quantidade e Preço de Disparo (Stop Price) são obrigatórios.' });
+    }
+
+    const numQty = parseFloat(quantity);
+    if (isNaN(numQty) || numQty <= 0) {
+      return res.status(400).json({ error: 'A quantidade deve ser maior que zero.' });
+    }
+
+    const numStop = parseFloat(stopPrice);
+    if (isNaN(numStop) || numStop <= 0) {
+      return res.status(400).json({ error: 'O preço de disparo deve ser maior que zero.' });
+    }
+
+    const result = await tradeService.executeConditionalOrder(
+      apiKey,
+      apiSecret,
+      symbol.toUpperCase(),
+      side.toUpperCase(),
+      numQty,
+      numStop,
+      Boolean(reduceOnly)
+    );
+
+    res.json({
+      success: true,
+      message: `Ordem condicional ${side.toUpperCase()} agendada com sucesso em $${result.stopPrice}!`,
+      order: result.order,
+      type: result.type,
+      stopPrice: result.stopPrice,
+      quantity: result.quantity,
+      reduceOnly: result.reduceOnly
+    });
+  } catch (err) {
+    console.error('[/api/trade/conditional-order] Erro:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── 3.1 Obter Ordens Abertas (TP / SL / Limites) ────────────────────────────
 router.post('/open-orders', async (req, res) => {
   try {

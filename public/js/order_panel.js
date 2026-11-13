@@ -17,6 +17,7 @@
   let currentPrice = 0;
   let currentPositionData = null;
   let isPanelLocked = localStorage.getItem(STORAGE_KEY_LOCKED) === 'true';
+  let currentOrderType = 'market'; // 'market' ou 'conditional'
   let pollInterval = null;
 
   // Informações de precisão da Binance para o ativo atual
@@ -159,6 +160,30 @@
         </div>
       </div>
 
+      <!-- Abas de Tipo de Ordem: Market vs Conditional -->
+      <div class="bop-order-type-tabs">
+        <button type="button" class="bop-tab-type active" id="bop-tab-market" data-type="market">Market</button>
+        <button type="button" class="bop-tab-type" id="bop-tab-conditional" data-type="conditional">Conditional</button>
+      </div>
+
+      <!-- Campo Específico: Stop Price (apenas no modo Conditional) -->
+      <div class="bop-field-block" id="bop-block-stop-price" style="display: none;">
+        <div class="bop-section-label">STOP PRICE (USDT)</div>
+        <div class="bop-input-group">
+          <input type="number" id="bop-input-stop-price" class="bop-input-amount" placeholder="Preço de disparo" min="0" step="any">
+          <span class="bop-input-suffix">USDT</span>
+        </div>
+      </div>
+
+      <!-- Campo Específico: Preço de Execução (fixo em Market Price no modo Conditional) -->
+      <div class="bop-field-block" id="bop-block-exec-price" style="display: none;">
+        <div class="bop-section-label">PREÇO DE EXECUÇÃO</div>
+        <div class="bop-input-group bop-input-disabled-wrap">
+          <input type="text" class="bop-input-amount" value="Market Price" readonly disabled>
+          <span class="bop-input-suffix" style="color:#f0b90b;font-weight:700;">Market</span>
+        </div>
+      </div>
+
       <!-- Quantidade Direta no Ativo -->
       <div class="bop-amount-box">
         <div class="bop-section-label" id="bop-qty-label">QUANTIDADE (${baseAsset})</div>
@@ -181,6 +206,14 @@
         </div>
 
         <div class="bop-est-qty" id="bop-cost-usdt">Custo aprox: $0.00 USDT</div>
+      </div>
+
+      <!-- Checkbox Reduce-Only (apenas no modo Conditional) -->
+      <div class="bop-reduce-only-wrap" id="bop-block-reduce-only" style="display: none;">
+        <label class="bop-checkbox-label">
+          <input type="checkbox" id="bop-check-reduce-only">
+          <span>Reduce-Only (apenas reduzir/fechar)</span>
+        </label>
       </div>
 
       <!-- Botões de Compra e Venda -->
@@ -346,6 +379,33 @@
         fetchAccountData();
       };
     }
+
+    // Abas de Tipo de Ordem: Market vs Conditional
+    const tabMarket = document.getElementById('bop-tab-market');
+    const tabConditional = document.getElementById('bop-tab-conditional');
+    const blockStopPrice = document.getElementById('bop-block-stop-price');
+    const blockExecPrice = document.getElementById('bop-block-exec-price');
+    const blockReduceOnly = document.getElementById('bop-block-reduce-only');
+
+    function switchOrderType(type) {
+      currentOrderType = type;
+      if (type === 'conditional') {
+        tabMarket?.classList.remove('active');
+        tabConditional?.classList.add('active');
+        if (blockStopPrice) blockStopPrice.style.display = 'flex';
+        if (blockExecPrice) blockExecPrice.style.display = 'flex';
+        if (blockReduceOnly) blockReduceOnly.style.display = 'block';
+      } else {
+        tabConditional?.classList.remove('active');
+        tabMarket?.classList.add('active');
+        if (blockStopPrice) blockStopPrice.style.display = 'none';
+        if (blockExecPrice) blockExecPrice.style.display = 'none';
+        if (blockReduceOnly) blockReduceOnly.style.display = 'none';
+      }
+    }
+
+    if (tabMarket) tabMarket.onclick = () => switchOrderType('market');
+    if (tabConditional) tabConditional.onclick = () => switchOrderType('conditional');
 
     // Input de Quantidade
     const inputQty = document.getElementById('bop-input-qty');
@@ -1118,36 +1178,84 @@
     if (btnBuy) btnBuy.disabled = true;
     if (btnSell) btnSell.disabled = true;
 
-    setToast(`Enviando ordem ${side} de ${qty} ${baseAsset}...`, '');
-
     try {
-      const payload = {
-        apiKey,
-        apiSecret,
-        symbol: currentSymbol,
-        side,
-        quantity: qty
-      };
+      if (currentOrderType === 'conditional') {
+        // ─── Envio de Ordem Condicional a Mercado ───
+        const inputStop = document.getElementById('bop-input-stop-price');
+        const stopVal = parseFloat(String(inputStop?.value || '').replace(',', '.')) || 0;
+        if (stopVal <= 0) {
+          alert(`Insira um Preço de Disparo (Stop Price) válido em USDT para a ordem condicional.`);
+          if (btnBuy) btnBuy.disabled = false;
+          if (btnSell) btnSell.disabled = false;
+          return;
+        }
 
-      const res = await fetch('/api/trade/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+        const isReduceOnly = Boolean(document.getElementById('bop-check-reduce-only')?.checked);
+        setToast(`Agendando ordem condicional ${side} em $${stopVal}...`, '');
 
-      const data = await res.json();
-      if (!data.success) {
-        throw new Error(data.error || 'Falha ao executar ordem.');
+        const payload = {
+          apiKey,
+          apiSecret,
+          symbol: currentSymbol,
+          side,
+          quantity: qty,
+          stopPrice: stopVal,
+          reduceOnly: isReduceOnly
+        };
+
+        const res = await fetch('/api/trade/conditional-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!data.success) {
+          throw new Error(data.error || 'Falha ao agendar ordem condicional.');
+        }
+
+        const roText = isReduceOnly ? ' (Reduce-Only)' : '';
+        setToast(`✅ Condicional ${side} agendada em $${data.stopPrice}${roText}!`, 'success');
+
+        try {
+          const audio = new Audio('assets/audio/notificacao.mp3');
+          audio.play().catch(() => {});
+        } catch (_) {}
+
+        if (inputStop) inputStop.value = '';
+        fetchAccountData();
+      } else {
+        // ─── Envio de Ordem a Mercado Direta ───
+        setToast(`Enviando ordem ${side} de ${qty} ${baseAsset}...`, '');
+
+        const payload = {
+          apiKey,
+          apiSecret,
+          symbol: currentSymbol,
+          side,
+          quantity: qty
+        };
+
+        const res = await fetch('/api/trade/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!data.success) {
+          throw new Error(data.error || 'Falha ao executar ordem.');
+        }
+
+        setToast(`✅ ${side} executado! Preço: $${data.order.avgPrice}`, 'success');
+
+        try {
+          const audio = new Audio('assets/audio/notificacao.mp3');
+          audio.play().catch(() => {});
+        } catch (_) {}
+
+        fetchAccountData();
       }
-
-      setToast(`✅ ${side} executado! Preço: $${data.order.avgPrice}`, 'success');
-
-      try {
-        const audio = new Audio('assets/audio/notificacao.mp3');
-        audio.play().catch(() => {});
-      } catch (_) {}
-
-      fetchAccountData();
     } catch (err) {
       console.error('[OrderPanel] Erro ao enviar ordem:', err);
       setToast(`Erro: ${err.message}`, 'error');

@@ -232,6 +232,81 @@
   font-family: 'JetBrains Mono', monospace;
 }
 
+/* ─── Seletor de Tipo de Ordem (Market / Conditional) estilo Binance ─── */
+.bop-order-type-tabs {
+  display: flex;
+  gap: 4px;
+  background: #111317;
+  padding: 3px;
+  border-radius: 6px;
+  border: 1px solid #23272f;
+  margin-bottom: 8px;
+}
+
+.bop-tab-type {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #848e9c;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.bop-tab-type:hover {
+  color: #eaecef;
+}
+
+.bop-tab-type.active {
+  background: #2b313a;
+  color: #f0b90b;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+.bop-field-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.bop-input-disabled-wrap input {
+  background: #14171c !important;
+  color: #848e9c !important;
+  cursor: not-allowed !important;
+  border-color: #242932 !important;
+}
+
+.bop-reduce-only-wrap {
+  margin-top: 6px;
+  margin-bottom: 4px;
+}
+
+.bop-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: #848e9c;
+  cursor: pointer;
+  user-select: none;
+}
+
+.bop-checkbox-label input[type="checkbox"] {
+  accent-color: #f0b90b;
+  cursor: pointer;
+  width: 13px;
+  height: 13px;
+}
+
+.bop-checkbox-label:hover {
+  color: #eaecef;
+}
+
 .bop-position-status {
   padding-top: 6px;
   border-top: 1px dashed rgba(255, 255, 255, 0.06);

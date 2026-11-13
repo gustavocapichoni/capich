@@ -550,6 +550,81 @@ async function executeMarketOrder(apiKey, apiSecret, symbol, side, rawQuantity, 
 }
 
 /**
+ * Executa ordem condicional a mercado (Stop Market ou Take Profit Market com disparo em stopPrice)
+ * Permite tanto entrada por rompimento quanto realização parcial de posições existentes.
+ */
+async function executeConditionalOrder(apiKey, apiSecret, symbol, side, rawQuantity, rawStopPrice, reduceOnly = false) {
+  const { decimals, minQty, stepSize, minNotional, priceDecimals, tickSize, livePrice } = await getSymbolPrecision(symbol);
+
+  let quantity = parseFloat(rawQuantity);
+  if (!quantity || isNaN(quantity) || quantity <= 0) {
+    throw new Error(`Informe uma quantidade válida para ${symbol}.`);
+  }
+
+  const stopPriceVal = parseFloat(rawStopPrice);
+  if (!stopPriceVal || isNaN(stopPriceVal) || stopPriceVal <= 0) {
+    throw new Error(`Informe um preço de disparo (Stop Price) válido para ${symbol}.`);
+  }
+
+  if (quantity < minQty) {
+    const notionalMsg = minNotional > 0 ? ` (~$${minNotional} USDT)` : '';
+    throw new Error(`Quantidade mínima exigida pela Binance para ${symbol} é ${minQty}${notionalMsg}.`);
+  }
+
+  // Ajusta quantidade ao múltiplo do stepSize e decimais
+  const precisionFactor = Math.pow(10, decimals);
+  const steps = Math.floor(quantity / stepSize);
+  const adjustedQty = Math.round(steps * stepSize * precisionFactor) / precisionFactor;
+  const formattedQty = adjustedQty.toFixed(decimals);
+
+  // Formata o preço de disparo (stopPrice) de acordo com o tickSize e decimais
+  const priceFactor = Math.pow(10, priceDecimals);
+  const roundedPrice = Math.round(stopPriceVal / tickSize) * tickSize;
+  const formattedStopPrice = (Math.round(roundedPrice * priceFactor) / priceFactor).toFixed(priceDecimals);
+
+  // Determina o tipo de ordem de gatilho:
+  // Se BUY com stopPrice >= mercado: STOP_MARKET (compra no rompimento para cima)
+  // Se BUY com stopPrice < mercado: TAKE_PROFIT_MARKET (compra em suporte abaixo)
+  // Se SELL com stopPrice <= mercado: STOP_MARKET (venda no rompimento para baixo)
+  // Se SELL com stopPrice > mercado: TAKE_PROFIT_MARKET (venda parcial/alvo acima)
+  const isBuy = side.toUpperCase() === 'BUY';
+  let orderType = 'STOP_MARKET';
+  const currentRef = livePrice > 0 ? livePrice : stopPriceVal;
+
+  if (isBuy) {
+    orderType = stopPriceVal >= currentRef ? 'STOP_MARKET' : 'TAKE_PROFIT_MARKET';
+  } else {
+    orderType = stopPriceVal <= currentRef ? 'STOP_MARKET' : 'TAKE_PROFIT_MARKET';
+  }
+
+  const orderParams = {
+    symbol,
+    side: side.toUpperCase(),
+    type: orderType,
+    quantity: formattedQty,
+    stopPrice: formattedStopPrice
+  };
+
+  if (reduceOnly) {
+    orderParams.reduceOnly = 'true';
+  }
+
+  const orderResult = await signedRequest('/fapi/v1/order', 'POST', orderParams, apiKey, apiSecret);
+
+  return {
+    success: true,
+    orderId: orderResult.orderId,
+    symbol: orderResult.symbol,
+    side: orderResult.side,
+    type: orderType,
+    stopPrice: formattedStopPrice,
+    quantity: formattedQty,
+    reduceOnly,
+    raw: orderResult
+  };
+}
+
+/**
  * Encerra/Zera a posição atual a mercado
  */
 async function closeCurrentPosition(apiKey, apiSecret, symbol) {
@@ -594,5 +669,6 @@ module.exports = {
   getSymbolPrecision,
   clearExchangeInfoCache: () => { exchangeInfoCache = null; lastExchangeInfoTime = 0; },
   executeMarketOrder,
+  executeConditionalOrder,
   closeCurrentPosition
 };
