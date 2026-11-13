@@ -28,20 +28,6 @@
   gap: 14px;
 }
 
-.monitor-logo {
-  height: 42px;
-  width: auto;
-  border-radius: 8px;
-  border: 1px solid #3b424d;
-  object-fit: contain;
-  filter: drop-shadow(0 0 10px rgba(0, 168, 255, 0.75)) drop-shadow(0 0 20px rgba(0, 102, 255, 0.4));
-  transition: filter 0.3s ease;
-}
-
-.monitor-logo:hover {
-  filter: drop-shadow(0 0 14px rgba(0, 210, 255, 0.95)) drop-shadow(0 0 28px rgba(0, 140, 255, 0.6));
-}
-
 .monitor-titles h1 {
   font-size: 1.15rem;
   font-weight: 800;
@@ -1158,32 +1144,6 @@
   background-color: #18202d;
 }
 
-/* Linha Destaque Poloniex */
-.exchange-row-polo td {
-  background-color: rgba(240, 185, 11, 0.05);
-  border-bottom: 1px solid rgba(240, 185, 11, 0.25) !important;
-}
-
-.exchange-row-polo:hover td {
-  background-color: rgba(240, 185, 11, 0.1) !important;
-}
-
-.polo-highlight {
-  color: #f0b90b !important;
-  font-weight: 800;
-  text-shadow: 0 0 8px rgba(240, 185, 11, 0.4);
-}
-
-.polo-tag {
-  font-size: 0.6rem;
-  background: rgba(240, 185, 11, 0.15);
-  color: #f0b90b;
-  border: 1px solid rgba(240, 185, 11, 0.4);
-  border-radius: 3px;
-  padding: 1px 5px;
-  font-weight: 700;
-}
-
 /* Elementos da Tabela */
 .col-rank { width: 50px; text-align: center; }
 .rank-badge {
@@ -2173,16 +2133,54 @@
 .crypto-index-chart-wrap {
   position: relative;
   width: 100%;
-  min-height: 540px;
+  min-height: 500px;
   background: #0b0e14;
   border: 1px solid #1c2230;
   border-radius: 8px;
   overflow: hidden;
 }
 
-#crypto-index-canvas {
-  display: block;
+#ci-chart-container {
   width: 100%;
+  height: 500px;
+  position: relative;
+}
+
+.ci-ohlc-overlay {
+  position: absolute;
+  top: 10px;
+  left: 14px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: 11px;
+  color: #848e9c;
+  pointer-events: none;
+  background: rgba(11, 14, 20, 0.85);
+  backdrop-filter: blur(4px);
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ci-ohlc-overlay .ci-ohlc-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ci-ohlc-overlay .ci-ohlc-lbl {
+  color: #5d6778;
+  font-weight: 700;
+  font-size: 10px;
+}
+
+.ci-ohlc-overlay .ci-ohlc-val {
+  font-weight: 700;
+  color: #eaecef;
 }
 
 .ci-loading {
@@ -2245,13 +2243,6 @@
   color: #eaecef;
   font-weight: 600;
   font-feature-settings: "tnum";
-}
-
-.ci-tt-change {
-  font-size: 0.8rem;
-  font-weight: 800;
-  margin-top: 4px;
-  text-align: center;
 }
 
 /* ── Seção: Radar Quantitativo de Confluência & Probabilidade (Oráculo) ── */

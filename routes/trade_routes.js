@@ -63,6 +63,21 @@ router.post('/position', async (req, res) => {
   }
 });
 
+// ─── 2.1 Obter Todas as Posições Abertas da Conta ───────────────────────────
+router.post('/all-positions', async (req, res) => {
+  try {
+    const { apiKey, apiSecret } = getCredentials(req);
+    if (!apiKey || !apiSecret) {
+      return res.status(400).json({ error: 'Chaves de API não configuradas.' });
+    }
+    const positions = await tradeService.getAllPositions(apiKey, apiSecret);
+    res.json({ success: true, positions });
+  } catch (err) {
+    console.error('[/api/trade/all-positions] Erro:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── 3. Executar Ordem a Mercado (BUY / SELL) ─────────────────────────────────
 router.post('/order', async (req, res) => {
   try {
@@ -76,6 +91,25 @@ router.post('/order', async (req, res) => {
       return res.status(400).json({ error: 'Par, lado (BUY/SELL) e quantidade do ativo são obrigatórios.' });
     }
 
+    const numQty = parseFloat(quantity);
+    if (isNaN(numQty) || numQty <= 0) {
+      return res.status(400).json({ error: 'A quantidade deve ser um valor maior que zero.' });
+    }
+
+    if (stopLoss !== undefined && stopLoss !== null && stopLoss !== '') {
+      const numSL = parseFloat(stopLoss);
+      if (isNaN(numSL) || numSL < 0) {
+        return res.status(400).json({ error: 'O Stop Loss não pode ser um valor negativo.' });
+      }
+    }
+
+    if (takeProfit !== undefined && takeProfit !== null && takeProfit !== '') {
+      const numTP = parseFloat(takeProfit);
+      if (isNaN(numTP) || numTP < 0) {
+        return res.status(400).json({ error: 'O Take Profit não pode ser um valor negativo.' });
+      }
+    }
+
     const tpSlOptions = (stopLoss || takeProfit) ? { stopLoss, takeProfit } : null;
 
     const order = await tradeService.executeMarketOrder(
@@ -83,7 +117,7 @@ router.post('/order', async (req, res) => {
       apiSecret,
       symbol.toUpperCase(),
       side.toUpperCase(),
-      parseFloat(quantity),
+      numQty,
       tpSlOptions
     );
 
@@ -129,6 +163,20 @@ router.post('/set-tpsl', async (req, res) => {
     }
     if (!symbol) {
       return res.status(400).json({ error: 'Símbolo é obrigatório.' });
+    }
+
+    if (stopLoss !== undefined && stopLoss !== null && stopLoss !== '') {
+      const numSL = parseFloat(stopLoss);
+      if (isNaN(numSL) || numSL < 0) {
+        return res.status(400).json({ error: 'O Stop Loss não pode ser um valor negativo.' });
+      }
+    }
+
+    if (takeProfit !== undefined && takeProfit !== null && takeProfit !== '') {
+      const numTP = parseFloat(takeProfit);
+      if (isNaN(numTP) || numTP < 0) {
+        return res.status(400).json({ error: 'O Take Profit não pode ser um valor negativo.' });
+      }
     }
 
     const result = await tradeService.setStopLossTakeProfit(apiKey, apiSecret, symbol.toUpperCase(), {

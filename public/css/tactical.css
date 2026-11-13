@@ -61,6 +61,405 @@
   min-height: 38px;
 }
 
+/* Menu / Barra inferior abaixo dos cards do HUD (Posições Abertas Binance) */
+.tac-bottom-menu {
+  display: flex;
+  flex-direction: column;
+  background: var(--tac-bg-dark);
+  border-top: 1px solid var(--tac-border-color);
+  width: 100%;
+  box-sizing: border-box;
+  border-bottom-left-radius: 7px;
+  border-bottom-right-radius: 7px;
+  overflow: hidden;
+}
+
+.tac-bmenu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px;
+  background: var(--tac-bg-toolbar);
+  border-bottom: 1px solid var(--tac-border-color);
+  min-height: 36px;
+  box-sizing: border-box;
+}
+
+.tac-bmenu-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tac-bmenu-tab {
+  background: none;
+  border: none;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #eaecef;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-bottom: 2px solid #fcd535;
+}
+
+.tac-bmenu-count {
+  background: rgba(255, 255, 255, 0.08);
+  color: #848e9c;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.tac-bmenu-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tac-bmenu-tip {
+  font-size: 10px;
+  color: #848e9c;
+  font-weight: 500;
+}
+
+.tac-bmenu-refresh-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid #2b313a;
+  color: #eaecef;
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tac-bmenu-refresh-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #4b5563;
+}
+
+/* Tabela de Posições estilo Binance */
+.tac-positions-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  background: var(--tac-bg-dark);
+}
+
+.tac-positions-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  color: #eaecef;
+}
+
+.tac-positions-table th {
+  padding: 7px 12px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 600;
+  color: #848e9c;
+  background: #12151a;
+  border-bottom: 1px solid #23272e;
+  white-space: nowrap;
+}
+
+.tac-positions-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #1a1e24;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.tac-positions-table tr.tac-pos-empty-row td {
+  text-align: center;
+  color: #848e9c;
+  padding: 18px 10px;
+  font-style: italic;
+}
+
+.tac-positions-table tr.tac-pos-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.tac-pos-sym-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tac-pos-side-badge {
+  font-size: 8.5px;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+}
+
+.tac-pos-side-badge.long {
+  background: rgba(14, 203, 129, 0.15);
+  color: #0ecb81;
+  border: 1px solid rgba(14, 203, 129, 0.35);
+}
+
+.tac-pos-side-badge.short {
+  background: rgba(246, 70, 93, 0.15);
+  color: #f6465d;
+  border: 1px solid rgba(246, 70, 93, 0.35);
+}
+
+.tac-pos-sym-name {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.tac-pos-sym-sub {
+  font-size: 9px;
+  color: #848e9c;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.tac-pos-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+
+.tac-pos-mono.color-long {
+  color: #0ecb81;
+  transition: color 0.25s ease;
+}
+
+.tac-pos-mono.color-short {
+  color: #f6465d;
+  transition: color 0.25s ease;
+}
+
+/* Pulso sutil na linha quando o PnL é atualizado em tempo real */
+@keyframes tac-row-flash {
+  0%   { background: rgba(255, 255, 255, 0.0); }
+  30%  { background: rgba(255, 255, 255, 0.045); }
+  100% { background: rgba(255, 255, 255, 0.0); }
+}
+
+.tac-pos-row.tac-row-pulse {
+  animation: tac-row-flash 0.55s ease-out forwards;
+}
+
+.tac-pos-tpsl-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.tac-pos-btn-edit-tpsl {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid #2b313a;
+  color: #eaecef;
+  border-radius: 4px;
+  padding: 3px 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.tac-pos-btn-edit-tpsl:hover {
+  background: #fcd535;
+  color: #181a20;
+  border-color: #fcd535;
+}
+
+.tac-pos-btn-market-close {
+  background: rgba(246, 70, 93, 0.12);
+  border: 1px solid rgba(246, 70, 93, 0.35);
+  color: #f6465d;
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tac-pos-btn-market-close:hover {
+  background: #f6465d;
+  color: #ffffff;
+}
+
+/* Modal TP/SL dedicado (Estilo Binance Futures) */
+.bop-modal-tpsl-card {
+  width: 440px !important;
+  max-width: 95vw !important;
+  background: #181a20 !important;
+  border: 1px solid #2b313a !important;
+  border-radius: 10px !important;
+  padding: 18px 20px !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8) !important;
+  color: #eaecef;
+}
+
+.bop-tpsl-pos-summary {
+  background: #121418;
+  border: 1px solid #23272e;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.bop-tpsl-sum-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+}
+
+.bop-tpsl-sum-label {
+  color: #848e9c;
+}
+
+.bop-tpsl-sum-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: #eaecef;
+}
+
+.bop-tpsl-tab-strip {
+  border-bottom: 1px solid #2b313a;
+  margin-bottom: 12px;
+}
+
+.bop-tpsl-tab-active {
+  display: inline-block;
+  padding: 6px 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fcd535;
+  border-bottom: 2px solid #fcd535;
+}
+
+.bop-tpsl-field-block {
+  margin-bottom: 12px;
+}
+
+.bop-tpsl-field-hdr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.bop-tpsl-field-title {
+  font-size: 11px;
+  font-weight: 700;
+  padding-left: 6px;
+}
+
+.bop-tpsl-field-title.tp {
+  border-left: 3px solid #0ecb81;
+  color: #0ecb81;
+}
+
+.bop-tpsl-field-title.sl {
+  border-left: 3px solid #f6465d;
+  color: #f6465d;
+}
+
+.bop-tpsl-btn-clear-single {
+  background: none;
+  border: none;
+  font-size: 10.5px;
+  color: #848e9c;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.bop-tpsl-btn-clear-single:hover {
+  color: #f6465d;
+}
+
+.bop-tpsl-input-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.bop-tpsl-input {
+  width: 100%;
+  height: 36px;
+  background: #2b313a;
+  border: 1px solid #363c46;
+  border-radius: 4px;
+  padding: 0 90px 0 10px;
+  font-size: 13px;
+  color: #eaecef;
+  font-family: 'JetBrains Mono', monospace;
+  box-sizing: border-box;
+}
+
+.bop-tpsl-input:focus {
+  border-color: #fcd535;
+  outline: none;
+}
+
+.bop-tpsl-input-addon {
+  position: absolute;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #848e9c;
+  pointer-events: none;
+}
+
+.bop-tpsl-hint {
+  font-size: 10px;
+  color: #848e9c;
+  margin-top: 4px;
+  line-height: 1.35;
+}
+
+.bop-tpsl-rr-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  background: rgba(240, 185, 11, 0.06);
+  border: 1px solid rgba(240, 185, 11, 0.2);
+  border-radius: 4px;
+  font-size: 11px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.bop-btn-confirm-binance {
+  background: #fcd535;
+  color: #181a20;
+  border: none;
+  border-radius: 4px;
+  padding: 9px 24px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.bop-btn-confirm-binance:hover {
+  background: #f0b90b;
+}
+
 .tac-titlebar-left {
   display: flex;
   align-items: center;
@@ -86,33 +485,6 @@
   gap: 4px;
   white-space: nowrap;
   flex-shrink: 0;
-}
-
-.tac-drag-icon {
-  font-size: 13px;
-  color: var(--tac-color-yellow);
-  opacity: 0.8;
-  letter-spacing: -2px;
-}
-
-.tac-titlebar-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--tac-text-primary);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.tac-badge-fut {
-  background: rgba(240, 185, 11, 0.15);
-  color: var(--tac-color-yellow);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  padding: 2px 7px;
-  border-radius: 4px;
-  border: 1px solid rgba(240, 185, 11, 0.3);
 }
 
 .tac-live-dot {
@@ -224,57 +596,6 @@
 .tac-tf-btn.active {
   background: rgba(240, 185, 11, 0.2);
   color: var(--tac-color-yellow);
-}
-
-/* Cronômetro de Fechamento da Vela (15m / 1h) */
-.tac-candle-timer-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: #14171d;
-  border: 1px solid var(--tac-border-color);
-  border-radius: 4px;
-  padding: 4px 9px;
-  font-size: 11px;
-  font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
-  color: #eaecef;
-  letter-spacing: 0.5px;
-  user-select: none;
-  transition: all 0.2s ease;
-  height: 25px;
-  box-sizing: border-box;
-  margin-right: 4px;
-}
-
-.tac-candle-timer-badge .tac-timer-icon {
-  font-size: 11px;
-  line-height: 1;
-}
-
-.tac-candle-timer-badge .tac-timer-val {
-  color: #f0b90b;
-  font-weight: 700;
-  min-width: 38px;
-  text-align: center;
-  display: inline-block;
-  font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
-}
-
-.tac-candle-timer-badge.closing-soon {
-  border-color: #f6465d;
-  background: rgba(246, 70, 93, 0.18);
-  color: #f6465d;
-  animation: pulse-timer 1s infinite alternate;
-}
-
-.tac-candle-timer-badge.closing-soon .tac-timer-val {
-  color: #f6465d;
-}
-
-@keyframes pulse-timer {
-  from { box-shadow: 0 0 0 rgba(246, 70, 93, 0); }
-  to { box-shadow: 0 0 8px rgba(246, 70, 93, 0.5); }
 }
 
 /* Botão Guia Mestre: Diagnóstico & Recomendações */
@@ -442,11 +763,6 @@
   flex: 1;
 }
 
-.tac-btn-toggle-ma,
-.tac-btn-toggle-ind,
-.tac-btn-toggle-zones,
-.tac-btn-toggle-tags,
-.tac-btn-toggle-priceline,
 .tac-btn-fibo {
   background: #1e2329;
   border: 1px solid var(--tac-border-color);
@@ -458,21 +774,12 @@
   cursor: pointer;
   transition: all 0.2s;
   user-select: none;
-}
-
-.tac-btn-toggle-ma:hover,
-.tac-btn-toggle-ma.active,
-.tac-btn-toggle-ind:hover,
-.tac-btn-toggle-ind.active,
-.tac-btn-toggle-zones:hover,
-.tac-btn-toggle-zones.active,
-.tac-btn-toggle-tags:hover,
-.tac-btn-toggle-tags.active,
-.tac-btn-toggle-priceline:hover,
-.tac-btn-toggle-priceline.active {
-  background: rgba(240, 185, 11, 0.15);
-  border-color: var(--tac-color-yellow);
-  color: var(--tac-color-yellow);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 25px;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
 .tac-btn-fibo:hover,
@@ -487,22 +794,6 @@
   background: rgba(56, 182, 255, 0.18) !important;
   border-color: #38b6ff !important;
   color: #38b6ff !important;
-}
-
-.tac-fibo-wrapper {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  vertical-align: middle;
-}
-
-.tac-btn-fibo {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  height: 25px;
-  box-sizing: border-box;
-  white-space: nowrap;
 }
 
 .tac-btn-fibo.drawing {
@@ -562,37 +853,6 @@
   color: var(--tac-text-muted);
   min-height: 32px;
   font-family: 'JetBrains Mono', 'Fira Code', monospace, sans-serif;
-}
-
-/* Badges da Legenda */
-.badge-closed {
-  background: rgba(240, 185, 11, 0.15);
-  color: var(--tac-color-yellow);
-  padding: 1px 6px;
-  border-radius: 3px;
-  border: 1px solid rgba(240, 185, 11, 0.35);
-  font-weight: 700;
-  font-size: 10px;
-}
-
-.badge-live {
-  background: rgba(14, 203, 129, 0.15);
-  color: var(--tac-color-green);
-  padding: 1px 6px;
-  border-radius: 3px;
-  border: 1px solid rgba(14, 203, 129, 0.35);
-  font-weight: 700;
-  font-size: 10px;
-}
-
-.badge-inspect {
-  background: rgba(56, 182, 255, 0.15);
-  color: var(--tac-color-cyan);
-  padding: 1px 6px;
-  border-radius: 3px;
-  border: 1px solid rgba(56, 182, 255, 0.35);
-  font-weight: 700;
-  font-size: 10px;
 }
 
 /* Classes Auxiliares de Cores */
@@ -907,184 +1167,6 @@
    Novos Componentes Avançados do HUD Tático
 ───────────────────────────────────────────────────────────── */
 
-/* Card 1: Top 10 + Meu Índice */
-.tac-top10-box {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 5px;
-  padding: 4px 8px;
-  margin-top: 2px;
-}
-
-.tac-top10-tag {
-  font-size: 9px;
-  color: #38bdf8;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-
-.tac-top10-numbers {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.tac-top10-desc {
-  font-size: 8.5px;
-  color: #848e9c;
-  margin-top: 2px;
-  line-height: 1.2;
-}
-
-/* Card 2: Oráculo Quantitativo com Probabilidade e Par Recomendado */
-.tac-oracle-prob-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  margin-top: 1px;
-}
-
-.tac-oracle-prob-pct {
-  font-size: 1.35rem;
-  font-weight: 900;
-  line-height: 1;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.tac-oracle-verdict-badge {
-  font-size: 0.68rem;
-  font-weight: 800;
-  padding: 2px 7px;
-  border-radius: 3px;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-}
-
-/* Barra de Probabilidade Bidirecional (-100% a +100%) */
-.tac-oracle-bar-track {
-  width: 100%;
-  height: 9px;
-  background: #14171d;
-  border-radius: 5px;
-  position: relative;
-  overflow: visible;
-  border: 1px solid #242c3d;
-  margin-top: 3px;
-}
-
-.tac-oracle-bar-fill {
-  height: 100%;
-  border-radius: 4px;
-  position: absolute;
-  top: 0;
-  transition: left 0.4s ease, width 0.4s ease;
-}
-
-.tac-oracle-bar-center {
-  position: absolute;
-  left: 50%;
-  top: -2px;
-  width: 2px;
-  height: 13px;
-  background: rgba(255, 255, 255, 0.45);
-  transform: translateX(-50%);
-  z-index: 2;
-}
-
-.tac-oracle-bar-needle {
-  position: absolute;
-  top: -3px;
-  width: 3px;
-  height: 15px;
-  background: #ffffff;
-  border-radius: 2px;
-  box-shadow: 0 0 5px rgba(255, 255, 255, 0.9);
-  transform: translateX(-50%);
-  transition: left 0.4s ease;
-  z-index: 3;
-}
-
-.tac-oracle-scale {
-  display: flex;
-  justify-content: space-between;
-  font-size: 7.5px;
-  color: #5d6778;
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700;
-  margin-top: 2px;
-  padding: 0 2px;
-}
-
-.tac-oracle-extremes {
-  display: flex;
-  justify-content: space-between;
-  font-size: 7.5px;
-  font-weight: 700;
-  margin-top: 1px;
-}
-
-/* Card Par Recomendado */
-.tac-lead-card {
-  background: #11151f;
-  border: 1px solid #1f2737;
-  border-radius: 5px;
-  padding: 5px 8px;
-  margin-top: 4px;
-}
-
-.tac-lead-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 8.5px;
-  font-weight: 700;
-  color: #848e9c;
-  text-transform: uppercase;
-}
-
-.tac-lead-pair-wrap {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 2px;
-}
-
-.tac-lead-pair-name {
-  color: #ffffff;
-  font-size: 0.95rem;
-  font-weight: 800;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.tac-lead-setup-badge {
-  font-size: 0.72rem;
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-weight: 700;
-}
-
-.tac-lead-details {
-  font-size: 8.5px;
-  color: #848e9c;
-  margin-top: 3px;
-  line-height: 1.35;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.tac-lead-action {
-  font-size: 8.5px;
-  color: #eaecef;
-  font-weight: 600;
-  margin-top: 3px;
-  line-height: 1.35;
-}
 
 @media (max-width: 768px) {
   .tac-chart-main { height: 300px; }

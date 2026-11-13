@@ -317,6 +317,28 @@ export function buildHTML() {
           </div>
 
           <!-- 1. Posição dos Tubarões (Top Traders) -->
+          <!-- 1. Quem está Agredindo? (5m) -->
+          <div>
+            <div style="font-size:9px;color:var(--tac-text-muted);font-weight:600;display:flex;justify-content:space-between;">
+              <span>⚡ QUEM ESTÁ AGREDINDO? (TAKER 5M)</span>
+            </div>
+            <div class="tac-meter-wrap" id="tac-taker-wrap" style="margin-top:2px;">
+              <div class="tac-meter-bar">
+                <div class="tac-meter-fill-long" id="tac-taker-long" style="width: 50%;"></div>
+                <div class="tac-meter-fill-short" id="tac-taker-short" style="width: 50%;"></div>
+              </div>
+              <div class="tac-meter-text">
+                <span style="color:#0ecb81;" id="tac-taker-buy-text">Compradores 50%</span>
+                <span style="color:#f6465d;" id="tac-taker-sell-text">Vendedores 50%</span>
+              </div>
+            </div>
+            <div id="tac-taker-desc" style="font-size:8.5px;font-weight:600;margin-top:1px;">Equilíbrio momentâneo</div>
+          </div>
+
+          <!-- Divisor -->
+          <div class="tac-hud-divider" style="margin:4px 0;"></div>
+
+          <!-- 2. Posição dos Tubarões (Top Traders) -->
           <div>
             <div style="font-size:9px;color:var(--tac-text-muted);font-weight:600;display:flex;justify-content:space-between;">
               <span>🦈 POSIÇÃO DOS TUBARÕES (TOP TRADERS)</span>
@@ -337,7 +359,7 @@ export function buildHTML() {
           <!-- Divisor -->
           <div class="tac-hud-divider" style="margin:4px 0;"></div>
 
-          <!-- 2. Onde está a Manada? (Contas Varejo) -->
+          <!-- 3. Onde está a Manada? (Contas Varejo) -->
           <div>
             <div style="font-size:9px;color:var(--tac-text-muted);font-weight:600;display:flex;justify-content:space-between;">
               <span>🐟 ONDE ESTÁ A MANADA? (CONTAS VAREJO)</span>
@@ -353,27 +375,6 @@ export function buildHTML() {
               </div>
             </div>
             <div id="tac-ls-trap-desc" style="font-size:8.5px;font-weight:600;margin-top:1px;line-height:1.2;">Calculando risco de armadilha...</div>
-          </div>
-
-          <!-- Divisor -->
-          <div class="tac-hud-divider" style="margin:4px 0;"></div>
-
-          <!-- 3. Quem está Agredindo? (5m) -->
-          <div>
-            <div style="font-size:9px;color:var(--tac-text-muted);font-weight:600;display:flex;justify-content:space-between;">
-              <span>⚡ QUEM ESTÁ AGREDINDO? (TAKER 5M)</span>
-            </div>
-            <div class="tac-meter-wrap" id="tac-taker-wrap" style="margin-top:2px;">
-              <div class="tac-meter-bar">
-                <div class="tac-meter-fill-long" id="tac-taker-long" style="width: 50%;"></div>
-                <div class="tac-meter-fill-short" id="tac-taker-short" style="width: 50%;"></div>
-              </div>
-              <div class="tac-meter-text">
-                <span style="color:#0ecb81;" id="tac-taker-buy-text">Compradores 50%</span>
-                <span style="color:#f6465d;" id="tac-taker-sell-text">Vendedores 50%</span>
-              </div>
-            </div>
-            <div id="tac-taker-desc" style="font-size:8.5px;font-weight:600;margin-top:1px;">Equilíbrio momentâneo</div>
           </div>
 
           <!-- Popover Informativo Unificado: Varejo & Institucional -->
@@ -575,6 +576,44 @@ export function buildHTML() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Menu / Barra Inferior (abaixo dos cards) - Posições Abertas Binance (Admin Only) -->
+      <div class="tac-bottom-menu admin-only" id="tac-bottom-menu">
+        <div class="tac-bmenu-header">
+          <div class="tac-bmenu-tabs">
+            <button class="tac-bmenu-tab active" id="tac-bmenu-tab-positions" type="button">
+              <span>Posições</span>
+              <span class="tac-bmenu-count" id="tac-bmenu-pos-count">0</span>
+            </button>
+          </div>
+          <div class="tac-bmenu-actions">
+            <span class="tac-bmenu-tip">💡 Clique no ✏️ para ajustar Take Profit e Stop Loss</span>
+            <button class="tac-bmenu-refresh-btn" id="tac-bmenu-btn-refresh" type="button" onclick="window.OrderPanel&&window.OrderPanel.refreshPositions&&window.OrderPanel.refreshPositions()" title="Atualizar posições da Binance">🔄</button>
+          </div>
+        </div>
+        <div class="tac-positions-table-wrap">
+          <table class="tac-positions-table">
+            <thead>
+              <tr>
+                <th>Símbolo</th>
+                <th>Tamanho</th>
+                <th>Preço de Entrada</th>
+                <th>Preço de Marca</th>
+                <th>Preço Liq.</th>
+                <th>Margem</th>
+                <th>PNL (ROI %)</th>
+                <th>TP / SL para posição</th>
+                <th style="text-align:right;">Fechar Posição</th>
+              </tr>
+            </thead>
+            <tbody id="tac-positions-tbody">
+              <tr class="tac-pos-empty-row">
+                <td colspan="9">Nenhuma posição aberta no momento</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 

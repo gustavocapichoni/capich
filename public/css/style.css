@@ -17,6 +17,7 @@ body.admin-mode .admin-only { display: revert !important; }
 
 /* Exceção: Painel de Controle usa display:flex quando visível para o admin */
 body.admin-mode .admin-only.b-order-panel { display: flex !important; }
+body.admin-mode .admin-only.tac-bottom-menu { display: flex !important; }
 
 /* ── Admin indicator bar (oculta — Sair movido para o menu lateral) ─────────── */
 .admin-indicator { display: none !important; }

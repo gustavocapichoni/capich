@@ -8,10 +8,6 @@ import { state, formatPrice } from './state.js';
 
 let isDrawerOpen = false;
 
-export function isAdvisorOpen() {
-  return isDrawerOpen;
-}
-
 export function updateAdvisorIfOpen() {
   if (isDrawerOpen) {
     renderAdvisorContent();

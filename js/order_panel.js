@@ -151,17 +151,11 @@
         <span class="bop-symbol-price" id="bop-price-label">$--</span>
       </div>
 
-      <!-- Caixa de Conta: Saldo & Posição -->
-      <div class="bop-account-box">
+      <!-- Caixa de Conta: Saldo -->
+      <div class="bop-account-box" style="padding: 8px 10px; margin-bottom: 8px;">
         <div class="bop-row-balance">
           <span>Saldo USDT:</span>
           <span class="bop-val-balance" id="bop-val-balance">Carregando...</span>
-        </div>
-        <div class="bop-position-status" id="bop-position-container">
-          <div class="bop-pos-empty">
-            <span>●</span>
-            <span>Sem posição aberta</span>
-          </div>
         </div>
       </div>
 
@@ -169,7 +163,7 @@
       <div class="bop-amount-box">
         <div class="bop-section-label" id="bop-qty-label">QUANTIDADE (${baseAsset})</div>
         <div class="bop-input-group">
-          <input type="number" id="bop-input-qty" class="bop-input-amount" placeholder="0" step="any">
+          <input type="number" id="bop-input-qty" class="bop-input-amount" placeholder="0" min="0" step="any">
           <span class="bop-input-suffix" id="bop-input-suffix">${baseAsset}</span>
         </div>
         
@@ -187,47 +181,6 @@
         </div>
 
         <div class="bop-est-qty" id="bop-cost-usdt">Custo aprox: $0.00 USDT</div>
-      </div>
-
-      <!-- Take Profit & Stop Loss (Gerenciamento de Risco) -->
-      <div class="bop-tpsl-box">
-        <div class="bop-tpsl-header">
-          <span>🎯 TP &amp; 🛑 SL</span>
-          <span id="bop-tpsl-status" style="font-size:9px;color:#848e9c;">(Opcional)</span>
-        </div>
-        <div class="bop-tpsl-grid">
-          <div class="bop-tpsl-col">
-            <span class="bop-tpsl-label tp">🎯 TAKE PROFIT</span>
-            <input type="number" id="bop-input-tp" class="bop-input-tpsl tp" placeholder="Preço TP ($)" step="any">
-          </div>
-          <div class="bop-tpsl-col">
-            <span class="bop-tpsl-label sl">🛑 STOP LOSS</span>
-            <input type="number" id="bop-input-sl" class="bop-input-tpsl sl" placeholder="Preço SL ($)" step="any">
-          </div>
-        </div>
-        <div class="bop-tpsl-actions" id="bop-tpsl-actions">
-          <button class="bop-btn-tpsl-apply" id="bop-btn-set-tpsl" title="Aplica ou atualiza o TP/SL na posição atual">💾 Salvar TP/SL</button>
-          <button class="bop-btn-tpsl-cancel" id="bop-btn-cancel-tpsl" title="Cancela ordens de TP/SL abertas na Binance">✕ Limpar</button>
-        </div>
-      </div>
-
-      <!-- Projeção de Lucro / Prejuízo -->
-      <div class="bop-pnl-box" id="bop-pnl-box" style="display:none;">
-        <div class="bop-pnl-header">📊 Projeção P&L</div>
-        <div class="bop-pnl-grid">
-          <div class="bop-pnl-row">
-            <span class="bop-pnl-label tp">🎯 Se TP atingido</span>
-            <span class="bop-pnl-val tp" id="bop-pnl-tp-val">--</span>
-          </div>
-          <div class="bop-pnl-row">
-            <span class="bop-pnl-label sl">🛑 Se SL atingido</span>
-            <span class="bop-pnl-val sl" id="bop-pnl-sl-val">--</span>
-          </div>
-          <div class="bop-pnl-row bop-pnl-rr-row">
-            <span class="bop-pnl-label rr">⚖️ Risco : Retorno</span>
-            <span class="bop-pnl-val rr" id="bop-pnl-rr-val">--</span>
-          </div>
-        </div>
       </div>
 
       <!-- Botões de Compra e Venda -->
@@ -306,14 +259,15 @@
     const interactiveIds = [
       'bop-input-qty',
       'bop-btn-min', 'bop-btn-2x', 'bop-btn-5x', 'bop-btn-10x',
-      'bop-input-tp', 'bop-input-sl',
-      'bop-btn-set-tpsl', 'bop-btn-cancel-tpsl',
-      'bop-btn-buy', 'bop-btn-sell',
-      'bop-btn-close'
+      'bop-btn-buy', 'bop-btn-sell'
     ];
     interactiveIds.forEach(id => {
       const el = document.getElementById(id);
       if (el) el.disabled = isPanelLocked;
+    });
+
+    document.querySelectorAll('.tac-pos-btn-market-close, .tac-pos-btn-edit-tpsl').forEach(el => {
+      el.disabled = isPanelLocked;
     });
   }
 
@@ -396,9 +350,26 @@
     // Input de Quantidade
     const inputQty = document.getElementById('bop-input-qty');
     if (inputQty) {
-      inputQty.oninput = () => {
+      inputQty.setAttribute('min', '0');
+      inputQty.addEventListener('keydown', (e) => {
+        if (e.key === '-' || e.key === 'e' || e.key === '+') {
+          e.preventDefault();
+        }
+      });
+      const sanitizeQty = () => {
+        let v = inputQty.value;
+        if (v.includes('-')) {
+          v = v.replace(/-/g, '');
+          inputQty.value = v;
+        }
+        if (parseFloat(v) < 0) {
+          inputQty.value = '';
+        }
         validateAndCalcCost();
       };
+      inputQty.addEventListener('input', sanitizeQty);
+      inputQty.addEventListener('change', sanitizeQty);
+      inputQty.addEventListener('paste', () => setTimeout(sanitizeQty, 10));
     }
 
     // Botões rápidos de quantidade baseados na regra da Binance
@@ -428,29 +399,33 @@
     if (btnBuy) btnBuy.onclick = () => sendTrade('BUY');
     if (btnSell) btnSell.onclick = () => sendTrade('SELL');
 
-    // Botões e inputs de TP / SL
-    const btnSetTpSl = document.getElementById('bop-btn-set-tpsl');
-    const btnCancelTpSl = document.getElementById('bop-btn-cancel-tpsl');
-    const inputTp = document.getElementById('bop-input-tp');
-    const inputSl = document.getElementById('bop-input-sl');
-
-    if (btnSetTpSl) btnSetTpSl.onclick = () => saveTpSl();
-    if (btnCancelTpSl) btnCancelTpSl.onclick = () => cancelTpSl();
-
-    if (inputTp) {
-      inputTp.oninput = () => {
-        const val = parseFloat(String(inputTp.value).replace(',', '.')) || 0;
-        if (window.ChartPositions) window.ChartPositions.updateTpLine(val);
-        updatePnlProjection();
-      };
+    // Listeners do Modal TP/SL
+    const modalInputTp = document.getElementById('modal-tpsl-input-tp');
+    const modalInputSl = document.getElementById('modal-tpsl-input-sl');
+    if (modalInputTp) {
+      modalInputTp.addEventListener('input', () => {
+        const btnClr = document.getElementById('modal-tpsl-clear-tp');
+        if (btnClr) btnClr.style.display = modalInputTp.value ? 'inline' : 'none';
+        updateModalTpSlHints();
+      });
     }
-    if (inputSl) {
-      inputSl.oninput = () => {
-        const val = parseFloat(String(inputSl.value).replace(',', '.')) || 0;
-        if (window.ChartPositions) window.ChartPositions.updateSlLine(val);
-        updatePnlProjection();
-      };
+    if (modalInputSl) {
+      modalInputSl.addEventListener('input', () => {
+        const btnClr = document.getElementById('modal-tpsl-clear-sl');
+        if (btnClr) btnClr.style.display = modalInputSl.value ? 'inline' : 'none';
+        updateModalTpSlHints();
+      });
     }
+
+    // Fecha modal TP/SL com a tecla ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const modalEl = document.getElementById('modal-tpsl');
+        if (modalEl && modalEl.style.display !== 'none') {
+          closeTpSlModal();
+        }
+      }
+    });
 
     // Aplica estado de bloqueio persistido
     applyLockState(isPanelLocked);
@@ -525,82 +500,6 @@
   }
 
   /**
-   * Calcula e exibe a projeção de Lucro/Prejuízo com base na posição aberta + TP/SL definidos.
-   * Funciona para LONG e SHORT. Atualiza automaticamente ao digitar TP ou SL.
-   */
-  function updatePnlProjection() {
-    const box   = document.getElementById('bop-pnl-box');
-    const tpEl  = document.getElementById('bop-pnl-tp-val');
-    const slEl  = document.getElementById('bop-pnl-sl-val');
-    const rrEl  = document.getElementById('bop-pnl-rr-val');
-    if (!box || !tpEl || !slEl || !rrEl) return;
-
-    const tpPrice = parseFloat(document.getElementById('bop-input-tp')?.value) || 0;
-    const slPrice = parseFloat(document.getElementById('bop-input-sl')?.value) || 0;
-
-    // Precisa de posição aberta + ao menos um dos valores
-    const pos = currentPositionData;
-    const hasPos = pos && pos.hasPosition && Math.abs(pos.positionAmt) > 0 && pos.entryPrice > 0;
-
-    if (!hasPos || (!tpPrice && !slPrice)) {
-      box.style.display = 'none';
-      return;
-    }
-
-    box.style.display = 'block';
-
-    const qty      = Math.abs(pos.positionAmt);
-    const entry    = pos.entryPrice;
-    const isLong   = pos.side === 'LONG';
-
-    // Lucro projetado (TP)
-    let tpPnl = null;
-    if (tpPrice > 0) {
-      tpPnl = isLong
-        ? (tpPrice - entry) * qty
-        : (entry - tpPrice) * qty;
-    }
-
-    // Prejuízo projetado (SL)
-    let slPnl = null;
-    if (slPrice > 0) {
-      slPnl = isLong
-        ? (slPrice - entry) * qty   // será negativo para SL abaixo da entrada (LONG)
-        : (entry - slPrice) * qty;  // será negativo para SL acima da entrada (SHORT)
-    }
-
-    // Exibe TP
-    if (tpPnl !== null) {
-      const sign = tpPnl >= 0 ? '+' : '';
-      tpEl.textContent = `${sign}$${tpPnl.toFixed(2)} USDT`;
-      tpEl.style.color = tpPnl >= 0 ? '#0ecb81' : '#f6465d';
-    } else {
-      tpEl.textContent = '--';
-      tpEl.style.color = '#848e9c';
-    }
-
-    // Exibe SL
-    if (slPnl !== null) {
-      const sign = slPnl >= 0 ? '+' : '';
-      slEl.textContent = `${sign}$${slPnl.toFixed(2)} USDT`;
-      slEl.style.color = slPnl >= 0 ? '#0ecb81' : '#f6465d';
-    } else {
-      slEl.textContent = '--';
-      slEl.style.color = '#848e9c';
-    }
-
-    // Risco:Retorno (apenas se tiver os dois)
-    if (tpPnl !== null && slPnl !== null && slPnl !== 0) {
-      const rr = Math.abs(tpPnl) / Math.abs(slPnl);
-      rrEl.textContent = `1 : ${rr.toFixed(2)}`;
-      rrEl.style.color = rr >= 2 ? '#0ecb81' : rr >= 1 ? '#f0b90b' : '#f6465d';
-    } else {
-      rrEl.textContent = '--';
-      rrEl.style.color = '#848e9c';
-    }
-  }
-
-  /**
    * Exibe mensagens de feedback no painel
    */
   function setToast(msg, type = '') {
@@ -624,6 +523,489 @@
     validateAndCalcCost();
   }
 
+  // ─── GERENCIAMENTO DE POSIÇÕES (MENU INFERIOR ESTILO BINANCE) ───────────────
+  let allPositionsList = [];
+  let modalActiveSymbol = null;
+  let modalActivePos = null;
+
+  // ─── WEBSOCKET MARK PRICE (tempo real) ──────────────────────────────────────
+  let markPriceWs = null;
+  let markPriceWsReconnectTimer = null;
+  let markPriceWsActive = false;
+
+  /**
+   * Inicia (ou reinicia) o WebSocket de mark price da Binance Futures.
+   * Usa o stream combinado !markPrice@arr@1s — atualiza todos os pares a cada 1s.
+   * Sem autenticação necessária (stream público).
+   */
+  function startMarkPriceWs() {
+    if (markPriceWs) {
+      try { markPriceWs.close(); } catch (_) {}
+      markPriceWs = null;
+    }
+    if (markPriceWsReconnectTimer) {
+      clearTimeout(markPriceWsReconnectTimer);
+      markPriceWsReconnectTimer = null;
+    }
+
+    const url = 'wss://fstream.binance.com/stream?streams=!markPrice@arr@1s';
+    let ws;
+    try {
+      ws = new WebSocket(url);
+    } catch (e) {
+      console.warn('[MarkPriceWS] Não foi possível abrir WebSocket:', e.message);
+      return;
+    }
+
+    ws.onopen = () => {
+      markPriceWsActive = true;
+      console.log('[MarkPriceWS] Conectado ao stream de mark price da Binance.');
+    };
+
+    ws.onmessage = (evt) => {
+      try {
+        const msg = JSON.parse(evt.data);
+        // O stream combinado vem como { stream, data: [...] }
+        const arr = msg.data || msg;
+        if (!Array.isArray(arr)) return;
+        arr.forEach(item => {
+          if (!item.s || !item.p) return; // s = symbol, p = markPrice
+          onMarkPriceUpdate(item.s, parseFloat(item.p));
+        });
+      } catch (_) {}
+    };
+
+    ws.onerror = () => {
+      markPriceWsActive = false;
+    };
+
+    ws.onclose = () => {
+      markPriceWsActive = false;
+      console.warn('[MarkPriceWS] Conexão encerrada. Reconectando em 5s...');
+      markPriceWsReconnectTimer = setTimeout(startMarkPriceWs, 5000);
+    };
+
+    markPriceWs = ws;
+  }
+
+  /**
+   * Para o WebSocket de mark price (ex: quando não há posições abertas).
+   */
+  function stopMarkPriceWs() {
+    if (markPriceWsReconnectTimer) {
+      clearTimeout(markPriceWsReconnectTimer);
+      markPriceWsReconnectTimer = null;
+    }
+    if (markPriceWs) {
+      markPriceWs.onclose = null; // evita reconexão automática
+      try { markPriceWs.close(); } catch (_) {}
+      markPriceWs = null;
+    }
+    markPriceWsActive = false;
+  }
+
+  /**
+   * Chamado a cada tick do WebSocket para um symbol+markPrice.
+   * Atualiza as células da linha correspondente sem re-renderizar a tabela.
+   */
+  function onMarkPriceUpdate(symbol, markPrice) {
+    const posIdx = allPositionsList.findIndex(p => p.symbol === symbol);
+    if (posIdx === -1) return; // sem posição aberta nesse par
+
+    const pos = allPositionsList[posIdx];
+
+    // Recalcula PnL e ROI com o novo mark price
+    const size = Math.abs(pos.positionAmt);
+    const isLong = pos.side === 'LONG';
+    const newPnl = isLong
+      ? (markPrice - pos.entryPrice) * size
+      : (pos.entryPrice - markPrice) * size;
+    const newRoi = isLong
+      ? ((markPrice - pos.entryPrice) / pos.entryPrice) * pos.leverage * 100
+      : ((pos.entryPrice - markPrice) / pos.entryPrice) * pos.leverage * 100;
+
+    // Atualiza o objeto em memória
+    pos.unRealizedProfit = newPnl;
+    pos.roi = newRoi;
+    pos.markPrice = markPrice;
+
+    // Atualiza células no DOM (sem re-render da tabela)
+    const pnlSign  = newPnl >= 0 ? '+' : '';
+    const roiSign  = newRoi >= 0 ? '+' : '';
+    const pnlClass = newPnl >= 0 ? 'color-long' : 'color-short';
+
+    const markEl = document.getElementById(`tac-cell-mark-${symbol}`);
+    const pnlEl  = document.getElementById(`tac-cell-pnl-${symbol}`);
+    const rowEl  = document.querySelector(`.tac-pos-row[data-symbol="${symbol}"]`);
+
+    if (markEl) {
+      markEl.textContent = '$' + markPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 });
+    }
+    if (pnlEl) {
+      pnlEl.className = `tac-pos-mono ${pnlClass}`;
+      pnlEl.style.fontWeight = '700';
+      pnlEl.innerHTML = `${pnlSign}$${newPnl.toFixed(2)} USDT <span style="font-size:9.5px;font-weight:600;">(${roiSign}${newRoi.toFixed(2)}%)</span>`;
+    }
+    // Pulso visual na linha ao atualizar
+    if (rowEl) {
+      rowEl.classList.remove('tac-row-pulse');
+      void rowEl.offsetWidth; // força reflow para reiniciar animação
+      rowEl.classList.add('tac-row-pulse');
+    }
+
+    // Atualiza também o preço de marca no painel lateral (se for o par atual)
+    if (symbol === currentSymbol) {
+      currentPrice = markPrice;
+      syncSymbolPrice();
+    }
+  }
+
+  /**
+   * Renderiza a tabela de posições abertas no menu inferior
+   */
+  function renderPositionsTable(positions) {
+    allPositionsList = Array.isArray(positions) ? positions : [];
+    const tbody = document.getElementById('tac-positions-tbody');
+    const countEl = document.getElementById('tac-bmenu-pos-count');
+    if (countEl) countEl.textContent = allPositionsList.length;
+
+    if (!tbody) return;
+
+    if (!allPositionsList || allPositionsList.length === 0) {
+      tbody.innerHTML = `
+        <tr class="tac-pos-empty-row">
+          <td colspan="9">Nenhuma posição aberta no momento</td>
+        </tr>
+      `;
+      stopMarkPriceWs(); // sem posições, fecha o WS para economizar
+      return;
+    }
+
+    // Inicia / mantém o WebSocket de mark price em tempo real
+    if (!markPriceWsActive) {
+      startMarkPriceWs();
+    }
+
+    tbody.innerHTML = allPositionsList.map(pos => {
+      const isLong = pos.side === 'LONG';
+      const baseSym = pos.symbol.replace('USDT', '');
+      const pnlSign = pos.unRealizedProfit >= 0 ? '+' : '';
+      const roiSign = pos.roi >= 0 ? '+' : '';
+      const pnlClass = pos.unRealizedProfit >= 0 ? 'color-long' : 'color-short';
+      const tpFormatted = pos.tpPrice ? Number(pos.tpPrice).toLocaleString('en-US', { minimumFractionDigits: 2 }) : '--';
+      const slFormatted = pos.slPrice ? Number(pos.slPrice).toLocaleString('en-US', { minimumFractionDigits: 2 }) : '--';
+      const hasTpSl = Boolean(pos.tpPrice || pos.slPrice);
+
+      return `
+        <tr class="tac-pos-row" data-symbol="${pos.symbol}">
+          <!-- Símbolo -->
+          <td>
+            <div class="tac-pos-sym-group">
+              <span class="tac-pos-side-badge ${isLong ? 'long' : 'short'}">${pos.side}</span>
+              <span class="tac-pos-sym-name" onclick="window._setTacPair && window._setTacPair('${baseSym}')" style="cursor:pointer;" title="Clique para abrir o gráfico de ${pos.symbol}">
+                <strong style="color:var(--tac-text-primary);">${pos.symbol}</strong>
+                <span class="tac-pos-sym-sub">Perp ${pos.leverage}x</span>
+              </span>
+            </div>
+          </td>
+          <!-- Tamanho -->
+          <td class="tac-pos-mono ${isLong ? 'color-long' : 'color-short'}" style="font-weight:700;">
+            ${Math.abs(pos.positionAmt)} ${baseSym}
+          </td>
+          <!-- Preço de Entrada -->
+          <td class="tac-pos-mono">$${pos.entryPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+          <!-- Preço de Marca (atualizado em tempo real) -->
+          <td class="tac-pos-mono" id="tac-cell-mark-${pos.symbol}">$${pos.markPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+          <!-- Preço Liq. -->
+          <td class="tac-pos-mono" style="color:#f6465d;">
+            ${pos.liquidationPrice > 0 ? '$' + pos.liquidationPrice.toLocaleString('en-US', { minimumFractionDigits: 2 }) : '--'}
+          </td>
+          <!-- Margem -->
+          <td class="tac-pos-mono">
+            $${pos.margin.toFixed(2)} USDT <span style="font-size:9.5px;color:#848e9c;">(${pos.marginType})</span>
+          </td>
+          <!-- PNL (ROI %) — atualizado em tempo real -->
+          <td class="tac-pos-mono ${pnlClass}" id="tac-cell-pnl-${pos.symbol}" style="font-weight:700;">
+            ${pnlSign}$${pos.unRealizedProfit.toFixed(2)} USDT
+            <span style="font-size:9.5px;font-weight:600;">(${roiSign}${pos.roi.toFixed(2)}%)</span>
+          </td>
+          <!-- TP / SL para posição -->
+          <td>
+            <div class="tac-pos-tpsl-cell">
+              <span>
+                <span style="color:#0ecb81;" title="Take Profit">${tpFormatted}</span> / 
+                <span style="color:#f6465d;" title="Stop Loss">${slFormatted}</span>
+              </span>
+              <button type="button" class="tac-pos-btn-edit-tpsl" onclick="window.OrderPanel.openTpSlModal('${pos.symbol}')" title="${hasTpSl ? 'Editar Take Profit e Stop Loss' : 'Adicionar Take Profit e Stop Loss'}">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+            </div>
+          </td>
+          <!-- Fechar Posição -->
+          <td style="text-align:right;">
+            <button type="button" class="tac-pos-btn-market-close" onclick="window.OrderPanel.closePosition('${pos.symbol}')" title="Zerar posição a mercado">
+              Market
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  /**
+   * Abre o modal de ajuste de TP / SL para o símbolo informado.
+   * @param {string} symbol - Ex: "ETHUSDT"
+   * @param {number} [prefillTp] - Valor de TP a pré-preencher (usado pelo drag & drop do gráfico)
+   * @param {number} [prefillSl] - Valor de SL a pré-preencher (usado pelo drag & drop do gráfico)
+   */
+  function openTpSlModal(symbol, prefillTp, prefillSl) {
+    if (isPanelLocked) {
+      alert('🔒 Painel bloqueado! Clique no cadeado para desbloquear antes de ajustar ordens.');
+      return;
+    }
+    const pos = allPositionsList.find(p => p.symbol === symbol);
+    if (!pos) {
+      alert(`Posição em ${symbol} não encontrada.`);
+      return;
+    }
+
+    modalActiveSymbol = symbol;
+    modalActivePos = pos;
+
+    const modalEl = document.getElementById('modal-tpsl');
+    if (!modalEl) return;
+
+    const isLong = pos.side === 'LONG';
+    const symTag = document.getElementById('modal-tpsl-sym-tag');
+    if (symTag) {
+      symTag.innerHTML = `<strong>${pos.symbol}</strong> <span style="color:${isLong ? '#0ecb81' : '#f6465d'};font-weight:700;">${isLong ? 'Longo' : 'Curto'} ${pos.leverage}x</span>`;
+    }
+
+    const entryEl = document.getElementById('modal-tpsl-entry-val');
+    if (entryEl) entryEl.textContent = `$${pos.entryPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+
+    const markEl = document.getElementById('modal-tpsl-mark-val');
+    if (markEl) markEl.textContent = `$${pos.markPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+
+    const liqEl = document.getElementById('modal-tpsl-liq-val');
+    if (liqEl) {
+      liqEl.textContent = pos.liquidationPrice > 0 ? `$${pos.liquidationPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '--';
+    }
+
+    const inputTp = document.getElementById('modal-tpsl-input-tp');
+    const inputSl = document.getElementById('modal-tpsl-input-sl');
+    const btnClrTp = document.getElementById('modal-tpsl-clear-tp');
+    const btnClrSl = document.getElementById('modal-tpsl-clear-sl');
+
+    // Se vieram valores do drag & drop, usa-os; senão usa os valores salvos na posição
+    const tpValue = prefillTp && prefillTp > 0 ? prefillTp : (pos.tpPrice || '');
+    const slValue = prefillSl && prefillSl > 0 ? prefillSl : (pos.slPrice || '');
+
+    if (inputTp) inputTp.value = tpValue;
+    if (inputSl) inputSl.value = slValue;
+
+    if (btnClrTp) btnClrTp.style.display = tpValue ? 'inline' : 'none';
+    if (btnClrSl) btnClrSl.style.display = slValue ? 'inline' : 'none';
+
+    updateModalTpSlHints();
+
+    modalEl.style.display = 'flex';
+  }
+
+  /**
+   * Fecha o modal de TP / SL
+   */
+  function closeTpSlModal() {
+    const modalEl = document.getElementById('modal-tpsl');
+    if (modalEl) modalEl.style.display = 'none';
+    modalActiveSymbol = null;
+    modalActivePos = null;
+  }
+
+  function clearSingleTp() {
+    const inputTp = document.getElementById('modal-tpsl-input-tp');
+    if (inputTp) inputTp.value = '';
+    const btnClrTp = document.getElementById('modal-tpsl-clear-tp');
+    if (btnClrTp) btnClrTp.style.display = 'none';
+    updateModalTpSlHints();
+  }
+
+  function clearSingleSl() {
+    const inputSl = document.getElementById('modal-tpsl-input-sl');
+    if (inputSl) inputSl.value = '';
+    const btnClrSl = document.getElementById('modal-tpsl-clear-sl');
+    if (btnClrSl) btnClrSl.style.display = 'none';
+    updateModalTpSlHints();
+  }
+
+  /**
+   * Atualiza dinamicamente as dicas de PnL e ROI % no modal conforme digitação
+   */
+  function updateModalTpSlHints() {
+    if (!modalActivePos) return;
+    const isLong = modalActivePos.side === 'LONG';
+    const entry = modalActivePos.entryPrice || 0;
+    const size = Math.abs(modalActivePos.positionAmt) || 0;
+    const lev = modalActivePos.leverage || 1;
+
+    const inputTp = document.getElementById('modal-tpsl-input-tp');
+    const inputSl = document.getElementById('modal-tpsl-input-sl');
+    const hintTp = document.getElementById('modal-tpsl-tp-hint');
+    const hintSl = document.getElementById('modal-tpsl-sl-hint');
+    const rrBox = document.getElementById('modal-tpsl-rr-box');
+    const rrVal = document.getElementById('modal-tpsl-rr-val');
+
+    const tpVal = parseFloat(String(inputTp?.value || '').replace(',', '.')) || 0;
+    const slVal = parseFloat(String(inputSl?.value || '').replace(',', '.')) || 0;
+
+    let tpPnl = 0;
+    let tpRoi = 0;
+    let slPnl = 0;
+    let slRoi = 0;
+
+    if (tpVal > 0 && entry > 0 && size > 0) {
+      tpPnl = isLong ? (tpVal - entry) * size : (entry - tpVal) * size;
+      tpRoi = isLong ? ((tpVal - entry) / entry) * lev * 100 : ((entry - tpVal) / entry) * lev * 100;
+      const sign = tpPnl >= 0 ? '+' : '';
+      const roiSign = tpRoi >= 0 ? '+' : '';
+      const col = tpPnl >= 0 ? '#0ecb81' : '#f6465d';
+      if (hintTp) {
+        hintTp.innerHTML = `Quando o preço de marca atingir <strong>${tpVal} USDT</strong>, será acionada uma ordem a mercado. Lucro estimado de <strong style="color:${col};">${sign}$${tpPnl.toFixed(2)} USDT (${roiSign}${tpRoi.toFixed(2)}%)</strong>.`;
+      }
+    } else {
+      if (hintTp) hintTp.innerHTML = 'Insira o preço para realizar lucro.';
+    }
+
+    if (slVal > 0 && entry > 0 && size > 0) {
+      slPnl = isLong ? (slVal - entry) * size : (entry - slVal) * size;
+      slRoi = isLong ? ((slVal - entry) / entry) * lev * 100 : ((entry - slVal) / entry) * lev * 100;
+      const sign = slPnl >= 0 ? '+' : '';
+      const roiSign = slRoi >= 0 ? '+' : '';
+      const col = slPnl >= 0 ? '#0ecb81' : '#f6465d';
+      if (hintSl) {
+        hintSl.innerHTML = `Quando o preço de marca atingir <strong>${slVal} USDT</strong>, será acionada uma ordem a mercado. Prejuízo estimado de <strong style="color:${col};">${sign}$${slPnl.toFixed(2)} USDT (${roiSign}${slRoi.toFixed(2)}%)</strong>.`;
+      }
+    } else {
+      if (hintSl) hintSl.innerHTML = 'Insira o preço de proteção contra perdas.';
+    }
+
+    // Risco:Retorno
+    if (tpVal > 0 && slVal > 0 && entry > 0) {
+      const profitDist = Math.abs(tpVal - entry);
+      const lossDist = Math.abs(entry - slVal);
+      if (lossDist > 0 && rrBox && rrVal) {
+        const ratio = (profitDist / lossDist).toFixed(2);
+        rrVal.textContent = `1 : ${ratio}`;
+        rrBox.style.display = 'flex';
+      } else if (rrBox) {
+        rrBox.style.display = 'none';
+      }
+    } else if (rrBox) {
+      rrBox.style.display = 'none';
+    }
+  }
+
+  /**
+   * Salva as ordens de TP e SL via Modal na Binance
+   */
+  async function saveTpSlModal() {
+    if (!modalActiveSymbol) return;
+    const { apiKey, apiSecret } = getStoredKeys();
+    if (!apiKey || !apiSecret) {
+      alert('Configure suas chaves API antes de enviar ordens.');
+      return;
+    }
+
+    const inputTp = document.getElementById('modal-tpsl-input-tp');
+    const inputSl = document.getElementById('modal-tpsl-input-sl');
+    const tpVal = parseFloat(String(inputTp?.value || '').replace(',', '.')) || 0;
+    const slVal = parseFloat(String(inputSl?.value || '').replace(',', '.')) || 0;
+
+    // Se ambos estiverem vazios/zerados, cancela ordens existentes
+    if (tpVal <= 0 && slVal <= 0) {
+      if (!confirm(`Deseja remover o Take Profit e o Stop Loss de ${modalActiveSymbol}?`)) return;
+      try {
+        await fetch('/api/trade/cancel-tpsl', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apiKey, apiSecret, symbol: modalActiveSymbol })
+        });
+        setToast('Ordens de TP/SL canceladas!', 'success');
+        closeTpSlModal();
+        fetchAccountData();
+      } catch (e) {
+        alert(`Erro: ${e.message}`);
+      }
+      return;
+    }
+
+    const btnConfirm = document.getElementById('modal-tpsl-btn-confirm');
+    if (btnConfirm) btnConfirm.disabled = true;
+
+    try {
+      const res = await fetch('/api/trade/set-tpsl', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey,
+          apiSecret,
+          symbol: modalActiveSymbol,
+          takeProfit: tpVal > 0 ? tpVal : '',
+          stopLoss: slVal > 0 ? slVal : ''
+        })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+
+      setToast(`✅ TP/SL atualizado em ${modalActiveSymbol}!`, 'success');
+      closeTpSlModal();
+      fetchAccountData();
+    } catch (err) {
+      alert(`Erro ao configurar TP/SL na Binance: ${err.message}`);
+    } finally {
+      if (btnConfirm) btnConfirm.disabled = false;
+    }
+  }
+
+  /**
+   * Encerra posição a mercado
+   */
+  async function closePosition(sym) {
+    const targetSymbol = sym || currentSymbol;
+    if (isPanelLocked) {
+      alert('🔒 Painel bloqueado! Clique no cadeado no topo para desbloquear antes de zerar posição.');
+      return;
+    }
+    const { apiKey, apiSecret } = getStoredKeys();
+    if (!apiKey || !apiSecret) return;
+
+    if (!confirm(`Deseja encerrar a mercado toda a sua posição em ${targetSymbol}?`)) return;
+
+    setToast(`Encerrando posição em ${targetSymbol} a mercado...`, '');
+    try {
+      const res = await fetch('/api/trade/close', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey, apiSecret, symbol: targetSymbol })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+
+      setToast(`✅ Posição em ${targetSymbol} zerada!`, 'success');
+      if (targetSymbol === currentSymbol && window.ChartPositions) {
+        window.ChartPositions.clearAllLines();
+      }
+      fetchAccountData();
+    } catch (err) {
+      console.error('[OrderPanel] Erro ao fechar posição:', err);
+      setToast(`Erro: ${err.message}`, 'error');
+      alert(`Erro ao encerrar posição: ${err.message}`);
+    }
+  }
+
   /**
    * Busca dados da conta e da posição via API local
    */
@@ -632,6 +1014,7 @@
     if (!apiKey || !apiSecret) {
       const balEl = document.getElementById('bop-val-balance');
       if (balEl) balEl.textContent = 'Clique na 🔑';
+      renderPositionsTable([]);
       return;
     }
 
@@ -656,98 +1039,37 @@
         }
         console.warn('[/api/trade/balance] Erro:', balData.error);
         if (balData.error && (balData.error.includes('-2015') || balData.error.includes('IP') || balData.error.includes('Invalid API-key'))) {
-          showToast('⚠️ Binance: ' + balData.error, 'error');
+          setToast('⚠️ Binance: ' + balData.error, 'error');
         }
       }
 
-      // 2. Posição no par ativo
-      const posRes = await fetch('/api/trade/position', {
+      // 2. Todas as posições ativas da conta (para o Menu Inferior)
+      const allPosRes = await fetch('/api/trade/all-positions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey, apiSecret, symbol: currentSymbol })
+        body: JSON.stringify({ apiKey, apiSecret })
       });
-      const posData = await posRes.json();
-      currentPositionData = posData;
+      const allPosData = await allPosRes.json();
+      if (allPosData.success && Array.isArray(allPosData.positions)) {
+        renderPositionsTable(allPosData.positions);
 
-      const posContainer = document.getElementById('bop-position-container');
-      if (posContainer && posData.success) {
-        if (posData.hasPosition && Math.abs(posData.positionAmt) > 0) {
-          const isLong = posData.side === 'LONG';
-          const pnlColor = posData.unRealizedProfit >= 0 ? '#0ecb81' : '#f6465d';
-          const pnlSign = posData.unRealizedProfit >= 0 ? '+' : '';
-
-          posContainer.innerHTML = `
-            <div class="bop-pos-active">
-              <span class="bop-pos-badge ${isLong ? 'long' : 'short'}">${posData.side} ${Math.abs(posData.positionAmt)} ${baseAsset}</span>
-              <span class="bop-pos-pnl" style="color:${pnlColor};">${pnlSign}$${Number(posData.unRealizedProfit).toFixed(2)}</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:9.5px;color:#848e9c;font-family:'JetBrains Mono',monospace;">
-              <span>Entrada: $${posData.entryPrice}</span>
-              <span>Liq: $${posData.liquidationPrice > 0 ? posData.liquidationPrice.toFixed(2) : '--'}</span>
-            </div>
-            <button class="bop-btn-close-pos" id="bop-btn-close">✕ Zerar Posição a Mercado</button>
-          `;
-
-          const btnClose = document.getElementById('bop-btn-close');
-          if (btnClose) {
-            btnClose.onclick = () => closePosition();
-            if (isPanelLocked) btnClose.disabled = true;
-          }
-
-          // Plota ou atualiza linha no gráfico
+        // Se o par atualmente aberto no gráfico estiver posicionado, plota as linhas no gráfico
+        const currentActivePos = allPosData.positions.find(p => p.symbol === currentSymbol);
+        if (currentActivePos) {
+          currentPositionData = currentActivePos;
           if (window.ChartPositions) {
-            window.ChartPositions.updatePositionLine(posData);
+            window.ChartPositions.updatePositionLine(currentActivePos);
+            window.ChartPositions.updateTpLine(currentActivePos.tpPrice || 0);
+            window.ChartPositions.updateSlLine(currentActivePos.slPrice || 0);
           }
         } else {
-          posContainer.innerHTML = `
-            <div class="bop-pos-empty">
-              <span>●</span>
-              <span>Sem posição aberta</span>
-            </div>
-          `;
-          // Limpa linha no gráfico
+          currentPositionData = null;
           if (window.ChartPositions) {
-            window.ChartPositions.clearPositionLine();
+            window.ChartPositions.clearAllLines();
           }
         }
-      }
-
-      // 3. Ordens Abertas (Take Profit e Stop Loss ativos)
-      const ordRes = await fetch('/api/trade/open-orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey, apiSecret, symbol: currentSymbol })
-      });
-      const ordData = await ordRes.json();
-
-      if (ordData.success) {
-        const inputTp = document.getElementById('bop-input-tp');
-        const inputSl = document.getElementById('bop-input-sl');
-        const statusEl = document.getElementById('bop-tpsl-status');
-
-        if (window.ChartPositions) {
-          window.ChartPositions.updateTpLine(ordData.tpPrice);
-          window.ChartPositions.updateSlLine(ordData.slPrice);
-        }
-
-        // Se o usuário não está digitando nos campos agora, preenche os valores atuais
-        if (inputTp && document.activeElement !== inputTp) {
-          if (ordData.tpPrice) inputTp.value = ordData.tpPrice;
-        }
-        if (inputSl && document.activeElement !== inputSl) {
-          if (ordData.slPrice) inputSl.value = ordData.slPrice;
-        }
-
-        if (statusEl) {
-          if (ordData.tpPrice || ordData.slPrice) {
-            statusEl.innerHTML = '<span style="color:#0ecb81;font-weight:700;">🟢 Ativo</span>';
-          } else {
-            statusEl.innerHTML = '<span style="color:#848e9c;">(Opcional)</span>';
-          }
-        }
-
-        // Atualiza projeção de P&L sempre que TP/SL ou posição mudar
-        updatePnlProjection();
+      } else {
+        renderPositionsTable([]);
       }
 
       if (window._syncTacChartHeight) {
@@ -791,9 +1113,6 @@
       return;
     }
 
-    const tpVal = parseFloat(String(document.getElementById('bop-input-tp')?.value || '').replace(',', '.')) || 0;
-    const slVal = parseFloat(String(document.getElementById('bop-input-sl')?.value || '').replace(',', '.')) || 0;
-
     const btnBuy = document.getElementById('bop-btn-buy');
     const btnSell = document.getElementById('bop-btn-sell');
     if (btnBuy) btnBuy.disabled = true;
@@ -809,8 +1128,6 @@
         side,
         quantity: qty
       };
-      if (tpVal > 0) payload.takeProfit = tpVal;
-      if (slVal > 0) payload.stopLoss = slVal;
 
       const res = await fetch('/api/trade/order', {
         method: 'POST',
@@ -841,172 +1158,7 @@
     }
   }
 
-  /**
-   * Salva ou atualiza Take Profit e Stop Loss para a posição existente
-   */
-  async function saveTpSl() {
-    if (isPanelLocked) {
-      alert('🔒 Painel bloqueado! Clique no cadeado no topo para desbloquear antes de alterar TP ou SL.');
-      return;
-    }
 
-    const { apiKey, apiSecret } = getStoredKeys();
-    if (!apiKey || !apiSecret) {
-      alert('Configure suas chaves API antes de definir Stop Loss ou Take Profit.');
-      return;
-    }
-
-    const tpVal = parseFloat(String(document.getElementById('bop-input-tp')?.value || '').replace(',', '.')) || 0;
-    const slVal = parseFloat(String(document.getElementById('bop-input-sl')?.value || '').replace(',', '.')) || 0;
-
-    if (!tpVal && !slVal) {
-      alert('Digite o valor de Take Profit ou Stop Loss antes de salvar.');
-      return;
-    }
-
-    // Validação preventiva no cliente contra preço de mercado e tipo de posição:
-    if (currentPositionData && currentPositionData.hasPosition && currentPrice > 0) {
-      const isLong = currentPositionData.side === 'LONG';
-      if (isLong) {
-        if (slVal > 0 && slVal >= currentPrice) {
-          alert(`❌ Posição em LONG (Compra):\nO Stop Loss ($${slVal}) não pode ser maior ou igual ao preço atual ($${currentPrice}).\nEle dispararia imediatamente na Binance! Em Long, o Stop Loss deve ficar ABAIXO do preço atual.`);
-          return;
-        }
-        if (tpVal > 0 && tpVal <= currentPrice) {
-          alert(`❌ Posição em LONG (Compra):\nO Take Profit ($${tpVal}) não pode ser menor ou igual ao preço atual ($${currentPrice}).\nEle dispararia imediatamente na Binance! Em Long, o Take Profit deve ficar ACIMA do preço atual.`);
-          return;
-        }
-      } else {
-        // SHORT
-        if (slVal > 0 && slVal <= currentPrice) {
-          alert(`❌ Posição em SHORT (Venda):\nO Stop Loss ($${slVal}) não pode ser menor ou igual ao preço atual ($${currentPrice}).\nEle dispararia imediatamente na Binance! Em Short, o Stop Loss deve ficar ACIMA do preço atual.`);
-          return;
-        }
-        if (tpVal > 0 && tpVal >= currentPrice) {
-          alert(`❌ Posição em SHORT (Venda):\nO Take Profit ($${tpVal}) não pode ser maior ou igual ao preço atual ($${currentPrice}).\nEle dispararia imediatamente na Binance! Em Short, o Take Profit deve ficar ABAIXO do preço atual.`);
-          return;
-        }
-      }
-    }
-
-    const btn = document.getElementById('bop-btn-set-tpsl');
-    if (btn) btn.disabled = true;
-    setToast('Enviando TP/SL para a Binance...', '');
-
-    try {
-      const res = await fetch('/api/trade/set-tpsl', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          apiKey,
-          apiSecret,
-          symbol: currentSymbol,
-          takeProfit: tpVal,
-          stopLoss: slVal
-        })
-      });
-
-      const data = await res.json();
-      if (!data.success) throw new Error(data.error);
-
-      if (data.partialWarning) {
-        setToast(`⚠️ ${data.partialWarning}`, 'warning');
-        alert(data.partialWarning);
-      } else {
-        setToast('✅ TP e SL atualizados na Binance!', 'success');
-      }
-      fetchAccountData();
-    } catch (err) {
-      console.error('[OrderPanel] Erro ao salvar TP/SL:', err);
-      setToast(`Erro TP/SL: ${err.message}`, 'error');
-      alert(`Erro ao configurar TP/SL: ${err.message}`);
-    } finally {
-      if (btn) btn.disabled = false;
-    }
-  }
-
-  /**
-   * Cancela Take Profit e Stop Loss pendentes na Binance
-   */
-  async function cancelTpSl() {
-    if (isPanelLocked) {
-      alert('🔒 Painel bloqueado! Clique no cadeado no topo para desbloquear antes de limpar ordens.');
-      return;
-    }
-
-    const { apiKey, apiSecret } = getStoredKeys();
-    if (!apiKey || !apiSecret) return;
-
-    if (!confirm(`Deseja cancelar todas as ordens pendentes de TP e SL em ${currentSymbol}?`)) return;
-
-    setToast('Cancelando TP/SL na Binance...', '');
-    try {
-      const res = await fetch('/api/trade/cancel-tpsl', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey, apiSecret, symbol: currentSymbol })
-      });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.error);
-
-      const inputTp = document.getElementById('bop-input-tp');
-      const inputSl = document.getElementById('bop-input-sl');
-      if (inputTp) inputTp.value = '';
-      if (inputSl) inputSl.value = '';
-
-      if (window.ChartPositions) {
-        window.ChartPositions.updateTpLine(0);
-        window.ChartPositions.updateSlLine(0);
-      }
-
-      setToast('Ordens de TP/SL canceladas!', 'success');
-      fetchAccountData();
-    } catch (err) {
-      setToast(`Erro ao cancelar: ${err.message}`, 'error');
-    }
-  }
-
-  /**
-   * Encerra posição a mercado
-   */
-  async function closePosition() {
-    if (isPanelLocked) {
-      alert('🔒 Painel bloqueado! Clique no cadeado no topo para desbloquear antes de zerar posição.');
-      return;
-    }
-
-    const { apiKey, apiSecret } = getStoredKeys();
-    if (!apiKey || !apiSecret) return;
-
-    if (!confirm(`Deseja encerrar a mercado toda a sua posição em ${currentSymbol}?`)) return;
-
-    setToast('Encerrando posição a mercado...', '');
-    try {
-      const res = await fetch('/api/trade/close', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey, apiSecret, symbol: currentSymbol })
-      });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.error);
-
-      setToast(`✅ Posição em ${currentSymbol} zerada!`, 'success');
-
-      const inputTp = document.getElementById('bop-input-tp');
-      const inputSl = document.getElementById('bop-input-sl');
-      if (inputTp) inputTp.value = '';
-      if (inputSl) inputSl.value = '';
-
-      if (window.ChartPositions) {
-        window.ChartPositions.clearAllLines();
-      }
-
-      fetchAccountData();
-    } catch (err) {
-      console.error('[OrderPanel] Erro ao fechar posição:', err);
-      setToast(`Erro: ${err.message}`, 'error');
-    }
-  }
 
   /**
    * Inicia loop de atualização de dados da conta (a cada 3s)
@@ -1030,11 +1182,6 @@
       if (window.ChartPositions) {
         window.ChartPositions.clearAllLines();
       }
-      const inputTp = document.getElementById('bop-input-tp');
-      const inputSl = document.getElementById('bop-input-sl');
-      if (inputTp) inputTp.value = '';
-      if (inputSl) inputSl.value = '';
-
       fetchAccountData();
     }
     if (price && price > 0) {
@@ -1063,7 +1210,13 @@
   window.OrderPanel = {
     init: initOrderPanel,
     setMarketContext,
-    saveTpSl,
+    openTpSlModal,
+    closeTpSlModal,
+    saveTpSlModal,
+    clearSingleTp,
+    clearSingleSl,
+    closePosition,
+    refreshPositions: fetchAccountData,
     getPrecision: () => symbolInfo
   };
 

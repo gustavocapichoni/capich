@@ -108,13 +108,52 @@ async function getPositionRisk(apiKey, apiSecret, symbol) {
 }
 
 /**
- * Configura alavancagem para o símbolo
+ * Obtém todas as posições abertas na conta (qualquer par com saldo diferente de zero)
  */
-async function setLeverage(apiKey, apiSecret, symbol, leverage) {
-  return await signedRequest('/fapi/v1/leverage', 'POST', {
-    symbol,
-    leverage: parseInt(leverage, 10)
-  }, apiKey, apiSecret);
+async function getAllPositions(apiKey, apiSecret) {
+  const data = await signedRequest('/fapi/v2/positionRisk', 'GET', {}, apiKey, apiSecret);
+  if (!Array.isArray(data)) return [];
+  const active = data.filter(p => Math.abs(parseFloat(p.positionAmt) || 0) > 0);
+
+  const positions = await Promise.all(active.map(async (pos) => {
+    const symbol = pos.symbol;
+    const amt = parseFloat(pos.positionAmt) || 0;
+    const entryPrice = parseFloat(pos.entryPrice) || 0;
+    const markPrice = parseFloat(pos.markPrice) || 0;
+    const unRealizedProfit = parseFloat(pos.unRealizedProfit) || 0;
+    const leverage = parseInt(pos.leverage, 10) || 1;
+    const liquidationPrice = parseFloat(pos.liquidationPrice) || 0;
+    const notional = Math.abs(amt * (markPrice || entryPrice));
+    const initialMargin = parseFloat(pos.initialMargin) || (leverage > 0 ? notional / leverage : 0);
+    const roi = initialMargin > 0 ? (unRealizedProfit / initialMargin) * 100 : 0;
+
+    let tpPrice = null;
+    let slPrice = null;
+    try {
+      const openOrd = await getOpenOrders(apiKey, apiSecret, symbol);
+      tpPrice = openOrd.tpPrice;
+      slPrice = openOrd.slPrice;
+    } catch (_) {}
+
+    return {
+      symbol,
+      hasPosition: true,
+      positionAmt: amt,
+      side: amt > 0 ? 'LONG' : 'SHORT',
+      entryPrice,
+      markPrice,
+      unRealizedProfit,
+      leverage,
+      liquidationPrice,
+      margin: initialMargin,
+      marginType: pos.marginType ? (pos.marginType.toLowerCase() === 'cross' ? 'Cross' : 'Isolated') : 'Cross',
+      roi,
+      tpPrice,
+      slPrice
+    };
+  }));
+
+  return positions;
 }
 
 /**
@@ -548,10 +587,10 @@ async function closeCurrentPosition(apiKey, apiSecret, symbol) {
 module.exports = {
   getAccountBalance,
   getPositionRisk,
+  getAllPositions,
   getOpenOrders,
   cancelOpenOrders,
   setStopLossTakeProfit,
-  setLeverage,
   getSymbolPrecision,
   clearExchangeInfoCache: () => { exchangeInfoCache = null; lastExchangeInfoTime = 0; },
   executeMarketOrder,

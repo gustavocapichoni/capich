@@ -181,8 +181,7 @@
           tpBadgeEl.style.top = `${Math.round(mouseY - 12)}px`;
           tpBadgeEl.style.display = 'inline-flex';
         }
-        const inp = document.getElementById('bop-input-tp');
-        if (inp) inp.value = cleanPrice;
+        // Atualiza o preço de TP em memória (usado ao abrir o modal ao soltar)
       } else if (isDragging === 'SL') {
         currentSlPrice = cleanPrice;
         if (currentSlLine) {
@@ -196,8 +195,7 @@
           slBadgeEl.style.top = `${Math.round(mouseY - 12)}px`;
           slBadgeEl.style.display = 'inline-flex';
         }
-        const inp = document.getElementById('bop-input-sl');
-        if (inp) inp.value = cleanPrice;
+        // Atualiza o preço de SL em memória (usado ao abrir o modal ao soltar)
       }
     });
 
@@ -222,9 +220,13 @@
 
       updateBadgePositions();
 
-      // Salva automaticamente o novo Stop / Take na Binance
-      if (window.OrderPanel && typeof window.OrderPanel.saveTpSl === 'function') {
-        window.OrderPanel.saveTpSl();
+      // Ao soltar o arrasto, abre o modal de TP/SL já pré-preenchido com os valores arrastados
+      if (window.OrderPanel && typeof window.OrderPanel.openTpSlModal === 'function') {
+        setTimeout(() => {
+          // capich_tac_symbol já vem com USDT (ex: "ETHUSDT")
+          const sym = localStorage.getItem('capich_tac_symbol') || 'BTCUSDT';
+          window.OrderPanel.openTpSlModal(sym, currentTpPrice || 0, currentSlPrice || 0);
+        }, 80);
       }
     });
   }

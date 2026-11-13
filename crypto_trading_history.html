@@ -6,7 +6,7 @@
   <title>CAPICH ♾️ Crypto Trading History</title>
   <link rel="shortcut icon" href="assets/icons/favicon.ico">
   <link rel="stylesheet" href="css/style.css?v=5">
-  <link rel="stylesheet" href="css/tactical.css?v=16">
+  <link rel="stylesheet" href="css/tactical.css?v=20">
   <link rel="stylesheet" href="css/order_panel.css?v=4">
   <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
 </head>
@@ -172,9 +172,94 @@
     </div>
   </div>
 
-  <script src="js/chart_positions.js?v=4"></script>
-  <script src="js/order_panel.js?v=5"></script>
-  <script type="module" src="js/btc_tactical_chart.js?v=30"></script>
+  <!-- Modal: Posição TP/SL (Estilo Binance Futures) -->
+  <div id="modal-tpsl" class="modal-admin bop-modal-backdrop" onclick="if(event.target===this)window.OrderPanel&&window.OrderPanel.closeTpSlModal()" style="display:none;">
+    <div class="modal-admin-content bop-modal-tpsl-card">
+      <div class="bop-modal-header">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <h2 style="margin:0;font-size:16px;font-weight:700;color:#eaecef;">Posição TP/SL</h2>
+        </div>
+        <button type="button" class="bop-modal-close" onclick="window.OrderPanel&&window.OrderPanel.closeTpSlModal()">&times;</button>
+      </div>
+
+      <!-- Resumo da Posição -->
+      <div class="bop-tpsl-pos-summary">
+        <div class="bop-tpsl-sum-row">
+          <span class="bop-tpsl-sum-label">Símbolo</span>
+          <span class="bop-tpsl-sum-val" id="modal-tpsl-sym-tag">--</span>
+        </div>
+        <div class="bop-tpsl-sum-row">
+          <span class="bop-tpsl-sum-label">Preço de entrada</span>
+          <span class="bop-tpsl-sum-val" id="modal-tpsl-entry-val">--</span>
+        </div>
+        <div class="bop-tpsl-sum-row">
+          <span class="bop-tpsl-sum-label">Preço de marca</span>
+          <span class="bop-tpsl-sum-val" id="modal-tpsl-mark-val">--</span>
+        </div>
+        <div class="bop-tpsl-sum-row">
+          <span class="bop-tpsl-sum-label">Preço estimado do líquido</span>
+          <span class="bop-tpsl-sum-val" id="modal-tpsl-liq-val" style="color:#f6465d;">--</span>
+        </div>
+      </div>
+
+      <!-- Tab Ativa -->
+      <div class="bop-tpsl-tab-strip">
+        <span class="bop-tpsl-tab-active">Posição TP/SL</span>
+      </div>
+
+      <!-- Realizar Lucro (TP) -->
+      <div class="bop-tpsl-field-block">
+        <div class="bop-tpsl-field-hdr">
+          <span class="bop-tpsl-field-title tp">Realizar Lucro</span>
+          <button type="button" class="bop-tpsl-btn-clear-single" id="modal-tpsl-clear-tp" style="display:none;" onclick="window.OrderPanel&&window.OrderPanel.clearSingleTp()">Cancelar</button>
+        </div>
+        <div class="bop-tpsl-input-row">
+          <input type="number" id="modal-tpsl-input-tp" class="bop-tpsl-input" placeholder="Preço TP" step="any" min="0">
+          <div class="bop-tpsl-input-addon">
+            <span>Marca</span>
+            <span style="color:#848e9c;font-size:10px;">USDT</span>
+          </div>
+        </div>
+        <div class="bop-tpsl-hint" id="modal-tpsl-tp-hint">
+          Insira o preço para realizar lucro.
+        </div>
+      </div>
+
+      <!-- Stop Loss (SL) -->
+      <div class="bop-tpsl-field-block">
+        <div class="bop-tpsl-field-hdr">
+          <span class="bop-tpsl-field-title sl">Stop Loss</span>
+          <button type="button" class="bop-tpsl-btn-clear-single" id="modal-tpsl-clear-sl" style="display:none;" onclick="window.OrderPanel&&window.OrderPanel.clearSingleSl()">Cancelar</button>
+        </div>
+        <div class="bop-tpsl-input-row">
+          <input type="number" id="modal-tpsl-input-sl" class="bop-tpsl-input" placeholder="Preço SL" step="any" min="0">
+          <div class="bop-tpsl-input-addon">
+            <span>Marca</span>
+            <span style="color:#848e9c;font-size:10px;">USDT</span>
+          </div>
+        </div>
+        <div class="bop-tpsl-hint" id="modal-tpsl-sl-hint">
+          Insira o preço de proteção contra perdas.
+        </div>
+      </div>
+
+      <!-- Projeção Risco : Retorno -->
+      <div class="bop-tpsl-rr-box" id="modal-tpsl-rr-box" style="display:none;">
+        <span>⚖️ Relação Risco : Retorno</span>
+        <strong id="modal-tpsl-rr-val" style="color:#f0b90b;">--</strong>
+      </div>
+
+      <!-- Rodapé -->
+      <div class="bop-modal-footer">
+        <button type="button" class="bop-btn-cancel" onclick="window.OrderPanel&&window.OrderPanel.closeTpSlModal()">Cancelar</button>
+        <button type="button" class="bop-btn-confirm-binance" id="modal-tpsl-btn-confirm" onclick="window.OrderPanel&&window.OrderPanel.saveTpSlModal()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/chart_positions.js?v=5"></script>
+  <script src="js/order_panel.js?v=10"></script>
+  <script type="module" src="js/btc_tactical_chart.js?v=32"></script>
   <script type="module" src="js/app.js?v=4"></script>
 </body>
 </html>

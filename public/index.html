@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/monitor.css">
   <link rel="stylesheet" href="css/section_guides.css">
+  <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
 </head>
 <body style="padding-right: 20px;">
 
@@ -143,8 +144,8 @@
         </div>
       </div>
       <div class="crypto-index-chart-wrap" id="ci-chart-wrap">
-        <canvas id="crypto-index-canvas"></canvas>
-        <div class="ci-tooltip" id="ci-tooltip" style="display:none;"></div>
+        <div id="ci-chart-container" style="width: 100%; height: 500px;"></div>
+        <div id="ci-ohlc-overlay" class="ci-ohlc-overlay"></div>
         <div class="ci-loading" id="ci-loading">⏳ Calculando índice...</div>
       </div>
     </section>
@@ -333,11 +334,6 @@
           </div>
         </div>
       </div>
-    </section>
-
-    <!-- 3. Grid dos 5 Cards de Criptomoedas -->
-    <section class="cards-grid" id="cards-grid">
-      <!-- Cards gerados dinamicamente pelo monitor.js -->
     </section>
 
     <!-- 3-C. MEU ÍNDICE PESSOAL — Índice de Força Macro da Cesta (movido para cá) -->
