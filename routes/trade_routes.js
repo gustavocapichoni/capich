@@ -8,6 +8,31 @@ const express = require('express');
 const router = express.Router();
 const tradeService = require('../services/binance_trade_service');
 
+const DEFAULT_TRADE_TOKEN = 'capich_fortress_secure_token_2026';
+
+/**
+ * Middleware de Autenticação Tática (Fortress Mode)
+ * Exige cabeçalho 'x-trade-auth' ou Bearer token correspondente ao TRADE_AUTH_TOKEN
+ */
+function requireTradeAuth(req, res, next) {
+  if (req.path === '/symbol-info') return next();
+
+  const serverToken = process.env.TRADE_AUTH_TOKEN || DEFAULT_TRADE_TOKEN;
+  const clientToken = req.headers['x-trade-auth'] ||
+                      req.query.token ||
+                      (req.headers.authorization ? req.headers.authorization.replace(/^Bearer\s+/i, '').trim() : null);
+
+  if (!clientToken || clientToken !== serverToken) {
+    return res.status(401).json({
+      success: false,
+      error: 'Acesso não autorizado: token de segurança inválido ou ausente.'
+    });
+  }
+  next();
+}
+
+router.use(requireTradeAuth);
+
 /**
  * Extrai credenciais dos headers ou do corpo da requisição ou do .env
  */

@@ -1,21 +1,61 @@
 require('dotenv').config();
-const express = require('express');
-const path    = require('path');
+const express   = require('express');
+const path      = require('path');
+const helmet    = require('helmet');
+const rateLimit = require('express-rate-limit');
 const { startAccumulator, getHistoricalCandles, runAccumulation, getDb, admin } = require('./firebase_accumulator');
 
 const app  = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
+// 1. Blindagem de Cabeçalhos HTTP com Helmet (Remove X-Powered-By, previne Clickjacking e MIME Sniffing)
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
-// CORS para permitir comunicação entre Vercel e Fly.io
+// 2. Proteção contra Payload Excessivo (evita estouro de memória)
+app.use(express.json({ limit: '500kb' }));
+app.use(express.urlencoded({ extended: true, limit: '500kb' }));
+
+// 3. CORS Restrito — Permite apenas o domínio de produção na Vercel e ambientes locais autorizados
+const allowedOrigins = [
+  'https://criptoempiretrading.vercel.app',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000'
+];
+
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, X-MBX-APIKEY, x-api-key, x-api-secret');
+  const origin = req.headers.origin;
+  if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+    res.header('Access-Control-Allow-Origin', origin || '*');
+  }
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, X-MBX-APIKEY, x-api-key, x-api-secret, x-trade-auth, Authorization');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   if (req.method === 'OPTIONS') return res.sendStatus(200);
   next();
 });
+
+// 4. Rate Limiting (Proteção Anti-DDoS e Anti-Brute Force)
+const globalApiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 180, // até 180 requisições por minuto por IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: 'Muitas requisições enviadas. Aguarde 1 minuto por segurança.' }
+});
+
+const tradeActionLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 50, // até 50 execuções críticas por minuto por IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: 'Muitas ordens enviadas em curto intervalo. Aguarde 1 minuto por segurança.' }
+});
+
+app.use('/api/', globalApiLimiter);
+app.use(['/api/trade/order', '/api/trade/conditional-order', '/api/trade/close'], tradeActionLimiter);
 
 // Endpoint para descobrir o IP de saída real (Outbound IP) visto pela Binance
 app.get('/api/my-ip', async (req, res) => {

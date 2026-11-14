@@ -47,22 +47,39 @@
     }
   }
 
+  const STORAGE_KEY_AUTH_TOKEN = 'capich_trade_auth_token';
+  const DEFAULT_TRADE_TOKEN = 'capich_fortress_secure_token_2026';
+
+  /**
+   * Cabeçalhos seguros de requisição autenticada
+   */
+  function getTradeAuthHeaders(extra = {}) {
+    const token = localStorage.getItem(STORAGE_KEY_AUTH_TOKEN) || DEFAULT_TRADE_TOKEN;
+    return {
+      'Content-Type': 'application/json',
+      'x-trade-auth': token,
+      ...extra
+    };
+  }
+
   /**
    * Obtém credenciais salvas no navegador
    */
   function getStoredKeys() {
     return {
       apiKey: localStorage.getItem(STORAGE_KEY_API) || '',
-      apiSecret: localStorage.getItem(STORAGE_KEY_SEC) || ''
+      apiSecret: localStorage.getItem(STORAGE_KEY_SEC) || '',
+      authToken: localStorage.getItem(STORAGE_KEY_AUTH_TOKEN) || DEFAULT_TRADE_TOKEN
     };
   }
 
   /**
    * Salva credenciais no navegador
    */
-  function saveStoredKeys(apiKey, apiSecret) {
+  function saveStoredKeys(apiKey, apiSecret, authToken) {
     if (apiKey) localStorage.setItem(STORAGE_KEY_API, apiKey.trim());
     if (apiSecret) localStorage.setItem(STORAGE_KEY_SEC, apiSecret.trim());
+    if (authToken) localStorage.setItem(STORAGE_KEY_AUTH_TOKEN, authToken.trim());
   }
 
   /**
@@ -247,6 +264,10 @@
             <label>Secret Key</label>
             <input type="password" id="bop-cfg-apisecret" placeholder="Cole sua Secret Key aqui">
           </div>
+          <div class="bop-modal-field">
+            <label>Token de Acesso do Servidor (Segurança)</label>
+            <input type="password" id="bop-cfg-authtoken" placeholder="Token de segurança do servidor">
+          </div>
           <div class="bop-modal-footer">
             <button class="bop-btn-cancel" id="bop-cfg-cancel">Cancelar</button>
             <button class="bop-btn-save" id="bop-cfg-save">Salvar Chaves</button>
@@ -358,6 +379,8 @@
       const keys = getStoredKeys();
       document.getElementById('bop-cfg-apikey').value = keys.apiKey;
       document.getElementById('bop-cfg-apisecret').value = keys.apiSecret;
+      const tokInput = document.getElementById('bop-cfg-authtoken');
+      if (tokInput) tokInput.value = keys.authToken || '';
       modalCfg.style.display = 'flex';
     }
 
@@ -373,9 +396,10 @@
       btnSaveCfg.onclick = () => {
         const k = document.getElementById('bop-cfg-apikey').value;
         const s = document.getElementById('bop-cfg-apisecret').value;
-        saveStoredKeys(k, s);
+        const t = document.getElementById('bop-cfg-authtoken')?.value;
+        saveStoredKeys(k, s, t);
         closeModal();
-        setToast('Chaves salvas com sucesso!', 'success');
+        setToast('Credenciais salvas com sucesso!', 'success');
         fetchAccountData();
       };
     }
@@ -934,7 +958,7 @@
     try {
       const res = await fetch('/api/trade/cancel-conditional', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getTradeAuthHeaders(),
         body: JSON.stringify({ apiKey, apiSecret, symbol: sym, algoId })
       });
       const data = await res.json();
@@ -965,7 +989,7 @@
     try {
       const res = await fetch('/api/trade/modify-conditional', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getTradeAuthHeaders(),
         body: JSON.stringify({ apiKey, apiSecret, symbol: sym, algoId, newStopPrice })
       });
       const data = await res.json();
@@ -1156,7 +1180,7 @@
       try {
         await fetch('/api/trade/cancel-tpsl', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getTradeAuthHeaders(),
           body: JSON.stringify({ apiKey, apiSecret, symbol: modalActiveSymbol })
         });
         setToast('Ordens de TP/SL canceladas!', 'success');
@@ -1174,7 +1198,7 @@
     try {
       const res = await fetch('/api/trade/set-tpsl', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getTradeAuthHeaders(),
         body: JSON.stringify({
           apiKey,
           apiSecret,
@@ -1214,7 +1238,7 @@
     try {
       const res = await fetch('/api/trade/close', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getTradeAuthHeaders(),
         body: JSON.stringify({ apiKey, apiSecret, symbol: targetSymbol })
       });
       const data = await res.json();
@@ -1250,7 +1274,7 @@
     try {
       const res = await fetch('/api/trade/cancel-tp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getTradeAuthHeaders(),
         body: JSON.stringify({ apiKey, apiSecret, symbol: targetSymbol })
       });
       const data = await res.json();
@@ -1286,7 +1310,7 @@
     try {
       const res = await fetch('/api/trade/cancel-sl', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getTradeAuthHeaders(),
         body: JSON.stringify({ apiKey, apiSecret, symbol: targetSymbol })
       });
       const data = await res.json();
@@ -1341,10 +1365,16 @@
       // 1. Saldo
       const balRes = await fetch('/api/trade/balance', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getTradeAuthHeaders(),
         body: JSON.stringify({ apiKey, apiSecret })
       });
       const balData = await balRes.json();
+      if (balRes.status === 401) {
+        const balEl = document.getElementById('bop-val-balance');
+        if (balEl) balEl.textContent = 'Token Inválido';
+        setToast('🔒 Token de segurança do servidor inválido.', 'error');
+        return;
+      }
       if (balData.success) {
         const balEl = document.getElementById('bop-val-balance');
         if (balEl) {
@@ -1369,7 +1399,7 @@
       initBottomMenuTabs();
       const allPosRes = await fetch('/api/trade/all-positions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getTradeAuthHeaders(),
         body: JSON.stringify({ apiKey, apiSecret })
       });
       const allPosData = await allPosRes.json();
@@ -1404,7 +1434,7 @@
       try {
         const openOrdersRes = await fetch('/api/trade/open-orders', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getTradeAuthHeaders(),
           body: JSON.stringify({ apiKey, apiSecret, symbol: 'ALL' })
         });
         const openOrdersData = await openOrdersRes.json();
@@ -1498,7 +1528,7 @@
 
         const res = await fetch('/api/trade/conditional-order', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getTradeAuthHeaders(),
           body: JSON.stringify(payload)
         });
 
@@ -1531,7 +1561,7 @@
 
         const res = await fetch('/api/trade/order', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getTradeAuthHeaders(),
           body: JSON.stringify(payload)
         });
 
