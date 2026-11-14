@@ -96,13 +96,28 @@
   border: none;
   font-size: 11.5px;
   font-weight: 700;
-  color: #eaecef;
+  color: #848e9c;
   display: inline-flex;
   align-items: center;
   gap: 5px;
   cursor: pointer;
-  padding: 4px 6px;
+  padding: 6px 8px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.tac-bmenu-tab:hover {
+  color: #eaecef;
+}
+
+.tac-bmenu-tab.active {
+  color: #eaecef;
   border-bottom: 2px solid #fcd535;
+}
+
+.tac-bmenu-tab.active .tac-bmenu-count {
+  background: rgba(240, 185, 11, 0.15);
+  color: #f0b90b;
 }
 
 .tac-bmenu-count {
@@ -1600,20 +1615,26 @@
 }
 
 .chart-line-badge .badge-close-btn {
-  background: transparent;
-  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: #848e9c;
   cursor: pointer;
-  padding: 0 2px;
+  padding: 0 4px;
   font-size: 11px;
   font-weight: bold;
-  line-height: 1;
-  margin-left: 2px;
-  transition: color 0.15s ease;
+  line-height: 1.2;
+  margin-left: 4px;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
 }
 
 .chart-line-badge .badge-close-btn:hover {
-  color: #f6465d;
+  background: #f6465d;
+  border-color: #f6465d;
+  color: #ffffff;
 }
 
 .chart-line-badge.tp-badge {

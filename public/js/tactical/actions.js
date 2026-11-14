@@ -138,9 +138,65 @@ export function toggleMovingAverages() {
   }
 }
 
+export function toggleEmpire72h() {
+  state.empire72hVisible = !state.empire72hVisible;
+  try { localStorage.setItem('capich_tac_empire_72h', String(state.empire72hVisible)); } catch (_) {}
+  const btn = document.getElementById('tac-btn-empire-72h');
+  if (btn) {
+    const statusSpan = btn.querySelector('.tac-dropdown-status');
+    if (state.empire72hVisible) {
+      btn.classList.add('active');
+      if (statusSpan) statusSpan.textContent = 'ON';
+      else btn.textContent = 'Empire 72h: ON';
+    } else {
+      btn.classList.remove('active');
+      if (statusSpan) statusSpan.textContent = 'OFF';
+      else btn.textContent = 'Empire 72h: OFF';
+    }
+  }
+
+  if (state.series.vwapBuy) {
+    state.series.vwapBuy.applyOptions({ visible: state.empire72hVisible });
+  }
+  if (state.series.vwapSell) {
+    state.series.vwapSell.applyOptions({ visible: state.empire72hVisible });
+  }
+}
+
+export function toggleEmpire8h() {
+  state.empire8hVisible = !state.empire8hVisible;
+  try { localStorage.setItem('capich_tac_empire_8h', String(state.empire8hVisible)); } catch (_) {}
+  const btn = document.getElementById('tac-btn-empire-8h');
+  if (btn) {
+    const statusSpan = btn.querySelector('.tac-dropdown-status');
+    if (state.empire8hVisible) {
+      btn.classList.add('active');
+      if (statusSpan) statusSpan.textContent = 'ON';
+      else btn.textContent = 'Empire 8h: ON';
+    } else {
+      btn.classList.remove('active');
+      if (statusSpan) statusSpan.textContent = 'OFF';
+      else btn.textContent = 'Empire 8h: OFF';
+    }
+  }
+
+  if (state.series.intraBuy) {
+    state.series.intraBuy.applyOptions({ visible: state.empire8hVisible });
+  }
+  if (state.series.intraSell) {
+    state.series.intraSell.applyOptions({ visible: state.empire8hVisible });
+  }
+}
+
 export function toggleIndicators() {
   state.indicatorsVisible = !state.indicatorsVisible;
-  try { localStorage.setItem('capich_tac_ind', String(state.indicatorsVisible)); } catch (_) {}
+  state.empire72hVisible = state.indicatorsVisible;
+  state.empire8hVisible = state.indicatorsVisible;
+  try {
+    localStorage.setItem('capich_tac_ind', String(state.indicatorsVisible));
+    localStorage.setItem('capich_tac_empire_72h', String(state.empire72hVisible));
+    localStorage.setItem('capich_tac_empire_8h', String(state.empire8hVisible));
+  } catch (_) {}
   const btn = document.getElementById('tac-btn-ind');
   if (btn) {
     const statusSpan = btn.querySelector('.tac-dropdown-status');
@@ -154,25 +210,81 @@ export function toggleIndicators() {
       else btn.textContent = 'Indicadores: OFF';
     }
   }
+  const btn72 = document.getElementById('tac-btn-empire-72h');
+  if (btn72) {
+    const span = btn72.querySelector('.tac-dropdown-status');
+    if (state.indicatorsVisible) { btn72.classList.add('active'); if (span) span.textContent = 'ON'; }
+    else { btn72.classList.remove('active'); if (span) span.textContent = 'OFF'; }
+  }
+  const btn8 = document.getElementById('tac-btn-empire-8h');
+  if (btn8) {
+    const span = btn8.querySelector('.tac-dropdown-status');
+    if (state.indicatorsVisible) { btn8.classList.add('active'); if (span) span.textContent = 'ON'; }
+    else { btn8.classList.remove('active'); if (span) span.textContent = 'OFF'; }
+  }
 
   if (state.series.vwapBuy) {
-    state.series.vwapBuy.applyOptions({ visible: state.indicatorsVisible });
+    state.series.vwapBuy.applyOptions({ visible: state.empire72hVisible });
   }
   if (state.series.vwapSell) {
-    state.series.vwapSell.applyOptions({ visible: state.indicatorsVisible });
+    state.series.vwapSell.applyOptions({ visible: state.empire72hVisible });
   }
   if (state.series.intraBuy) {
-    state.series.intraBuy.applyOptions({ visible: state.indicatorsVisible });
+    state.series.intraBuy.applyOptions({ visible: state.empire8hVisible });
   }
   if (state.series.intraSell) {
-    state.series.intraSell.applyOptions({ visible: state.indicatorsVisible });
+    state.series.intraSell.applyOptions({ visible: state.empire8hVisible });
+  }
+  renderEmpireZones();
+}
+
+export function toggleEmpireZones72h() {
+  state.zones72hVisible = !state.zones72hVisible;
+  try { localStorage.setItem('capich_tac_zones_72h', String(state.zones72hVisible)); } catch (_) {}
+  const btn = document.getElementById('tac-btn-zones-72h');
+  if (btn) {
+    const statusSpan = btn.querySelector('.tac-dropdown-status');
+    if (state.zones72hVisible) {
+      btn.classList.add('active');
+      if (statusSpan) statusSpan.textContent = 'ON';
+      else btn.textContent = 'Nuvem 72h: ON';
+    } else {
+      btn.classList.remove('active');
+      if (statusSpan) statusSpan.textContent = 'OFF';
+      else btn.textContent = 'Nuvem 72h: OFF';
+    }
+  }
+  renderEmpireZones();
+}
+
+export function toggleEmpireZones8h() {
+  state.zones8hVisible = !state.zones8hVisible;
+  try { localStorage.setItem('capich_tac_zones_8h', String(state.zones8hVisible)); } catch (_) {}
+  const btn = document.getElementById('tac-btn-zones-8h');
+  if (btn) {
+    const statusSpan = btn.querySelector('.tac-dropdown-status');
+    if (state.zones8hVisible) {
+      btn.classList.add('active');
+      if (statusSpan) statusSpan.textContent = 'ON';
+      else btn.textContent = 'Nuvem 8h: ON';
+    } else {
+      btn.classList.remove('active');
+      if (statusSpan) statusSpan.textContent = 'OFF';
+      else btn.textContent = 'Nuvem 8h: OFF';
+    }
   }
   renderEmpireZones();
 }
 
 export function toggleEmpireZones() {
   state.zonesVisible = !state.zonesVisible;
-  try { localStorage.setItem('capich_tac_zones', String(state.zonesVisible)); } catch (_) {}
+  state.zones72hVisible = state.zonesVisible;
+  state.zones8hVisible = state.zonesVisible;
+  try {
+    localStorage.setItem('capich_tac_zones', String(state.zonesVisible));
+    localStorage.setItem('capich_tac_zones_72h', String(state.zones72hVisible));
+    localStorage.setItem('capich_tac_zones_8h', String(state.zones8hVisible));
+  } catch (_) {}
   const btn = document.getElementById('tac-btn-zones');
   if (btn) {
     const statusSpan = btn.querySelector('.tac-dropdown-status');
@@ -185,6 +297,18 @@ export function toggleEmpireZones() {
       if (statusSpan) statusSpan.textContent = 'OFF';
       else btn.textContent = 'Nuvens: OFF';
     }
+  }
+  const btn72 = document.getElementById('tac-btn-zones-72h');
+  if (btn72) {
+    const span = btn72.querySelector('.tac-dropdown-status');
+    if (state.zonesVisible) { btn72.classList.add('active'); if (span) span.textContent = 'ON'; }
+    else { btn72.classList.remove('active'); if (span) span.textContent = 'OFF'; }
+  }
+  const btn8 = document.getElementById('tac-btn-zones-8h');
+  if (btn8) {
+    const span = btn8.querySelector('.tac-dropdown-status');
+    if (state.zonesVisible) { btn8.classList.add('active'); if (span) span.textContent = 'ON'; }
+    else { btn8.classList.remove('active'); if (span) span.textContent = 'OFF'; }
   }
   renderEmpireZones();
 }

@@ -184,11 +184,12 @@ router.post('/conditional-order', async (req, res) => {
   }
 });
 
-// ─── 3.1 Obter Ordens Abertas (TP / SL / Limites) ────────────────────────────
+// ─── 3.1 Obter Ordens Abertas (TP / SL / Limites / Condicionais) ──────────────
 router.post('/open-orders', async (req, res) => {
   try {
     const { apiKey, apiSecret } = getCredentials(req);
-    const symbol = (req.body.symbol || 'BTCUSDT').toUpperCase();
+    const rawSym = req.body.symbol;
+    const symbol = (rawSym && String(rawSym).toUpperCase() !== 'ALL') ? String(rawSym).toUpperCase() : 'ALL';
     if (!apiKey || !apiSecret) {
       return res.status(400).json({ error: 'Chaves de API não configuradas.' });
     }
@@ -197,6 +198,44 @@ router.post('/open-orders', async (req, res) => {
     res.json({ success: true, ...openData });
   } catch (err) {
     console.error('[/api/trade/open-orders] Erro:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── 3.1.1 Cancelar Ordem Condicional pelo algoId ────────────────────────────
+router.post('/cancel-conditional', async (req, res) => {
+  try {
+    const { apiKey, apiSecret } = getCredentials(req);
+    const { symbol, algoId } = req.body;
+    if (!apiKey || !apiSecret) {
+      return res.status(400).json({ error: 'Chaves de API não configuradas.' });
+    }
+    if (!symbol || !algoId) {
+      return res.status(400).json({ error: 'Símbolo e algoId da ordem são obrigatórios.' });
+    }
+    const result = await tradeService.cancelConditionalOrder(apiKey, apiSecret, symbol.toUpperCase(), algoId);
+    res.json({ success: true, result });
+  } catch (err) {
+    console.error('[/api/trade/cancel-conditional] Erro:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── 3.1.2 Modificar Preço de Disparo de Ordem Condicional (Drag & Drop) ─────
+router.post('/modify-conditional', async (req, res) => {
+  try {
+    const { apiKey, apiSecret } = getCredentials(req);
+    const { symbol, algoId, newStopPrice } = req.body;
+    if (!apiKey || !apiSecret) {
+      return res.status(400).json({ error: 'Chaves de API não configuradas.' });
+    }
+    if (!symbol || !algoId || !newStopPrice) {
+      return res.status(400).json({ error: 'Símbolo, ID e novo preço são obrigatórios.' });
+    }
+    const result = await tradeService.modifyConditionalOrder(apiKey, apiSecret, symbol.toUpperCase(), algoId, newStopPrice);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    console.error('[/api/trade/modify-conditional] Erro:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -260,6 +299,38 @@ router.post('/cancel-tpsl', async (req, res) => {
     });
   } catch (err) {
     console.error('[/api/trade/cancel-tpsl] Erro:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── 3.4 Cancelar Apenas o Take Profit da Posição ─────────────────────────────
+router.post('/cancel-tp', async (req, res) => {
+  try {
+    const { apiKey, apiSecret } = getCredentials(req);
+    const symbol = (req.body.symbol || 'BTCUSDT').toUpperCase();
+    if (!apiKey || !apiSecret) {
+      return res.status(400).json({ error: 'Chaves de API não configuradas.' });
+    }
+    const result = await tradeService.cancelPositionTp(apiKey, apiSecret, symbol);
+    res.json({ success: true, result });
+  } catch (err) {
+    console.error('[/api/trade/cancel-tp] Erro:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── 3.5 Cancelar Apenas o Stop Loss da Posição ───────────────────────────────
+router.post('/cancel-sl', async (req, res) => {
+  try {
+    const { apiKey, apiSecret } = getCredentials(req);
+    const symbol = (req.body.symbol || 'BTCUSDT').toUpperCase();
+    if (!apiKey || !apiSecret) {
+      return res.status(400).json({ error: 'Chaves de API não configuradas.' });
+    }
+    const result = await tradeService.cancelPositionSl(apiKey, apiSecret, symbol);
+    res.json({ success: true, result });
+  } catch (err) {
+    console.error('[/api/trade/cancel-sl] Erro:', err.message);
     res.status(500).json({ error: err.message });
   }
 });

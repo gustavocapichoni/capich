@@ -127,10 +127,10 @@ export async function fetchAndRender() {
         title: maTagsOn ? longTitle : ''
       });
     }
-    if (state.series.vwapBuy)  state.series.vwapBuy.applyOptions({ visible: state.indicatorsVisible });
-    if (state.series.vwapSell) state.series.vwapSell.applyOptions({ visible: state.indicatorsVisible });
-    if (state.series.intraBuy) state.series.intraBuy.applyOptions({ visible: state.indicatorsVisible });
-    if (state.series.intraSell) state.series.intraSell.applyOptions({ visible: state.indicatorsVisible });
+    if (state.series.vwapBuy)  state.series.vwapBuy.applyOptions({ visible: state.empire72hVisible });
+    if (state.series.vwapSell) state.series.vwapSell.applyOptions({ visible: state.empire72hVisible });
+    if (state.series.intraBuy) state.series.intraBuy.applyOptions({ visible: state.empire8hVisible });
+    if (state.series.intraSell) state.series.intraSell.applyOptions({ visible: state.empire8hVisible });
 
     applyPriceFormatToSeries(state.currentSymbol);
 

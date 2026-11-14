@@ -37,7 +37,11 @@ import {
   setTimeframe,
   toggleMovingAverages,
   toggleIndicators,
+  toggleEmpire72h,
+  toggleEmpire8h,
   toggleEmpireZones,
+  toggleEmpireZones72h,
+  toggleEmpireZones8h,
   toggleEmpireTags,
   togglePriceLine
 } from './tactical/actions.js';
@@ -52,7 +56,11 @@ import {
 // ─── Registro Global de Ações (Compatibilidade Total com onclick inline) ─────
 window._toggleTacMA         = toggleMovingAverages;
 window._toggleTacInd        = toggleIndicators;
+window._toggleTacEmpire72h  = toggleEmpire72h;
+window._toggleTacEmpire8h   = toggleEmpire8h;
 window._toggleTacZones      = toggleEmpireZones;
+window._toggleTacZones72h   = toggleEmpireZones72h;
+window._toggleTacZones8h    = toggleEmpireZones8h;
 window._toggleTacEmpireTags = toggleEmpireTags;
 window._toggleTacPriceLine  = togglePriceLine;
 window._toggleTacFibo       = () => toggleFiboTool(1);

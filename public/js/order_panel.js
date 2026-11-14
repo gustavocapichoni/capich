@@ -585,8 +585,45 @@
 
   // ─── GERENCIAMENTO DE POSIÇÕES (MENU INFERIOR ESTILO BINANCE) ───────────────
   let allPositionsList = [];
+  let allConditionalOrdersList = [];
+  let activeBottomTab = 'positions'; // 'positions' | 'orders'
   let modalActiveSymbol = null;
   let modalActivePos = null;
+
+  /**
+   * Inicializa o clique nas abas do Menu Inferior (Posições / Ordens Abertas)
+   */
+  function initBottomMenuTabs() {
+    const tabPos = document.getElementById('tac-bmenu-tab-positions');
+    const tabOrd = document.getElementById('tac-bmenu-tab-orders');
+    const wrapPos = document.getElementById('tac-positions-table-wrap');
+    const wrapOrd = document.getElementById('tac-orders-table-wrap');
+    const tipEl = document.getElementById('tac-bmenu-tip');
+
+    if (tabPos && !tabPos.dataset.bound) {
+      tabPos.dataset.bound = 'true';
+      tabPos.addEventListener('click', () => {
+        activeBottomTab = 'positions';
+        tabPos.classList.add('active');
+        tabOrd?.classList.remove('active');
+        if (wrapPos) wrapPos.style.display = 'block';
+        if (wrapOrd) wrapOrd.style.display = 'none';
+        if (tipEl) tipEl.textContent = '💡 Clique no ✏️ para ajustar Take Profit e Stop Loss';
+      });
+    }
+
+    if (tabOrd && !tabOrd.dataset.bound) {
+      tabOrd.dataset.bound = 'true';
+      tabOrd.addEventListener('click', () => {
+        activeBottomTab = 'orders';
+        tabOrd.classList.add('active');
+        tabPos?.classList.remove('active');
+        if (wrapPos) wrapPos.style.display = 'none';
+        if (wrapOrd) wrapOrd.style.display = 'block';
+        if (tipEl) tipEl.textContent = '💡 As ordens condicionais disparam a mercado quando o preço atingir o Stop Price';
+      });
+    }
+  }
 
   // ─── WEBSOCKET MARK PRICE (tempo real) ──────────────────────────────────────
   let markPriceWs = null;
@@ -813,6 +850,135 @@
         </tr>
       `;
     }).join('');
+  }
+
+  /**
+   * Renderiza a tabela de ordens abertas/condicionais no menu inferior
+   */
+  function renderOrdersTable(orders) {
+    allConditionalOrdersList = Array.isArray(orders) ? orders : [];
+    const tbody = document.getElementById('tac-orders-tbody');
+    const countEl = document.getElementById('tac-bmenu-orders-count');
+    if (countEl) countEl.textContent = allConditionalOrdersList.length;
+
+    if (!tbody) return;
+
+    if (!allConditionalOrdersList || allConditionalOrdersList.length === 0) {
+      tbody.innerHTML = `
+        <tr class="tac-pos-empty-row">
+          <td colspan="8">Nenhuma ordem condicional aberta no momento</td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = allConditionalOrdersList.map(ord => {
+      const isBuy = ord.side === 'BUY';
+      const baseSym = (ord.symbol || '').replace('USDT', '');
+      const sideBadge = isBuy ? 'BUY' : 'SELL';
+      const sideClass = isBuy ? 'color-long' : 'color-short';
+      const badgeClass = isBuy ? 'long' : 'short';
+      const stopPriceVal = parseFloat(ord.stopPrice || ord.price || ord.triggerPrice) || 0;
+      const stopFormatted = stopPriceVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+      const qtyFormatted = `${ord.quantity} ${baseSym}`;
+      const typeLabel = ord.type === 'TAKE_PROFIT_MARKET' ? 'Take Profit Market' : (ord.type === 'STOP_MARKET' ? 'Stop Market' : ord.type);
+
+      return `
+        <tr class="tac-pos-row" data-algo-id="${ord.algoId}">
+          <!-- Símbolo -->
+          <td>
+            <div class="tac-pos-sym-group">
+              <span class="tac-pos-side-badge ${badgeClass}">${sideBadge}</span>
+              <span class="tac-pos-sym-name" onclick="window._setTacPair && window._setTacPair('${baseSym}')" style="cursor:pointer;" title="Clique para abrir o gráfico de ${ord.symbol}">
+                <strong style="color:var(--tac-text-primary);">${ord.symbol}</strong>
+                <span class="tac-pos-sym-sub">Perp</span>
+              </span>
+            </div>
+          </td>
+          <!-- Tipo -->
+          <td style="color:#848e9c;font-size:10.5px;">${typeLabel}</td>
+          <!-- Lado -->
+          <td class="tac-pos-mono ${sideClass}" style="font-weight:700;">${sideBadge}</td>
+          <!-- Preço de Disparo -->
+          <td class="tac-pos-mono" style="color:#f0b90b;font-weight:700;">$${stopFormatted}</td>
+          <!-- Preço de Execução -->
+          <td class="tac-pos-mono" style="color:#848e9c;">Market</td>
+          <!-- Quantidade -->
+          <td class="tac-pos-mono" style="font-weight:700;">${qtyFormatted}</td>
+          <!-- Reduce-Only -->
+          <td style="font-size:10px;color:#848e9c;">${ord.reduceOnly ? '<span style="color:#f0b90b;font-weight:700;">Sim</span>' : 'Não'}</td>
+          <!-- Ação Cancelar -->
+          <td style="text-align:right;">
+            <button type="button" class="tac-pos-btn-market-close" style="background:rgba(246,70,93,0.15);color:#f6465d;border:1px solid rgba(246,70,93,0.3);" onclick="window.OrderPanel.cancelConditionalOrderById('${ord.algoId}', '${ord.symbol}', ${stopPriceVal})" title="Cancelar ordem condicional">
+              Cancelar
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  /**
+   * Cancela uma ordem condicional específica na Binance (sem popup de confirmação)
+   */
+  async function cancelConditionalOrderById(algoId, symbol, price) {
+    if (isPanelLocked) {
+      alert('🔒 Painel bloqueado! Clique no cadeado no topo para desbloquear antes de cancelar ordens.');
+      return;
+    }
+    const { apiKey, apiSecret } = getStoredKeys();
+    if (!apiKey || !apiSecret) return;
+
+    const sym = symbol || currentSymbol;
+    setToast(`Cancelando ordem condicional ${sym}...`, '');
+    try {
+      const res = await fetch('/api/trade/cancel-conditional', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey, apiSecret, symbol: sym, algoId })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+
+      setToast(`✅ Ordem condicional cancelada!`, 'success');
+      fetchAccountData();
+    } catch (err) {
+      console.error('[OrderPanel] Erro ao cancelar ordem condicional:', err);
+      setToast(`Erro: ${err.message}`, 'error');
+      alert(`Erro ao cancelar ordem: ${err.message}`);
+    }
+  }
+
+  /**
+   * Modifica o preço de disparo de uma ordem condicional arrastada no gráfico (sem popup)
+   */
+  async function modifyConditionalOrderById(algoId, symbol, newStopPrice) {
+    if (isPanelLocked) {
+      alert('🔒 Painel bloqueado! Desbloqueie o painel para mover ordens.');
+      return;
+    }
+    const { apiKey, apiSecret } = getStoredKeys();
+    if (!apiKey || !apiSecret) return;
+
+    const sym = symbol || currentSymbol;
+    setToast(`Movendo ordem condicional para $${newStopPrice}...`, '');
+    try {
+      const res = await fetch('/api/trade/modify-conditional', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey, apiSecret, symbol: sym, algoId, newStopPrice })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+
+      setToast(`✅ Ordem condicional movida para $${newStopPrice}!`, 'success');
+      fetchAccountData();
+    } catch (err) {
+      console.error('[OrderPanel] Erro ao mover ordem condicional:', err);
+      setToast(`Erro: ${err.message}`, 'error');
+      alert(`Erro ao mover ordem: ${err.message}`);
+      fetchAccountData();
+    }
   }
 
   /**
@@ -1067,9 +1233,102 @@
   }
 
   /**
+   * Cancela apenas o Take Profit da posição
+   */
+  async function cancelPositionTp(sym) {
+    const targetSymbol = sym || currentSymbol;
+    if (isPanelLocked) {
+      alert('🔒 Painel bloqueado! Clique no cadeado no topo para desbloquear antes de cancelar ordens.');
+      return;
+    }
+    const { apiKey, apiSecret } = getStoredKeys();
+    if (!apiKey || !apiSecret) return;
+
+    if (!confirm(`Deseja cancelar o Take Profit de ${targetSymbol}?`)) return;
+
+    setToast(`Cancelando Take Profit de ${targetSymbol}...`, '');
+    try {
+      const res = await fetch('/api/trade/cancel-tp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey, apiSecret, symbol: targetSymbol })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+
+      setToast(`✅ Take Profit de ${targetSymbol} cancelado!`, 'success');
+      if (window.ChartPositions) {
+        window.ChartPositions.updateTpLine(null);
+      }
+      fetchAccountData();
+    } catch (err) {
+      console.error('[OrderPanel] Erro ao cancelar Take Profit:', err);
+      setToast(`Erro: ${err.message}`, 'error');
+      alert(`Erro ao cancelar Take Profit: ${err.message}`);
+    }
+  }
+
+  /**
+   * Cancela apenas o Stop Loss da posição
+   */
+  async function cancelPositionSl(sym) {
+    const targetSymbol = sym || currentSymbol;
+    if (isPanelLocked) {
+      alert('🔒 Painel bloqueado! Clique no cadeado no topo para desbloquear antes de cancelar ordens.');
+      return;
+    }
+    const { apiKey, apiSecret } = getStoredKeys();
+    if (!apiKey || !apiSecret) return;
+
+    if (!confirm(`Deseja cancelar o Stop Loss de ${targetSymbol}?`)) return;
+
+    setToast(`Cancelando Stop Loss de ${targetSymbol}...`, '');
+    try {
+      const res = await fetch('/api/trade/cancel-sl', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey, apiSecret, symbol: targetSymbol })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+
+      setToast(`✅ Stop Loss de ${targetSymbol} cancelado!`, 'success');
+      if (window.ChartPositions) {
+        window.ChartPositions.updateSlLine(null);
+      }
+      fetchAccountData();
+    } catch (err) {
+      console.error('[OrderPanel] Erro ao cancelar Stop Loss:', err);
+      setToast(`Erro: ${err.message}`, 'error');
+      alert(`Erro ao cancelar Stop Loss: ${err.message}`);
+    }
+  }
+
+  let rateLimitCooldownUntil = 0;
+
+  function handleRateLimitBan(errMsg) {
+    let waitMs = 30000;
+    const match = errMsg && String(errMsg).match(/banned until (\d+)/i);
+    if (match && match[1]) {
+      const banTime = parseInt(match[1], 10);
+      if (banTime > Date.now()) {
+        waitMs = banTime - Date.now() + 2000;
+      }
+    }
+    rateLimitCooldownUntil = Date.now() + waitMs;
+    const secs = Math.ceil(waitMs / 1000);
+    console.warn(`[OrderPanel] Rate-limit Binance detectado. Aguardando ${secs}s antes de novas requisições.`);
+    setToast(`⚠️ Rate-limit Binance: pausando requisições por ${secs}s para estabilizar IP...`, 'error');
+  }
+
+  /**
    * Busca dados da conta e da posição via API local
    */
   async function fetchAccountData() {
+    if (Date.now() < rateLimitCooldownUntil) {
+      return;
+    }
+
     const { apiKey, apiSecret } = getStoredKeys();
     if (!apiKey || !apiSecret) {
       const balEl = document.getElementById('bop-val-balance');
@@ -1098,12 +1357,16 @@
           balEl.title = balData.error || 'Verifique se o IP está salvo na Binance';
         }
         console.warn('[/api/trade/balance] Erro:', balData.error);
-        if (balData.error && (balData.error.includes('-2015') || balData.error.includes('IP') || balData.error.includes('Invalid API-key'))) {
+        if (balData.error && (balData.error.includes('-1003') || balData.error.includes('Way too many requests'))) {
+          handleRateLimitBan(balData.error);
+          return;
+        } else if (balData.error && (balData.error.includes('-2015') || balData.error.includes('IP') || balData.error.includes('Invalid API-key'))) {
           setToast('⚠️ Binance: ' + balData.error, 'error');
         }
       }
 
       // 2. Todas as posições ativas da conta (para o Menu Inferior)
+      initBottomMenuTabs();
       const allPosRes = await fetch('/api/trade/all-positions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1129,7 +1392,37 @@
           }
         }
       } else {
-        renderPositionsTable([]);
+        if (allPosData.error && (allPosData.error.includes('-1003') || allPosData.error.includes('Way too many requests'))) {
+          handleRateLimitBan(allPosData.error);
+          return;
+        }
+        // Em caso de falha transitória, mantém os dados visuais anteriores em vez de limpar tudo
+        console.warn('[/api/trade/all-positions] Resposta não-sucedida, mantendo estado anterior.');
+      }
+
+      // 3. Todas as ordens abertas / condicionais (para o Menu Inferior e gráfico)
+      try {
+        const openOrdersRes = await fetch('/api/trade/open-orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apiKey, apiSecret, symbol: 'ALL' })
+        });
+        const openOrdersData = await openOrdersRes.json();
+        if (openOrdersData.success && Array.isArray(openOrdersData.conditionalOrders)) {
+          const condOrders = openOrdersData.conditionalOrders;
+          renderOrdersTable(condOrders);
+
+          // Atualiza as linhas de ordens condicionais no gráfico apenas para o par ativo
+          if (window.ChartPositions) {
+            const pairCondOrders = condOrders.filter(o => o.symbol === currentSymbol);
+            window.ChartPositions.updateConditionalLines(pairCondOrders);
+          }
+        } else if (openOrdersData.error && (openOrdersData.error.includes('-1003') || openOrdersData.error.includes('Way too many requests'))) {
+          handleRateLimitBan(openOrdersData.error);
+          return;
+        }
+      } catch (errOpen) {
+        console.warn('[/api/trade/open-orders] Aviso:', errOpen.message);
       }
 
       if (window._syncTacChartHeight) {
@@ -1247,7 +1540,10 @@
           throw new Error(data.error || 'Falha ao executar ordem.');
         }
 
-        setToast(`✅ ${side} executado! Preço: $${data.order.avgPrice}`, 'success');
+        const numAvg = parseFloat(data.order?.avgPrice) || currentPrice || 0;
+        const dec = symbolInfo.priceDecimals || 4;
+        const formattedPrice = numAvg > 0 ? `$${numAvg.toFixed(dec)}` : '';
+        setToast(`✅ ${side} executado! Preço: ${formattedPrice}`, 'success');
 
         try {
           const audio = new Audio('assets/audio/notificacao.mp3');
@@ -1269,12 +1565,12 @@
 
 
   /**
-   * Inicia loop de atualização de dados da conta (a cada 3s)
+   * Inicia loop de atualização de dados da conta (a cada 5s para respeitar limites da Binance)
    */
   function startDataPolling() {
     if (pollInterval) clearInterval(pollInterval);
     fetchAccountData();
-    pollInterval = setInterval(fetchAccountData, 3000);
+    pollInterval = setInterval(fetchAccountData, 5000);
   }
 
   /**
@@ -1323,7 +1619,11 @@
     saveTpSlModal,
     clearSingleTp,
     clearSingleSl,
+    cancelPositionTp,
+    cancelPositionSl,
     closePosition,
+    cancelConditionalOrderById,
+    modifyConditionalOrderById,
     refreshPositions: fetchAccountData,
     getPrecision: () => symbolInfo
   };

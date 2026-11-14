@@ -153,7 +153,7 @@ export function initCharts() {
   // 2. MMAs (Amarela e Branca)
   state.series.mmaShort = state.charts.main.addLineSeries({
     color: '#f0b90b',
-    lineWidth: 1.5,
+    lineWidth: 1,
     priceLineVisible: false,
     crosshairMarkerVisible: false,
     lastValueVisible: initMaTagsOn,
@@ -178,6 +178,7 @@ export function initCharts() {
     priceLineVisible: false,
     crosshairMarkerVisible: false,
     lastValueVisible: state.empireTagsVisible,
+    visible: state.empire72hVisible,
     title: empireTitle
   });
 
@@ -187,6 +188,7 @@ export function initCharts() {
     priceLineVisible: false,
     crosshairMarkerVisible: false,
     lastValueVisible: state.empireTagsVisible,
+    visible: state.empire72hVisible,
     title: empireTitle
   });
 
@@ -197,6 +199,7 @@ export function initCharts() {
     priceLineVisible: false,
     crosshairMarkerVisible: false,
     lastValueVisible: state.empireTagsVisible,
+    visible: state.empire8hVisible,
     title: empireTitle
   });
 
@@ -206,6 +209,7 @@ export function initCharts() {
     priceLineVisible: false,
     crosshairMarkerVisible: false,
     lastValueVisible: state.empireTagsVisible,
+    visible: state.empire8hVisible,
     title: empireTitle
   });
 

@@ -287,7 +287,7 @@ export function renderEmpireZones() {
     } catch (e) {}
   }
 
-  if (state.zonesVisible && state.indicatorsVisible && state.candles.length && series) {
+  if (state.candles.length && series && (state.zones72hVisible || state.zones8hVisible)) {
     function drawSegments(isAccumKey, buyKey, sellKey, is72h) {
       const segments = [];
       let curSeg = null;
@@ -392,8 +392,12 @@ export function renderEmpireZones() {
       });
     }
 
-    drawSegments('isAccum', 'vwapBuy', 'vwapSell', true);
-    drawSegments('isIntraAccum', 'intraBuy', 'intraSell', false);
+    if (state.zones72hVisible) {
+      drawSegments('isAccum', 'vwapBuy', 'vwapSell', true);
+    }
+    if (state.zones8hVisible) {
+      drawSegments('isIntraAccum', 'intraBuy', 'intraSell', false);
+    }
   }
 
   // Desenho das ferramentas Fibonacci

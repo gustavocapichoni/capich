@@ -56,7 +56,11 @@ export const state = {
   },
   maVisible: true,
   indicatorsVisible: true,
+  empire72hVisible: true,
+  empire8hVisible: true,
   zonesVisible: true,
+  zones72hVisible: true,
+  zones8hVisible: true,
   empireTagsVisible: true,
   priceLineVisible: false, // Linha tracejada do preço atual (desativada por padrão)
   isHovering: false,
@@ -145,9 +149,37 @@ export function loadUserPreferences() {
       state.indicatorsVisible = (savedInd === 'true');
     }
 
+    const savedEmpire72h = localStorage.getItem('capich_tac_empire_72h');
+    if (savedEmpire72h !== null) {
+      state.empire72hVisible = (savedEmpire72h === 'true');
+    } else if (savedInd !== null) {
+      state.empire72hVisible = (savedInd === 'true');
+    }
+
+    const savedEmpire8h = localStorage.getItem('capich_tac_empire_8h');
+    if (savedEmpire8h !== null) {
+      state.empire8hVisible = (savedEmpire8h === 'true');
+    } else if (savedInd !== null) {
+      state.empire8hVisible = (savedInd === 'true');
+    }
+
     const savedZones = localStorage.getItem('capich_tac_zones');
     if (savedZones !== null) {
       state.zonesVisible = (savedZones === 'true');
+    }
+
+    const savedZones72h = localStorage.getItem('capich_tac_zones_72h');
+    if (savedZones72h !== null) {
+      state.zones72hVisible = (savedZones72h === 'true');
+    } else if (savedZones !== null) {
+      state.zones72hVisible = (savedZones === 'true');
+    }
+
+    const savedZones8h = localStorage.getItem('capich_tac_zones_8h');
+    if (savedZones8h !== null) {
+      state.zones8hVisible = (savedZones8h === 'true');
+    } else if (savedZones !== null) {
+      state.zones8hVisible = (savedZones === 'true');
     }
 
     const savedTags = localStorage.getItem('capich_tac_tags');

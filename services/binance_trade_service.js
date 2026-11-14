@@ -111,11 +111,15 @@ async function getPositionRisk(apiKey, apiSecret, symbol) {
  * Obtém todas as posições abertas na conta (qualquer par com saldo diferente de zero)
  */
 async function getAllPositions(apiKey, apiSecret) {
-  const data = await signedRequest('/fapi/v2/positionRisk', 'GET', {}, apiKey, apiSecret);
+  const [data, algoData] = await Promise.all([
+    signedRequest('/fapi/v2/positionRisk', 'GET', {}, apiKey, apiSecret),
+    signedRequest('/fapi/v1/openAlgoOrders', 'GET', {}, apiKey, apiSecret).catch(() => [])
+  ]);
   if (!Array.isArray(data)) return [];
   const active = data.filter(p => Math.abs(parseFloat(p.positionAmt) || 0) > 0);
+  const algoList = Array.isArray(algoData) ? algoData : (Array.isArray(algoData?.algoOrders) ? algoData.algoOrders : []);
 
-  const positions = await Promise.all(active.map(async (pos) => {
+  const positions = active.map((pos) => {
     const symbol = pos.symbol;
     const amt = parseFloat(pos.positionAmt) || 0;
     const entryPrice = parseFloat(pos.entryPrice) || 0;
@@ -129,11 +133,20 @@ async function getAllPositions(apiKey, apiSecret) {
 
     let tpPrice = null;
     let slPrice = null;
-    try {
-      const openOrd = await getOpenOrders(apiKey, apiSecret, symbol);
-      tpPrice = openOrd.tpPrice;
-      slPrice = openOrd.slPrice;
-    } catch (_) {}
+
+    // Busca TP / SL específicos de fechar posição a partir do único lote de algoOrders já baixado
+    for (const ord of algoList) {
+      if (ord.symbol !== symbol) continue;
+      const isClosePos = ord.closePosition === true || ord.closePosition === 'true' || ord.closePosition === 'TRUE';
+      if (!isClosePos) continue;
+      const type = String(ord.orderType || ord.type || ord.algoType || '').toUpperCase();
+      const trigger = parseFloat(ord.triggerPrice || ord.stopPrice) || 0;
+      if (type.includes('TAKE_PROFIT') || type.includes('TAKEPROFIT') || type === 'TP') {
+        tpPrice = trigger;
+      } else if (type.includes('STOP') || type.includes('STOP_LOSS') || type === 'SL') {
+        slPrice = trigger;
+      }
+    }
 
     return {
       symbol,
@@ -151,7 +164,7 @@ async function getAllPositions(apiKey, apiSecret) {
       tpPrice,
       slPrice
     };
-  }));
+  });
 
   return positions;
 }
@@ -251,17 +264,16 @@ async function getSymbolPrecision(symbol) {
  */
 async function getOpenOrders(apiKey, apiSecret, symbol) {
   try {
-    // Consulta tanto ordens normais quanto ordens algorítmicas/condicionais (Stop Loss e Take Profit)
-    const [standardData, algoData] = await Promise.all([
-      signedRequest('/fapi/v1/openOrders', 'GET', { symbol }, apiKey, apiSecret).catch(err => {
-        console.warn(`[getOpenOrders standardOrders ${symbol}] aviso:`, err.message);
-        return [];
-      }),
-      signedRequest('/fapi/v1/openAlgoOrders', 'GET', { symbol }, apiKey, apiSecret).catch(err => {
-        console.warn(`[getOpenOrders algoOrders ${symbol}] aviso:`, err.message);
-        return [];
-      })
-    ]);
+    const isAll = !symbol || String(symbol).toUpperCase() === 'ALL';
+    // Se for 'ALL', consulta apenas openAlgoOrders (peso 1) para evitar peso 40 de openOrders sem símbolo
+    const requests = isAll
+      ? [Promise.resolve([]), signedRequest('/fapi/v1/openAlgoOrders', 'GET', {}, apiKey, apiSecret).catch(() => [])]
+      : [
+          signedRequest('/fapi/v1/openOrders', 'GET', { symbol: String(symbol).toUpperCase() }, apiKey, apiSecret).catch(() => []),
+          signedRequest('/fapi/v1/openAlgoOrders', 'GET', { symbol: String(symbol).toUpperCase() }, apiKey, apiSecret).catch(() => [])
+        ];
+
+    const [standardData, algoData] = await Promise.all(requests);
 
     const stdList = Array.isArray(standardData) ? standardData : [];
     const algoList = Array.isArray(algoData) ? algoData : (Array.isArray(algoData?.algoOrders) ? algoData.algoOrders : []);
@@ -271,6 +283,7 @@ async function getOpenOrders(apiKey, apiSecret, symbol) {
     let slOrder = null;
     let tpPrice = null;
     let slPrice = null;
+    const conditionalOrders = []; // Ordens condicionais avulsas / realizações parciais
 
     if (allOrders.length > 0) {
       console.log(`[getOpenOrders ${symbol}] Total ordens abertas (Std: ${stdList.length}, Algo: ${algoList.length}): ${allOrders.length}`);
@@ -279,73 +292,34 @@ async function getOpenOrders(apiKey, apiSecret, symbol) {
         const stopPrice = parseFloat(ord.triggerPrice || ord.stopPrice || ord.activatePrice) || 0;
         const price = parseFloat(ord.price) || 0;
         const effectivePrice = stopPrice > 0 ? stopPrice : price;
+        const isClosePos = ord.closePosition === true || ord.closePosition === 'true' || ord.closePosition === 'TRUE';
+        const ordSym = ord.symbol || symbol;
 
-        console.log(`[getOpenOrders ${symbol}] Ordem ID: ${ord.orderId || ord.algoId}, orderType: ${ord.orderType}, Tipo: ${type}, StopPrice: ${ord.triggerPrice || ord.stopPrice}, Price: ${ord.price}, Side: ${ord.side}`);
+        console.log(`[getOpenOrders ${ordSym}] Ordem ID: ${ord.orderId || ord.algoId}, closePos: ${isClosePos}, Tipo: ${type}, StopPrice: ${ord.triggerPrice || ord.stopPrice}, Qty: ${ord.origQty || ord.quantity}, Side: ${ord.side}`);
 
-        if (type.includes('TAKE_PROFIT') || type.includes('TAKEPROFIT') || type === 'TP') {
-          tpOrder = ord;
-          tpPrice = effectivePrice;
-        } else if (type.includes('STOP') || type.includes('STOP_LOSS') || type === 'SL') {
-          slOrder = ord;
-          slPrice = effectivePrice;
-        } else if (type === 'LIMIT') {
-          if (!tpOrder) {
+        // Apenas ordens com closePosition: true são consideradas TP / SL da posição total
+        if (isClosePos) {
+          if (type.includes('TAKE_PROFIT') || type.includes('TAKEPROFIT') || type === 'TP') {
             tpOrder = ord;
             tpPrice = effectivePrice;
+          } else if (type.includes('STOP') || type.includes('STOP_LOSS') || type === 'SL') {
+            slOrder = ord;
+            slPrice = effectivePrice;
           }
-        }
-      }
-
-      // Classificação inteligente de contingência caso venham apenas como CONDITIONAL
-      if ((!tpPrice || !slPrice) && allOrders.length > 0) {
-        const condOrders = allOrders.filter(o => {
-          const pr = parseFloat(o.triggerPrice || o.stopPrice || o.activatePrice || o.price) || 0;
-          return pr > 0;
-        });
-
-        if (condOrders.length === 1) {
-          const ord = condOrders[0];
-          const pr = parseFloat(ord.triggerPrice || ord.stopPrice || ord.activatePrice || ord.price);
-          try {
-            const pos = await getPositionRisk(apiKey, apiSecret, symbol);
-            if (pos && pos.hasPosition && pos.entryPrice > 0) {
-              const isLong = pos.positionAmt > 0;
-              if (isLong) {
-                if (pr > pos.entryPrice) { tpOrder = ord; tpPrice = pr; }
-                else { slOrder = ord; slPrice = pr; }
-              } else {
-                if (pr < pos.entryPrice) { tpOrder = ord; tpPrice = pr; }
-                else { slOrder = ord; slPrice = pr; }
-              }
-            } else {
-              if (!slPrice) { slOrder = ord; slPrice = pr; }
-            }
-          } catch (_) {
-            if (!slPrice) { slOrder = ord; slPrice = pr; }
-          }
-        } else if (condOrders.length >= 2) {
-          const ordA = condOrders[0];
-          const ordB = condOrders[1];
-          const prA = parseFloat(ordA.triggerPrice || ordA.stopPrice || ordA.activatePrice || ordA.price);
-          const prB = parseFloat(ordB.triggerPrice || ordB.stopPrice || ordB.activatePrice || ordB.price);
-
-          const highOrd = prA >= prB ? ordA : ordB;
-          const lowOrd = prA < prB ? ordA : ordB;
-          const highPr = Math.max(prA, prB);
-          const lowPr = Math.min(prA, prB);
-
-          const side = String(ordA.side || ordB.side || '').toUpperCase();
-          if (side === 'SELL') {
-            // Fechamento de LONG: maior preço é Take Profit, menor preço é Stop Loss
-            if (!tpPrice) { tpOrder = highOrd; tpPrice = highPr; }
-            if (!slPrice) { slOrder = lowOrd; slPrice = lowPr; }
-          } else if (side === 'BUY') {
-            // Fechamento de SHORT: menor preço é Take Profit, maior preço é Stop Loss
-            if (!tpPrice) { tpOrder = lowOrd; tpPrice = lowPr; }
-            if (!slPrice) { slOrder = highOrd; slPrice = highPr; }
-          } else {
-            if (!tpPrice) { tpOrder = highOrd; tpPrice = highPr; }
-            if (!slPrice) { slOrder = lowOrd; slPrice = lowPr; }
+        } else {
+          // Ordens condicionais avulsas / realizações parciais de quantidade específica
+          if (effectivePrice > 0) {
+            conditionalOrders.push({
+              orderId: ord.algoId || ord.orderId,
+              algoId: ord.algoId || ord.orderId,
+              symbol: ordSym,
+              side: ord.side,
+              type,
+              price: effectivePrice,
+              stopPrice: effectivePrice,
+              quantity: parseFloat(ord.origQty || ord.quantity || ord.executedQty) || 0,
+              reduceOnly: Boolean(ord.reduceOnly)
+            });
           }
         }
       }
@@ -356,7 +330,8 @@ async function getOpenOrders(apiKey, apiSecret, symbol) {
       tpOrder,
       slOrder,
       tpPrice,
-      slPrice
+      slPrice,
+      conditionalOrders
     };
   } catch (err) {
     console.error(`[getOpenOrders error ${symbol}]:`, err.message);
@@ -423,9 +398,18 @@ async function setStopLossTakeProfit(apiKey, apiSecret, symbol, { stopLoss, take
     }
   }
 
-  // 2. Somente cancela ordens abertas anteriores APÓS validar que os novos valores são válidos
+  // 2. Cancela APENAS os TP / SL da posição total anteriores para este par,
+  // mantendo intactas quaisquer ordens condicionais avulsas ou parciais!
   try {
-    await cancelOpenOrders(apiKey, apiSecret, symbol);
+    const currentOrders = await getOpenOrders(apiKey, apiSecret, symbol);
+    if (currentOrders.tpOrder && (currentOrders.tpOrder.algoId || currentOrders.tpOrder.orderId)) {
+      const id = currentOrders.tpOrder.algoId || currentOrders.tpOrder.orderId;
+      await cancelConditionalOrder(apiKey, apiSecret, symbol, id).catch(() => null);
+    }
+    if (currentOrders.slOrder && (currentOrders.slOrder.algoId || currentOrders.slOrder.orderId)) {
+      const id = currentOrders.slOrder.algoId || currentOrders.slOrder.orderId;
+      await cancelConditionalOrder(apiKey, apiSecret, symbol, id).catch(() => null);
+    }
   } catch (_) {}
 
   const results = {};
@@ -525,6 +509,36 @@ async function executeMarketOrder(apiKey, apiSecret, symbol, side, rawQuantity, 
 
   const orderResult = await signedRequest('/fapi/v1/order', 'POST', orderParams, apiKey, apiSecret);
 
+  let avgPrice = parseFloat(orderResult.avgPrice) || 0;
+  if (avgPrice === 0 && parseFloat(orderResult.cumQuote) > 0 && parseFloat(orderResult.executedQty) > 0) {
+    avgPrice = parseFloat(orderResult.cumQuote) / parseFloat(orderResult.executedQty);
+  }
+
+  // Se a Binance respondeu antes do preenchimento completo no livro (avgPrice: "0.00000"),
+  // aguarda brevemente e consulta o status preenchido da ordem
+  if (avgPrice === 0 && orderResult.orderId) {
+    try {
+      await new Promise(r => setTimeout(r, 200));
+      const checkOrd = await signedRequest('/fapi/v1/order', 'GET', {
+        symbol,
+        orderId: orderResult.orderId
+      }, apiKey, apiSecret);
+      avgPrice = parseFloat(checkOrd.avgPrice) || 0;
+      if (avgPrice === 0 && parseFloat(checkOrd.cumQuote) > 0 && parseFloat(checkOrd.executedQty) > 0) {
+        avgPrice = parseFloat(checkOrd.cumQuote) / parseFloat(checkOrd.executedQty);
+      }
+    } catch (_) {}
+  }
+
+  // Se ainda vier zerado, consulta o preço atual do ticker para não exibir $0
+  if (avgPrice === 0) {
+    try {
+      const tickerRes = await fetch(`${FAPI_URL}/fapi/v1/ticker/price?symbol=${symbol}`);
+      const ticker = await tickerRes.json();
+      avgPrice = parseFloat(ticker.price) || 0;
+    } catch (_) {}
+  }
+
   let tpSlResult = null;
   if (tpSlOptions && (tpSlOptions.stopLoss || tpSlOptions.takeProfit)) {
     try {
@@ -543,7 +557,7 @@ async function executeMarketOrder(apiKey, apiSecret, symbol, side, rawQuantity, 
     symbol: orderResult.symbol,
     side: orderResult.side,
     executedQty: orderResult.executedQty || formattedQty,
-    avgPrice: orderResult.avgPrice || 0,
+    avgPrice: avgPrice,
     tpSlResult,
     raw: orderResult
   };
@@ -601,21 +615,24 @@ async function executeConditionalOrder(apiKey, apiSecret, symbol, side, rawQuant
     symbol,
     side: side.toUpperCase(),
     type: orderType,
+    algoType: 'CONDITIONAL',
     quantity: formattedQty,
-    stopPrice: formattedStopPrice
+    triggerPrice: formattedStopPrice,
+    workingType: 'MARK_PRICE',
+    priceProtect: 'TRUE'
   };
 
   if (reduceOnly) {
     orderParams.reduceOnly = 'true';
   }
 
-  const orderResult = await signedRequest('/fapi/v1/order', 'POST', orderParams, apiKey, apiSecret);
+  const orderResult = await signedRequest('/fapi/v1/algoOrder', 'POST', orderParams, apiKey, apiSecret);
 
   return {
     success: true,
-    orderId: orderResult.orderId,
-    symbol: orderResult.symbol,
-    side: orderResult.side,
+    orderId: orderResult.algoId || orderResult.orderId,
+    symbol: orderResult.symbol || symbol,
+    side: orderResult.side || side.toUpperCase(),
     type: orderType,
     stopPrice: formattedStopPrice,
     quantity: formattedQty,
@@ -659,12 +676,84 @@ async function closeCurrentPosition(apiKey, apiSecret, symbol) {
   };
 }
 
+/**
+ * Cancela uma ordem condicional algorítmica específica pelo algoId
+ */
+async function cancelConditionalOrder(apiKey, apiSecret, symbol, algoId) {
+  if (!symbol || !algoId) {
+    throw new Error('Símbolo e ID da ordem condicional (algoId) são obrigatórios.');
+  }
+  const res = await signedRequest('/fapi/v1/algoOrder', 'DELETE', {
+    symbol: symbol.toUpperCase(),
+    algoId
+  }, apiKey, apiSecret);
+  return res;
+}
+
+/**
+ * Cancela especificamente o Take Profit da posição
+ */
+async function cancelPositionTp(apiKey, apiSecret, symbol) {
+  const currentOrders = await getOpenOrders(apiKey, apiSecret, symbol);
+  if (currentOrders.tpOrder && (currentOrders.tpOrder.algoId || currentOrders.tpOrder.orderId)) {
+    const id = currentOrders.tpOrder.algoId || currentOrders.tpOrder.orderId;
+    return await cancelConditionalOrder(apiKey, apiSecret, symbol, id);
+  }
+  return { message: 'Nenhuma ordem de Take Profit ativa.' };
+}
+
+/**
+ * Cancela especificamente o Stop Loss da posição
+ */
+async function cancelPositionSl(apiKey, apiSecret, symbol) {
+  const currentOrders = await getOpenOrders(apiKey, apiSecret, symbol);
+  if (currentOrders.slOrder && (currentOrders.slOrder.algoId || currentOrders.slOrder.orderId)) {
+    const id = currentOrders.slOrder.algoId || currentOrders.slOrder.orderId;
+    return await cancelConditionalOrder(apiKey, apiSecret, symbol, id);
+  }
+  return { message: 'Nenhuma ordem de Stop Loss ativa.' };
+}
+
+/**
+ * Altera o preço de disparo de uma ordem condicional cancelando e recriando no novo preço
+ */
+async function modifyConditionalOrder(apiKey, apiSecret, symbol, algoId, newStopPrice) {
+  if (!symbol || !algoId || !newStopPrice) {
+    throw new Error('Símbolo, ID da ordem e novo preço de disparo são obrigatórios.');
+  }
+
+  // 1. Obtém as ordens abertas para encontrar a ordem existente e preservar parâmetros (lado, quantidade, reduceOnly)
+  const openData = await getOpenOrders(apiKey, apiSecret, symbol);
+  const existing = openData.conditionalOrders.find(o => String(o.algoId || o.orderId) === String(algoId));
+  if (!existing) {
+    throw new Error(`Ordem condicional #${algoId} não encontrada ou já encerrada.`);
+  }
+
+  const { side, quantity, reduceOnly } = existing;
+
+  // 2. Cancela a ordem antiga
+  await cancelConditionalOrder(apiKey, apiSecret, symbol, algoId);
+
+  // 3. Recria no novo preço
+  const newOrder = await executeConditionalOrder(apiKey, apiSecret, symbol, side, quantity, newStopPrice, reduceOnly);
+
+  return {
+    success: true,
+    message: `Ordem condicional ${side} movida para $${newOrder.stopPrice}!`,
+    order: newOrder
+  };
+}
+
 module.exports = {
   getAccountBalance,
   getPositionRisk,
   getAllPositions,
   getOpenOrders,
   cancelOpenOrders,
+  cancelConditionalOrder,
+  modifyConditionalOrder,
+  cancelPositionTp,
+  cancelPositionSl,
   setStopLossTakeProfit,
   getSymbolPrecision,
   clearExchangeInfoCache: () => { exchangeInfoCache = null; lastExchangeInfoTime = 0; },

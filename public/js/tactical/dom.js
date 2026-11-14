@@ -61,15 +61,23 @@ export function buildHTML() {
                 <span>Médias Móveis</span>
                 <span class="tac-dropdown-status">${state.maVisible ? 'ON' : 'OFF'}</span>
               </button>
-              <!-- Toggle Indicadores EMPIRE -->
-              <button class="tac-dropdown-item ${state.indicatorsVisible ? 'active' : ''}" id="tac-btn-ind" onclick="window._toggleTacInd()">
-                <span>Indicadores EMPIRE</span>
-                <span class="tac-dropdown-status">${state.indicatorsVisible ? 'ON' : 'OFF'}</span>
+              <!-- Toggle Indicadores EMPIRE 72h e 8h -->
+              <button class="tac-dropdown-item ${state.empire72hVisible ? 'active' : ''}" id="tac-btn-empire-72h" onclick="window._toggleTacEmpire72h()">
+                <span>Indicador Empire 72h</span>
+                <span class="tac-dropdown-status">${state.empire72hVisible ? 'ON' : 'OFF'}</span>
               </button>
-              <!-- Toggle Nuvens -->
-              <button class="tac-dropdown-item ${state.zonesVisible ? 'active' : ''}" id="tac-btn-zones" onclick="window._toggleTacZones()">
-                <span>Nuvens de Zonas</span>
-                <span class="tac-dropdown-status">${state.zonesVisible ? 'ON' : 'OFF'}</span>
+              <button class="tac-dropdown-item ${state.empire8hVisible ? 'active' : ''}" id="tac-btn-empire-8h" onclick="window._toggleTacEmpire8h()">
+                <span>Indicador Empire 8h</span>
+                <span class="tac-dropdown-status">${state.empire8hVisible ? 'ON' : 'OFF'}</span>
+              </button>
+              <!-- Toggle Nuvem Empire 72h e 8h -->
+              <button class="tac-dropdown-item ${state.zones72hVisible ? 'active' : ''}" id="tac-btn-zones-72h" onclick="window._toggleTacZones72h()">
+                <span>Nuvem Empire 72h</span>
+                <span class="tac-dropdown-status">${state.zones72hVisible ? 'ON' : 'OFF'}</span>
+              </button>
+              <button class="tac-dropdown-item ${state.zones8hVisible ? 'active' : ''}" id="tac-btn-zones-8h" onclick="window._toggleTacZones8h()">
+                <span>Nuvem Empire 8h</span>
+                <span class="tac-dropdown-status">${state.zones8hVisible ? 'ON' : 'OFF'}</span>
               </button>
               <!-- Toggle Tags -->
               <button class="tac-dropdown-item ${state.empireTagsVisible ? 'active' : ''}" id="tac-btn-tags" onclick="window._toggleTacEmpireTags()" title="Tags e cotações na escala de preços">
@@ -579,7 +587,7 @@ export function buildHTML() {
         </div>
       </div>
 
-      <!-- Menu / Barra Inferior (abaixo dos cards) - Posições Abertas Binance (Admin Only) -->
+      <!-- Menu / Barra Inferior (abaixo dos cards) - Posições Abertas e Ordens Binance (Admin Only) -->
       <div class="tac-bottom-menu admin-only" id="tac-bottom-menu">
         <div class="tac-bmenu-header">
           <div class="tac-bmenu-tabs">
@@ -587,13 +595,17 @@ export function buildHTML() {
               <span>Posições</span>
               <span class="tac-bmenu-count" id="tac-bmenu-pos-count">0</span>
             </button>
+            <button class="tac-bmenu-tab" id="tac-bmenu-tab-orders" type="button">
+              <span>Ordens Abertas</span>
+              <span class="tac-bmenu-count" id="tac-bmenu-orders-count">0</span>
+            </button>
           </div>
           <div class="tac-bmenu-actions">
-            <span class="tac-bmenu-tip">💡 Clique no ✏️ para ajustar Take Profit e Stop Loss</span>
-            <button class="tac-bmenu-refresh-btn" id="tac-bmenu-btn-refresh" type="button" onclick="window.OrderPanel&&window.OrderPanel.refreshPositions&&window.OrderPanel.refreshPositions()" title="Atualizar posições da Binance">🔄</button>
+            <span class="tac-bmenu-tip" id="tac-bmenu-tip">💡 Clique no ✏️ para ajustar Take Profit e Stop Loss</span>
+            <button class="tac-bmenu-refresh-btn" id="tac-bmenu-btn-refresh" type="button" onclick="window.OrderPanel&&window.OrderPanel.refreshPositions&&window.OrderPanel.refreshPositions()" title="Atualizar dados da Binance">🔄</button>
           </div>
         </div>
-        <div class="tac-positions-table-wrap">
+        <div class="tac-positions-table-wrap" id="tac-positions-table-wrap">
           <table class="tac-positions-table">
             <thead>
               <tr>
@@ -611,6 +623,27 @@ export function buildHTML() {
             <tbody id="tac-positions-tbody">
               <tr class="tac-pos-empty-row">
                 <td colspan="9">Nenhuma posição aberta no momento</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tac-positions-table-wrap" id="tac-orders-table-wrap" style="display:none;">
+          <table class="tac-positions-table">
+            <thead>
+              <tr>
+                <th>Símbolo</th>
+                <th>Tipo</th>
+                <th>Lado</th>
+                <th>Preço de Disparo</th>
+                <th>Preço Execução</th>
+                <th>Quantidade</th>
+                <th>Reduce-Only</th>
+                <th style="text-align:right;">Cancelar</th>
+              </tr>
+            </thead>
+            <tbody id="tac-orders-tbody">
+              <tr class="tac-pos-empty-row">
+                <td colspan="8">Nenhuma ordem condicional aberta no momento</td>
               </tr>
             </tbody>
           </table>
