@@ -181,12 +181,8 @@ export function updateBrasiliaClock() {
     timeSpan.textContent = timeStr;
   }
 
-  // Ajusta a posição à esquerda da escala de preços direita
-  let psw = 58;
-  if (state.charts.main && typeof state.charts.main.priceScale === 'function') {
-    try { psw = state.charts.main.priceScale('right').width() || 58; } catch (_) {}
-  }
-  clockEl.style.right = `${psw + 8}px`;
+  // Encosta no canto inferior direito, exatamente embaixo da escala de preços
+  clockEl.style.right = '4px';
 
   // Tooltip com data completa de Brasília
   const dateStr = now.toLocaleDateString('pt-BR', {
