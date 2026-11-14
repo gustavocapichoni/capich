@@ -331,8 +331,10 @@ function initChartControlsProximity() {
     const mouseX = e.clientX - rect.left;
     const fromRight = rect.width - mouseX;
 
-    // Surge quando o mouse se aproxima da área inferior direita (região de volume e régua de preços)
-    if (fromBottom <= 140 && fromRight <= 320) {
+    // Surge quando o mouse se aproxima da área inferior central (região de volume central)
+    const centerX = rect.width / 2;
+    const distFromCenter = Math.abs(mouseX - centerX);
+    if (fromBottom <= 140 && distFromCenter <= 220) {
       clearTimeout(hideTimeout);
       controls.classList.add('visible');
     } else {

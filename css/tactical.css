@@ -1181,7 +1181,7 @@
 /* ── Barra de Controles de Zoom / Navegação Flutuante (Estilo Binance) ──────── */
 .tac-chart-controls {
   position: absolute;
-  right: 68px;
+  left: 50%;
   bottom: 8px;
   display: flex;
   align-items: center;
@@ -1197,7 +1197,7 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1), transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-  transform: translateY(4px);
+  transform: translateX(-50%) translateY(4px);
   user-select: none;
 }
 
@@ -1206,7 +1206,7 @@
 .tac-chart-controls.visible {
   opacity: 1;
   pointer-events: auto;
-  transform: translateY(0);
+  transform: translateX(-50%) translateY(0);
 }
 
 .tac-chart-ctrl-btn {
