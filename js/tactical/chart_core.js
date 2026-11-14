@@ -284,6 +284,7 @@ export function initCharts() {
   // Inicializa eventos interativos de mouse do Fibonacci e Volume
   initFiboMouseEvents(mainContainer);
   initVolumeEvents();
+  initChartControlsProximity();
 
   const ro = new ResizeObserver(() => {
     if (state.charts.main && mainContainer) {
@@ -314,4 +315,36 @@ export function initCharts() {
   setTimeout(syncChartHeightToPanel, 400);
   setTimeout(syncChartHeightToPanel, 1000);
   window.addEventListener('resize', syncChartHeightToPanel);
+}
+
+function initChartControlsProximity() {
+  const container = document.querySelector('.tac-charts-container');
+  const controls = document.getElementById('tac-chart-controls');
+  if (!container || !controls) return;
+
+  let hideTimeout = null;
+
+  container.addEventListener('mousemove', (e) => {
+    const rect = container.getBoundingClientRect();
+    const mouseY = e.clientY - rect.top;
+    const fromBottom = rect.height - mouseY;
+    const mouseX = e.clientX - rect.left;
+    const fromRight = rect.width - mouseX;
+
+    // Surge quando o mouse se aproxima da área inferior direita (região de volume e régua de preços)
+    if (fromBottom <= 140 && fromRight <= 320) {
+      clearTimeout(hideTimeout);
+      controls.classList.add('visible');
+    } else {
+      clearTimeout(hideTimeout);
+      hideTimeout = setTimeout(() => {
+        controls.classList.remove('visible');
+      }, 400);
+    }
+  });
+
+  container.addEventListener('mouseleave', () => {
+    clearTimeout(hideTimeout);
+    controls.classList.remove('visible');
+  });
 }

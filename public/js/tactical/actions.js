@@ -381,3 +381,68 @@ export function togglePriceLine() {
   }
   renderEmpireZones();
 }
+
+// ─── Controles de Zoom e Navegação do Gráfico (Estilo Binance) ─────────────
+export function zoomInChart() {
+  if (!state.charts.main) return;
+  const timeScale = state.charts.main.timeScale();
+  const range = timeScale.getVisibleLogicalRange();
+  if (!range) return;
+  const span = range.to - range.from;
+  if (span <= 4) return;
+  const delta = span * 0.25;
+  timeScale.setVisibleLogicalRange({
+    from: range.from + delta / 2,
+    to: range.to - delta / 2
+  });
+}
+
+export function zoomOutChart() {
+  if (!state.charts.main) return;
+  const timeScale = state.charts.main.timeScale();
+  const range = timeScale.getVisibleLogicalRange();
+  if (!range) return;
+  const span = range.to - range.from;
+  const delta = span * 0.25;
+  timeScale.setVisibleLogicalRange({
+    from: range.from - delta / 2,
+    to: range.to + delta / 2
+  });
+}
+
+export function scrollChartLeft() {
+  if (!state.charts.main) return;
+  const timeScale = state.charts.main.timeScale();
+  const range = timeScale.getVisibleLogicalRange();
+  if (!range) return;
+  const span = range.to - range.from;
+  const shift = Math.max(2, Math.round(span * 0.2));
+  timeScale.setVisibleLogicalRange({
+    from: range.from - shift,
+    to: range.to - shift
+  });
+}
+
+export function scrollChartRight() {
+  if (!state.charts.main) return;
+  const timeScale = state.charts.main.timeScale();
+  const range = timeScale.getVisibleLogicalRange();
+  if (!range) return;
+  const span = range.to - range.from;
+  const shift = Math.max(2, Math.round(span * 0.2));
+  timeScale.setVisibleLogicalRange({
+    from: range.from + shift,
+    to: range.to + shift
+  });
+}
+
+export function resetChartZoom() {
+  if (!state.charts.main) return;
+  const timeScale = state.charts.main.timeScale();
+  timeScale.resetTimeScale();
+  try {
+    state.charts.main.priceScale('right').applyOptions({ autoScale: true });
+  } catch (_) {}
+  timeScale.applyOptions({ rightOffset: 18 });
+  timeScale.scrollToRealTime();
+}

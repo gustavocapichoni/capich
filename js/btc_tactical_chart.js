@@ -43,7 +43,12 @@ import {
   toggleEmpireZones72h,
   toggleEmpireZones8h,
   toggleEmpireTags,
-  togglePriceLine
+  togglePriceLine,
+  zoomInChart,
+  zoomOutChart,
+  scrollChartLeft,
+  scrollChartRight,
+  resetChartZoom
 } from './tactical/actions.js';
 
 import {
@@ -63,6 +68,11 @@ window._toggleTacZones72h   = toggleEmpireZones72h;
 window._toggleTacZones8h    = toggleEmpireZones8h;
 window._toggleTacEmpireTags = toggleEmpireTags;
 window._toggleTacPriceLine  = togglePriceLine;
+window._tacZoomIn           = zoomInChart;
+window._tacZoomOut          = zoomOutChart;
+window._tacScrollLeft       = scrollChartLeft;
+window._tacScrollRight      = scrollChartRight;
+window._tacResetZoom        = resetChartZoom;
 window._toggleTacFibo       = () => toggleFiboTool(1);
 window._clearTacFibo        = () => clearFibo(1);
 window._toggleTacFibo2      = () => toggleFiboTool(2);
@@ -120,6 +130,11 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'F11') {
     setTimeout(checkFullscreenState, 150);
     setTimeout(checkFullscreenState, 500);
+  }
+  // Atalho estilo Binance / TradingView: Alt + R para resetar visualização do gráfico
+  if (e.altKey && (e.key === 'r' || e.key === 'R' || e.code === 'KeyR')) {
+    e.preventDefault();
+    resetChartZoom();
   }
 });
 

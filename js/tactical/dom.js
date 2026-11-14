@@ -149,6 +149,27 @@ export function buildHTML() {
             <div class="tac-chart-vol" id="tac-chart-vol">
               <canvas id="tac-vol-canvas"></canvas>
               <div id="tac-vol-tooltip" class="tac-vol-tooltip" style="display:none;"></div>
+              
+              <!-- Barra de Controles de Zoom / Navegação Flutuante (Estilo Binance) -->
+              <div id="tac-chart-controls" class="tac-chart-controls" aria-label="Controles de Zoom e Navegação do Gráfico">
+                <button type="button" class="tac-chart-ctrl-btn" id="tac-ctrl-zoom-out" data-tip="Diminuir zoom (-)" onclick="window._tacZoomOut()" aria-label="Diminuir zoom">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </button>
+                <button type="button" class="tac-chart-ctrl-btn" id="tac-ctrl-zoom-in" data-tip="Aumentar zoom (+)" onclick="window._tacZoomIn()" aria-label="Aumentar zoom">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </button>
+                <div class="tac-chart-ctrl-divider"></div>
+                <button type="button" class="tac-chart-ctrl-btn" id="tac-ctrl-scroll-left" data-tip="Rolar para a esquerda" onclick="window._tacScrollLeft()" aria-label="Rolar para esquerda">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </button>
+                <button type="button" class="tac-chart-ctrl-btn" id="tac-ctrl-scroll-right" data-tip="Rolar para a direita" onclick="window._tacScrollRight()" aria-label="Rolar para direita">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+                <div class="tac-chart-ctrl-divider"></div>
+                <button type="button" class="tac-chart-ctrl-btn" id="tac-ctrl-reset" data-tip="Reset chart view   Alt + R" onclick="window._tacResetZoom()" aria-label="Resetar visualização">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><polyline points="3 3 3 8 8 8"></polyline></svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -1,0 +1,102 @@
+================================================================================
+   CAPICH CRYPTO TRADING — RELATÓRIO TÉCNICO DE MELHORIAS OPERACIONAIS
+   Os 3 Passos de Blindagem: Segurança, Saídas de Emergência e Performance
+   Data de Execução: 13/11/2026
+================================================================================
+
+Este documento descreve detalhadamente as três camadas de blindagem e otimização
+implementadas no sistema Capich Crypto Trading, abrangendo o servidor Express, 
+as rotas de negociação na Binance Futures e a interface tática do operador.
+
+--------------------------------------------------------------------------------
+PASSO 1: BLINDAGEM DE SEGURANÇA (FORT KNOX)
+--------------------------------------------------------------------------------
+Objetivo: Proteger o servidor, as chaves de API e os endpoints de negociação contra
+ataques externos, acessos não autorizados, injeções maliciosas e força bruta.
+
+1. Cabeçalhos HTTP de Proteção (Helmet):
+   - Integração do pacote 'helmet' no Express ('server.js').
+   - Configuração de políticas de segurança de conteúdo (CSP) ajustadas para
+     permitir scripts do Lightweight Charts e conexões WebSocket seguras da Binance.
+   - Proteções nativas ativadas: X-DNS-Prefetch-Control, X-Frame-Options (anti-clickjacking),
+     Strict-Transport-Security (HSTS), X-Download-Options e X-Content-Type-Options (anti-MIME-sniffing).
+
+2. Proteção Anti-DDoS e Anti-Força Bruta (Express Rate Limiter):
+   - Limitação de taxa de requisições por IP ('express-rate-limit') em dois níveis:
+     * Nível Geral: Limite de requisições para leitura de candles e dados públicos.
+     * Nível Crítico (Trade): Limite restrito para requisições de criação de ordens,
+       cancelamentos e ajuste de alavancagem, prevenindo spam de chamadas à Binance.
+
+3. Restrição de CORS (Cross-Origin Resource Sharing):
+   - Bloqueio de origens desconhecidas. O servidor agora aceita tráfego apenas
+     de domínios autenticados (Vercel de produção, Fly.io e ambiente local de desenvolvimento).
+
+4. Verificação de Autenticação em Ordens ('x-trade-auth'):
+   - Middleware de validação exigindo cabeçalho de assinatura/token seguro ('x-trade-auth')
+     em todos os disparos de compra, venda, alteração de stop e cancelamento enviados
+     pelo painel de ordens ('routes/trade_routes.js'). Disparos sem token são rejeitados
+     imediatamente com HTTP 401 Unauthorized antes de alcançar a API da Binance.
+
+--------------------------------------------------------------------------------
+PASSO 2: SAÍDAS DE EMERGÊNCIA & SOBREVIVÊNCIA (SURVIVAL MODE)
+--------------------------------------------------------------------------------
+Objetivo: Garantir que o operador nunca fique refém de volatilidade súbita, perda de
+conexão ou travamentos de tela, provendo mecanismos instantâneos de desarmamento.
+
+1. Kill Switch (Botão de Pânico Global):
+   - Endpoint dedicado: POST '/api/trade/panic' ('routes/trade_routes.js' e
+     'services/binance_trade_service.js').
+   - Função 'executePanicClose()':
+     * Executa em paralelo ('Promise.allSettled') o fechamento a mercado de todas as posições
+       abertas na Binance e o cancelamento imediato de todas as ordens condicionais e limites.
+     * Suporte para escopo geral ('ALL') ou focado no par ativo da tela.
+   - Interface Visual do Kill Switch:
+     * Botão estilizado de alta visibilidade na barra de status inferior.
+     * Proteção contra clique acidental: exige confirmação tática com estado visual
+       pulsante ('firing') antes do disparo final, evitando execuções involuntárias.
+
+2. Watchdog de Conexão (Cão de Guarda do Link):
+   - Sistema de monitoramento contínuo da integridade da comunicação entre o navegador,
+     o servidor intermediário e a Binance.
+   - Timeout de 10 segundos: Se o heartbeat ou resposta da API falhar por mais de 10s,
+     o watchdog acusa perda de contato.
+   - Badge de Status no Cabeçalho:
+     * 'Online' (Verde): Link íntegro com latência baixa.
+     * 'Atraso' (Amarelo): Instabilidade temporária detectada.
+     * 'Sem Sinal' (Vermelho): Perda de comunicação crítica.
+
+3. Banner de Emergência Flutuante:
+   - Alerta visual no topo do gráfico com animação de atenção e cronômetro em tempo real
+     marcando quantos segundos a conexão está interrompida.
+   - Autorrecuperação (Auto-Dismiss): Assim que a conexão volta a responder, o banner
+     é ocultado automaticamente sem necessidade de recarregar a página manualmente.
+
+--------------------------------------------------------------------------------
+PASSO 3: LIMPEZA & PERFORMANCE (SPEED MODE)
+--------------------------------------------------------------------------------
+Objetivo: Tornar a plataforma o mais rápida e leve possível, reduzindo uso de memória,
+eliminando atrasos de rede e garantindo que o operador sempre veja a versão mais atual.
+
+1. Compressão Gzip HTTP:
+   - Middleware 'compression' ativado no 'server.js'.
+   - Redução de até 70% no peso de payloads JSON grandes (histórico de 500 velas do índice,
+     livro de ofertas e pacotes táticos de indicadores), acelerando a renderização inicial.
+
+2. Invalidação de Cache Eficiente (Cache-Busters v2):
+   - Atualização das chaves de versão nos arquivos estáticos em 'crypto_trading_history.html'
+     e pasta 'public/'.
+   - Impede que o navegador do operador utilize folhas de estilo (CSS) ou scripts (JS)
+     antigos salvos no cache do disco, assegurando a aplicação imediata das novas regras.
+
+3. Limpeza de Logs de Depuração (Console Cleanup):
+   - Remoção de dezenas de 'console.log' verbosos que sobrecarregavam o terminal do servidor
+     e a thread de renderização do navegador durante ticks em alta frequência.
+   - Manutenção de logs apenas para avisos essenciais e erros reais ('console.warn' /
+     'console.error'), liberando ciclos preciosos de CPU.
+
+================================================================================
+STATUS ATUAL DO REPOSITÓRIO:
+- Todos os 3 passos foram testados, validados e integrados à base de código.
+- As melhorias operam de forma harmônica com o novo sistema de Drag & Drop de TP/SL
+  e com a linha de preço cortada para a frente.
+================================================================================
