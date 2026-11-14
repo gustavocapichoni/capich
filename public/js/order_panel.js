@@ -7,18 +7,150 @@
 (function () {
   'use strict';
 
-  const STORAGE_KEY_API = 'capich_binance_api_key';
-  const STORAGE_KEY_SEC = 'capich_binance_api_secret';
+  const STORAGE_KEY_API    = 'capich_binance_api_key';
+  const STORAGE_KEY_SEC    = 'capich_binance_api_secret';
   const STORAGE_KEY_LOCKED = 'capich_order_panel_locked';
 
   const defaultInitialSym = localStorage.getItem('capich_tac_symbol') || 'BTCUSDT';
-  let currentSymbol = defaultInitialSym;
-  let baseAsset = defaultInitialSym.replace('USDT', '');
-  let currentPrice = 0;
+  let currentSymbol    = defaultInitialSym;
+  let baseAsset        = defaultInitialSym.replace('USDT', '');
+  let currentPrice     = 0;
   let currentPositionData = null;
-  let isPanelLocked = localStorage.getItem(STORAGE_KEY_LOCKED) === 'true';
+  let isPanelLocked    = localStorage.getItem(STORAGE_KEY_LOCKED) === 'true';
   let currentOrderType = 'market'; // 'market' ou 'conditional'
-  let pollInterval = null;
+  let pollInterval     = null;
+
+  // ══ WATCHDOG: Monitoramento de Saúde da Conexão ═══════════════════
+  let watchdogLastSuccessTs  = Date.now(); // Timestamp do último sucesso de API
+  let watchdogBannerShown    = false;
+  const WATCHDOG_TIMEOUT_MS  = 10000; // 10s sem resposta = alerta de emergência
+
+  /**
+   * Registra um batimento bem-sucedido da API (heartbeat).
+   * Deve ser chamado sempre que uma requisição à API for bem-sucedida.
+   */
+  function watchdogHeartbeat() {
+    watchdogLastSuccessTs = Date.now();
+    // Se o banner de emergência estava visível, esconde ao reconectar
+    if (watchdogBannerShown) {
+      const banner = document.getElementById('tac-emergency-banner');
+      if (banner) banner.style.display = 'none';
+      watchdogBannerShown = false;
+      updateConnectionStatusUI('ok', 'Online');
+    }
+  }
+
+  /**
+   * Registra uma falha da API e verifica o timeout do watchdog.
+   */
+  function watchdogRegisterFailure() {
+    const elapsed = Date.now() - watchdogLastSuccessTs;
+    if (elapsed >= WATCHDOG_TIMEOUT_MS && !watchdogBannerShown) {
+      watchdogBannerShown = true;
+      const banner = document.getElementById('tac-emergency-banner');
+      if (banner) {
+        const lostEl = document.getElementById('tac-emergency-lost-seconds');
+        if (lostEl) lostEl.textContent = Math.round(elapsed / 1000);
+        banner.style.display = 'block';
+      }
+      updateConnectionStatusUI('error', 'Sem Sinal');
+    } else if (elapsed >= 5000 && !watchdogBannerShown) {
+      updateConnectionStatusUI('warn', `${Math.round(elapsed / 1000)}s atraso`);
+    }
+  }
+
+  /**
+   * Atualiza o indicador visual de status de conexão no titlebar.
+   */
+  function updateConnectionStatusUI(state, label) {
+    let statusEl = document.getElementById('tac-connection-status-badge');
+    if (!statusEl) {
+      const tickerContent = document.getElementById('tac-ticker-content');
+      if (!tickerContent) return;
+      statusEl = document.createElement('span');
+      statusEl.id = 'tac-connection-status-badge';
+      statusEl.className = 'tac-connection-status';
+      tickerContent.appendChild(statusEl);
+    }
+    statusEl.className = `tac-connection-status ${state}`;
+    statusEl.textContent = label;
+  }
+
+  // Atualiza o contador de segundos no banner enquanto ele está visível
+  setInterval(() => {
+    if (!watchdogBannerShown) return;
+    const elapsed = Date.now() - watchdogLastSuccessTs;
+    const lostEl = document.getElementById('tac-emergency-lost-seconds');
+    if (lostEl) lostEl.textContent = Math.round(elapsed / 1000);
+  }, 1000);
+
+  // ══ KILL SWITCH / PÂNICO ══════════════════════════════════════════
+  let panicInProgress = false;
+
+  /**
+   * Aciona o procedimento de pânico (Kill Switch).
+   * Fecha todas as posições e cancela todas as ordens via /api/trade/panic
+   */
+  async function triggerPanicKillSwitch(scope = 'ALL') {
+    if (panicInProgress) return;
+
+    const { apiKey, apiSecret } = getStoredKeys();
+    if (!apiKey || !apiSecret) {
+      alert('⚠️ Configure suas chaves API da Binance antes de acionar o Kill Switch!');
+      return;
+    }
+
+    const confirmMsg = scope === 'ALL'
+      ? '🚨 KILL SWITCH — PÂNICO TOTAL!\n\nIsso vai CANCELAR TODAS AS ORDENS e FECHAR TODAS AS POSIÇÕES a mercado IMEDIATAMENTE em todos os pares.\n\nTem certeza absoluta?'
+      : `🚨 KILL SWITCH — PÂNICO!\n\nIsso vai cancelar todas as ordens e fechar a posição em ${scope} a mercado IMEDIATAMENTE.\n\nTem certeza?`;
+
+    if (!confirm(confirmMsg)) return;
+
+    panicInProgress = true;
+
+    // Visual: botão em estado "disparando"
+    const panicBtn = document.getElementById('tac-btn-kill-switch');
+    const panicLabel = document.getElementById('tac-panic-btn-text');
+    if (panicBtn) panicBtn.classList.add('firing');
+    if (panicLabel) panicLabel.textContent = 'Executando...';
+
+    setToast('🚨 KILL SWITCH ACIONADO! Fechando posições...', 'error');
+
+    try {
+      const res = await fetch('/api/trade/panic', {
+        method: 'POST',
+        headers: getTradeAuthHeaders(),
+        body: JSON.stringify({ apiKey, apiSecret, scope })
+      });
+      const data = await res.json();
+
+      if (!data.success) throw new Error(data.error || 'Falha no Kill Switch');
+
+      watchdogHeartbeat();
+
+      const r = data.result;
+      const fechadas  = (r.closedPositions || []).length;
+      const canceladas = (r.cancelledOrders || []).length;
+      const erros = (r.errors || []).length;
+
+      let msg = `✅ Kill Switch executado! ${fechadas} posição(ões) fechada(s), ${canceladas} ordem(ns) cancelada(s).`;
+      if (erros > 0) msg += ` ⚠️ ${erros} erro(s): ${(r.errors || []).join(' | ')}`;
+
+      setToast(msg, fechadas > 0 ? 'success' : '');
+      alert(msg);
+
+      fetchAccountData();
+    } catch (err) {
+      console.error('[Kill Switch] Erro:', err.message);
+      setToast(`❌ Falha no Kill Switch: ${err.message}`, 'error');
+      alert(`❌ Falha no Kill Switch!\n${err.message}\n\nVerifique suas posições imediatamente no app da Binance!`);
+      watchdogRegisterFailure();
+    } finally {
+      panicInProgress = false;
+      if (panicBtn) panicBtn.classList.remove('firing');
+      if (panicLabel) panicLabel.textContent = 'KILL SWITCH';
+    }
+  }
 
   // Informações de precisão da Binance para o ativo atual
   let symbolInfo = {
@@ -1376,6 +1508,7 @@
         return;
       }
       if (balData.success) {
+        watchdogHeartbeat(); // ✅ Heartbeat: API respondeu com sucesso
         const balEl = document.getElementById('bop-val-balance');
         if (balEl) {
           balEl.textContent = `$${Number(balData.availableBalance).toFixed(2)}`;
@@ -1460,6 +1593,7 @@
       }
     } catch (err) {
       console.warn('[OrderPanel] Polling warning:', err.message);
+      watchdogRegisterFailure(); // ⚠️ Falha total no polling — aciona watchdog
     }
   }
 
@@ -1655,7 +1789,8 @@
     cancelConditionalOrderById,
     modifyConditionalOrderById,
     refreshPositions: fetchAccountData,
-    getPrecision: () => symbolInfo
+    getPrecision: () => symbolInfo,
+    triggerPanicKillSwitch            // 🚨 Kill Switch / Sobrevivência
   };
 
   // Garante inicialização mesmo se o DOM do gráfico for gerado dinamicamente

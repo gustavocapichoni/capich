@@ -744,6 +744,75 @@ async function modifyConditionalOrder(apiKey, apiSecret, symbol, algoId, newStop
   };
 }
 
+/**
+ * Executa Procedimento de Emergência / Pânico (Kill Switch):
+ * Cancela ordens e zera posições a mercado em paralelo com a menor latência possível.
+ * @param {string} apiKey 
+ * @param {string} apiSecret 
+ * @param {string} [scope='ALL'] - 'ALL' para zerar todas as posições da conta ou símbolo específico (ex: 'UNIUSDT')
+ */
+async function executePanicClose(apiKey, apiSecret, scope = 'ALL') {
+  const isAll = !scope || scope.toUpperCase() === 'ALL';
+  const results = {
+    scope: isAll ? 'ALL' : scope.toUpperCase(),
+    closedPositions: [],
+    cancelledOrders: [],
+    errors: []
+  };
+
+  if (!isAll) {
+    const symbol = scope.toUpperCase();
+    const [cancelRes, closeRes] = await Promise.allSettled([
+      cancelOpenOrders(apiKey, apiSecret, symbol),
+      closeCurrentPosition(apiKey, apiSecret, symbol)
+    ]);
+
+    if (cancelRes.status === 'fulfilled') {
+      results.cancelledOrders.push(symbol);
+    } else {
+      results.errors.push(`Cancelar ${symbol}: ${cancelRes.reason?.message || 'Falha'}`);
+    }
+
+    if (closeRes.status === 'fulfilled') {
+      results.closedPositions.push({ symbol, details: closeRes.value });
+    } else {
+      const msg = closeRes.reason?.message || '';
+      if (!msg.includes('Não há posição')) {
+        results.errors.push(`Zerar ${symbol}: ${msg}`);
+      }
+    }
+  } else {
+    // Escopo GERAL: Busca todas as posições ativas
+    const allPositions = await getAllPositions(apiKey, apiSecret);
+    const tasks = [];
+
+    for (const pos of allPositions) {
+      tasks.push((async () => {
+        const [cancelRes, closeRes] = await Promise.allSettled([
+          cancelOpenOrders(apiKey, apiSecret, pos.symbol),
+          closeCurrentPosition(apiKey, apiSecret, pos.symbol)
+        ]);
+
+        if (cancelRes.status === 'fulfilled') {
+          results.cancelledOrders.push(pos.symbol);
+        } else {
+          results.errors.push(`Cancelar ${pos.symbol}: ${cancelRes.reason?.message}`);
+        }
+
+        if (closeRes.status === 'fulfilled') {
+          results.closedPositions.push({ symbol: pos.symbol, details: closeRes.value });
+        } else {
+          results.errors.push(`Zerar ${pos.symbol}: ${closeRes.reason?.message}`);
+        }
+      })());
+    }
+
+    await Promise.all(tasks);
+  }
+
+  return results;
+}
+
 module.exports = {
   getAccountBalance,
   getPositionRisk,
@@ -759,5 +828,6 @@ module.exports = {
   clearExchangeInfoCache: () => { exchangeInfoCache = null; lastExchangeInfoTime = 0; },
   executeMarketOrder,
   executeConditionalOrder,
-  closeCurrentPosition
+  closeCurrentPosition,
+  executePanicClose
 };

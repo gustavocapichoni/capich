@@ -382,4 +382,28 @@ router.post('/close', async (req, res) => {
   }
 });
 
+// ─── 5. PÂNICO / KILL SWITCH: Zerar posições e cancelar ordens imediatamente ──
+router.post('/panic', async (req, res) => {
+  try {
+    const { apiKey, apiSecret } = getCredentials(req);
+    const scope = (req.body.scope || req.body.symbol || 'ALL').toUpperCase();
+
+    if (!apiKey || !apiSecret) {
+      return res.status(400).json({ error: 'Chaves de API não configuradas.' });
+    }
+
+    console.warn(`[KILL SWITCH] Acionado procedimento de pânico! Escopo: ${scope}`);
+    const result = await tradeService.executePanicClose(apiKey, apiSecret, scope);
+
+    res.json({
+      success: true,
+      message: `Kill Switch executado com sucesso (${scope})!`,
+      result
+    });
+  } catch (err) {
+    console.error('[/api/trade/panic] Erro no Kill Switch:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

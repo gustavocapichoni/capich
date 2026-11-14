@@ -55,7 +55,7 @@ const tradeActionLimiter = rateLimit({
 });
 
 app.use('/api/', globalApiLimiter);
-app.use(['/api/trade/order', '/api/trade/conditional-order', '/api/trade/close'], tradeActionLimiter);
+app.use(['/api/trade/order', '/api/trade/conditional-order', '/api/trade/close', '/api/trade/panic'], tradeActionLimiter);
 
 // Endpoint para descobrir o IP de saída real (Outbound IP) visto pela Binance
 app.get('/api/my-ip', async (req, res) => {

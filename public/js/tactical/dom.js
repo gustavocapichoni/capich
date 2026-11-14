@@ -14,6 +14,18 @@ export function buildHTML() {
   ).join('');
 
   container.innerHTML = `
+    <!-- Banner de Emergência Failsafe (Queda de Conexão com Binance/Servidor) -->
+    <div id="tac-emergency-banner" class="tac-emergency-banner" style="display:none;">
+      <div class="tac-emergency-banner-content">
+        <span class="tac-emergency-banner-icon">⚠️</span>
+        <div class="tac-emergency-banner-text">
+          <strong>ALERTA DE SEGURANÇA: CONEXÃO INTERROMPIDA COM A BINANCE / SERVIDOR!</strong>
+          <span>A resposta da API falhou há mais de <span id="tac-emergency-lost-seconds">8</span>s. Se possuir posições abertas, verifique imediatamente pelo app oficial da Binance no celular.</span>
+        </div>
+        <button type="button" class="tac-emergency-banner-close" onclick="document.getElementById('tac-emergency-banner').style.display='none'" title="Fechar aviso">&times;</button>
+      </div>
+    </div>
+
     <div class="tac-wrapper">
       <!-- Titlebar -->
       <div class="tac-titlebar">
@@ -603,6 +615,10 @@ export function buildHTML() {
           <div class="tac-bmenu-actions">
             <span class="tac-bmenu-tip" id="tac-bmenu-tip">💡 Clique no ✏️ para ajustar Take Profit e Stop Loss</span>
             <button class="tac-bmenu-refresh-btn" id="tac-bmenu-btn-refresh" type="button" onclick="window.OrderPanel&&window.OrderPanel.refreshPositions&&window.OrderPanel.refreshPositions()" title="Atualizar dados da Binance">🔄</button>
+            <button class="tac-bmenu-panic-btn" id="tac-btn-kill-switch" type="button" onclick="window.OrderPanel&&window.OrderPanel.triggerPanicKillSwitch()" title="PÂNICO: Fechar todas as posições e cancelar ordens imediatamente (Kill Switch)">
+              <span class="tac-panic-icon">🚨</span>
+              <span class="tac-panic-label" id="tac-panic-btn-text">KILL SWITCH</span>
+            </button>
           </div>
         </div>
         <div class="tac-positions-table-wrap" id="tac-positions-table-wrap">
