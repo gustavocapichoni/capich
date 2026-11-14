@@ -44,11 +44,16 @@ export function renderVolumeCanvas() {
 
   const timeScale = state.charts.main.timeScale();
 
+  // Calcula o volume máximo visível para escala das barras E das linhas juntos
   let maxVol = 0;
   state.candles.forEach(c => {
     const x = timeScale.timeToCoordinate(c.time);
     if (x !== null && x >= -20 && x <= width + 20) {
-      if (c.volume > maxVol) maxVol = c.volume;
+      const spotTotal = (c.spotBuy || 0) + (c.spotSell || 0);
+      const futTotal  = (c.futBuy  || 0) + (c.futSell  || 0);
+      const combined  = c.volume || 0;
+      const mx = Math.max(spotTotal, futTotal, combined);
+      if (mx > maxVol) maxVol = mx;
     }
   });
   if (maxVol === 0) maxVol = 1;
@@ -62,6 +67,8 @@ export function renderVolumeCanvas() {
     }
   }
 
+  const baseY = height - 2;
+
   let hoveredBarData = null;
 
   state.candles.forEach(c => {
@@ -74,7 +81,6 @@ export function renderVolumeCanvas() {
     const sellH = totalH - buyH;
 
     const drawX = x - (barWidth / 2);
-    const baseY = height - 2;
 
     const isHovered = (hoveredVolTime === c.time);
     if (isHovered) {
@@ -90,9 +96,55 @@ export function renderVolumeCanvas() {
     ctx.fillRect(drawX, baseY - totalH, barWidth, sellH);
   });
 
+  // ── Linha Spot (Branco) e Linha Futures (Azul #0c3299) ───────────────────
+  // Coleta pontos visíveis para desenhar as linhas de forma suave e contínua
+  const spotPoints = [];
+  const futPoints  = [];
+
+  state.candles.forEach(c => {
+    const x = timeScale.timeToCoordinate(c.time);
+    if (x === null || x < -20 || x > width + 20) return;
+
+    const spotTotal = (c.spotBuy || 0) + (c.spotSell || 0);
+    const futTotal  = (c.futBuy  || 0) + (c.futSell  || 0);
+
+    spotPoints.push({ x, y: baseY - (spotTotal / maxVol) * (height - 8) });
+    futPoints.push({  x, y: baseY - (futTotal  / maxVol) * (height - 8) });
+  });
+
+  // Desenha linha Spot (Branco)
+  if (spotPoints.length >= 2) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(spotPoints[0].x, spotPoints[0].y);
+    for (let i = 1; i < spotPoints.length; i++) {
+      ctx.lineTo(spotPoints[i].x, spotPoints[i].y);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Desenha linha Futures (Azul #0c3299)
+  if (futPoints.length >= 2) {
+    ctx.save();
+    ctx.strokeStyle = '#0c3299';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(futPoints[0].x, futPoints[0].y);
+    for (let i = 1; i < futPoints.length; i++) {
+      ctx.lineTo(futPoints[i].x, futPoints[i].y);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
   // Desenha o highlight da barra ativa (se houver mouse hover)
   if (hoveredBarData) {
-    const { drawX, baseY, totalH, barWidth: bw, x } = hoveredBarData;
+    const { drawX, baseY: bY, totalH, barWidth: bw, x } = hoveredBarData;
 
     // Linha guia vertical sutil
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
@@ -107,7 +159,7 @@ export function renderVolumeCanvas() {
     // Moldura de destaque na barra
     ctx.strokeStyle = '#00f0ff';
     ctx.lineWidth = 1.5;
-    ctx.strokeRect(drawX - 0.5, baseY - totalH - 1, bw + 1, totalH + 2);
+    ctx.strokeRect(drawX - 0.5, bY - totalH - 1, bw + 1, totalH + 2);
   }
 }
 
