@@ -1353,6 +1353,52 @@
   }
 
   /**
+   * Define ou atualiza Take Profit ou Stop Loss diretamente via Drag & Drop no gráfico (sem popup de confirmação)
+   * @param {string} sym - Símbolo
+   * @param {Object} options - { takeProfit, stopLoss }
+   */
+  async function setDirectTpSl(sym, options = {}) {
+    const targetSymbol = sym || currentSymbol;
+    if (isPanelLocked) {
+      setToast('🔒 Painel bloqueado! Clique no cadeado para desbloquear.', 'error');
+      return;
+    }
+    const { apiKey, apiSecret } = getStoredKeys();
+    if (!apiKey || !apiSecret) {
+      setToast('⚠️ Configure suas chaves API antes de enviar ordens.', 'error');
+      return;
+    }
+
+    const payload = {
+      apiKey,
+      apiSecret,
+      symbol: targetSymbol
+    };
+    if (options.takeProfit !== undefined && options.takeProfit > 0) payload.takeProfit = options.takeProfit;
+    if (options.stopLoss !== undefined && options.stopLoss > 0) payload.stopLoss = options.stopLoss;
+
+    const isTp = Boolean(payload.takeProfit);
+    const label = isTp ? `Take Profit ($${payload.takeProfit})` : `Stop Loss ($${payload.stopLoss})`;
+    setToast(`Enviando ${label} na Binance...`, '');
+
+    try {
+      const res = await fetch('/api/trade/set-tpsl', {
+        method: 'POST',
+        headers: getTradeAuthHeaders(),
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+
+      setToast(`✅ ${label} posicionado com sucesso!`, 'success');
+      fetchAccountData();
+    } catch (err) {
+      console.error('[OrderPanel] Erro ao posicionar TP/SL via drag:', err);
+      setToast(`Erro ao posicionar: ${err.message}`, 'error');
+    }
+  }
+
+  /**
    * Encerra posição a mercado
    */
   async function closePosition(sym) {
@@ -1785,6 +1831,7 @@
     clearSingleSl,
     cancelPositionTp,
     cancelPositionSl,
+    setDirectTpSl,
     closePosition,
     cancelConditionalOrderById,
     modifyConditionalOrderById,

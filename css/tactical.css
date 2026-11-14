@@ -1746,6 +1746,23 @@
   cursor: default;
 }
 
+.chart-line-badge.pos-badge {
+  cursor: grab;
+  user-select: none;
+}
+.chart-line-badge.pos-badge:active {
+  cursor: grabbing;
+}
+
+.chart-line-badge.ghost-badge {
+  background: rgba(19, 23, 34, 0.94);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);
+  border-width: 1.5px;
+  border-style: dashed;
+  pointer-events: none;
+}
+
 .chart-line-badge.pos-badge.profit {
   background: #131722;
   border: 1px solid rgba(14, 203, 129, 0.55);

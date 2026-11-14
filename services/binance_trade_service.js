@@ -398,15 +398,15 @@ async function setStopLossTakeProfit(apiKey, apiSecret, symbol, { stopLoss, take
     }
   }
 
-  // 2. Cancela APENAS os TP / SL da posição total anteriores para este par,
-  // mantendo intactas quaisquer ordens condicionais avulsas ou parciais!
+  // 2. Cancela APENAS a ordem correspondente que está sendo substituída (TP se hasTp, SL se hasSl),
+  // mantendo intactas a outra ponta e quaisquer ordens condicionais avulsas ou parciais!
   try {
     const currentOrders = await getOpenOrders(apiKey, apiSecret, symbol);
-    if (currentOrders.tpOrder && (currentOrders.tpOrder.algoId || currentOrders.tpOrder.orderId)) {
+    if (hasTp && currentOrders.tpOrder && (currentOrders.tpOrder.algoId || currentOrders.tpOrder.orderId)) {
       const id = currentOrders.tpOrder.algoId || currentOrders.tpOrder.orderId;
       await cancelConditionalOrder(apiKey, apiSecret, symbol, id).catch(() => null);
     }
-    if (currentOrders.slOrder && (currentOrders.slOrder.algoId || currentOrders.slOrder.orderId)) {
+    if (hasSl && currentOrders.slOrder && (currentOrders.slOrder.algoId || currentOrders.slOrder.orderId)) {
       const id = currentOrders.slOrder.algoId || currentOrders.slOrder.orderId;
       await cancelConditionalOrder(apiKey, apiSecret, symbol, id).catch(() => null);
     }

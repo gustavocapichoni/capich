@@ -138,7 +138,7 @@ export function initCharts() {
     borderVisible: false,
     wickUpColor: '#00bcd4',
     wickDownColor: '#af0000',
-    priceLineVisible: state.priceLineVisible
+    priceLineVisible: false
   });
 
   // Linhas de posições da Binance com arrasto de TP/SL

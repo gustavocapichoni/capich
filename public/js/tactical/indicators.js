@@ -407,4 +407,26 @@ export function renderEmpireZones() {
   if (state.fibo2 && state.fibo2.p1 && state.fibo2.p2) {
     drawFibonacciRetracement(ctx, width, height, timeScale, series, state.fibo2, 2);
   }
+
+  // Desenho da Linha de Preço Cortada (apenas da vela atual para frente / direita)
+  if (state.priceLineVisible !== false && state.candles && state.candles.length && series) {
+    const lastCandle = state.candles[state.candles.length - 1];
+    const livePrice = (state.currentPrice !== null && state.currentPrice !== undefined) ? state.currentPrice : (lastCandle ? lastCandle.close : null);
+    if (livePrice !== null && livePrice !== undefined) {
+      const y = series.priceToCoordinate(livePrice);
+      const startX = timeScale.timeToCoordinate(lastCandle.time);
+      if (y !== null && startX !== null && y >= 0 && y <= height) {
+        ctx.save();
+        const isBull = lastCandle.close >= lastCandle.open;
+        ctx.strokeStyle = isBull ? 'rgba(0, 188, 212, 0.85)' : 'rgba(246, 70, 93, 0.85)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(Math.max(0, startX), Math.round(y));
+        ctx.lineTo(chartPlotWidth, Math.round(y));
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+  }
 }

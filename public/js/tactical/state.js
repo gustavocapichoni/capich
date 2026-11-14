@@ -62,7 +62,7 @@ export const state = {
   zones72hVisible: true,
   zones8hVisible: true,
   empireTagsVisible: true,
-  priceLineVisible: false, // Linha tracejada do preço atual (desativada por padrão)
+  priceLineVisible: true, // Linha tracejada do preço atual (cortada da vela atual para frente)
   isHovering: false,
   fibo: {
     active: false,

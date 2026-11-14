@@ -366,9 +366,6 @@ export function toggleEmpireTags() {
 export function togglePriceLine() {
   state.priceLineVisible = !state.priceLineVisible;
   try { localStorage.setItem('capich_tac_priceline', String(state.priceLineVisible)); } catch (_) {}
-  if (state.series.candles) {
-    state.series.candles.applyOptions({ priceLineVisible: state.priceLineVisible });
-  }
   const btn = document.getElementById('tac-btn-priceline');
   if (btn) {
     const statusSpan = btn.querySelector('.tac-dropdown-status');
@@ -382,4 +379,5 @@ export function togglePriceLine() {
       else btn.textContent = 'Linha: OFF';
     }
   }
+  renderEmpireZones();
 }

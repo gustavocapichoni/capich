@@ -31,6 +31,8 @@
   let posBadgeEl = null;
   let tpBadgeEl = null;
   let slBadgeEl = null;
+  let ghostBadgeEl = null;
+  let ghostLine = null;
 
   function ensureBadges() {
     if (!currentContainer) return;
@@ -40,7 +42,44 @@
       posBadgeEl.id = 'chart-pos-badge';
       posBadgeEl.className = 'chart-line-badge pos-badge';
       posBadgeEl.style.display = 'none';
+      posBadgeEl.title = 'Arraste para cima (TP) ou para baixo (SL)';
       currentContainer.appendChild(posBadgeEl);
+
+      // Permite puxar TP e SL a partir do badge da posição sem popup
+      posBadgeEl.addEventListener('mousedown', (e) => {
+        if (e.button !== 0 || !currentTargetSeries || !lastPosData) return;
+        // Ignora clique no botão [x] de zerar posição
+        if (e.target && (e.target.classList.contains('badge-close-btn') || e.target.closest('.badge-close-btn'))) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        isDragging = {
+          type: 'POS_DRAG_NEW_ORDER',
+          posData: lastPosData,
+          entryPrice: parseFloat(lastPosData.entryPrice),
+          isLong: String(lastPosData.side).toUpperCase() === 'LONG',
+          symbol: lastPosData.symbol || localStorage.getItem('capich_tac_symbol') || 'BTCUSDT',
+          currentGhostPrice: null,
+          orderKind: null
+        };
+
+        if (currentChart) {
+          try { currentChart.applyOptions({ handleScroll: false, handleScale: false }); } catch (_) {}
+        }
+        document.body.style.userSelect = 'none';
+        currentContainer.style.cursor = 'crosshair';
+      });
+    }
+
+    if (!ghostBadgeEl) {
+      ghostBadgeEl = document.createElement('div');
+      ghostBadgeEl.id = 'chart-ghost-badge';
+      ghostBadgeEl.className = 'chart-line-badge ghost-badge';
+      ghostBadgeEl.style.display = 'none';
+      ghostBadgeEl.style.pointerEvents = 'none';
+      ghostBadgeEl.style.zIndex = '120';
+      currentContainer.appendChild(ghostBadgeEl);
     }
 
     if (!tpBadgeEl) {
@@ -279,6 +318,50 @@
             cl.badgeEl.style.display = 'inline-flex';
           }
         }
+      } else if (isDragging && typeof isDragging === 'object' && isDragging.type === 'POS_DRAG_NEW_ORDER') {
+        const entry = isDragging.entryPrice;
+        const isLong = isDragging.isLong;
+        const orderKind = isLong ? (cleanPrice > entry ? 'TP' : 'SL') : (cleanPrice < entry ? 'TP' : 'SL');
+
+        isDragging.orderKind = orderKind;
+        isDragging.currentGhostPrice = cleanPrice;
+
+        const isTp = (orderKind === 'TP');
+        const color = isTp ? '#0ecb81' : '#f6465d';
+        const label = isTp ? '🎯 Novo TP Market' : '🛑 Novo SL Market';
+
+        const size = Math.abs(parseFloat(isDragging.posData.positionAmt)) || 1;
+        const lev = parseFloat(isDragging.posData.leverage) || 1;
+        const pnl = isLong ? (cleanPrice - entry) * size : (entry - cleanPrice) * size;
+        const roi = entry > 0 ? (isLong ? ((cleanPrice - entry) / entry) * lev * 100 : ((entry - cleanPrice) / entry) * lev * 100) : 0;
+        const pnlSign = pnl >= 0 ? '+' : '';
+        const roiSign = roi >= 0 ? '+' : '';
+
+        const lineOpts = {
+          price: cleanPrice,
+          color: color,
+          lineWidth: 1.5,
+          lineStyle: 2,
+          axisLabelVisible: true,
+          title: ''
+        };
+
+        if (ghostLine) {
+          try { ghostLine.applyOptions(lineOpts); } catch (_) {}
+        } else {
+          try { ghostLine = currentTargetSeries.createPriceLine(lineOpts); } catch (_) {}
+        }
+
+        if (ghostBadgeEl) {
+          ghostBadgeEl.innerHTML = `
+            <span style="font-weight:800;color:${color};">${label}</span>
+            <span class="badge-price" style="background:${isTp ? 'rgba(14,203,129,0.18)' : 'rgba(246,70,93,0.18)'};">$${cleanPrice}</span>
+            <span style="font-size:10px;font-weight:700;color:${pnl >= 0 ? '#0ecb81' : '#f6465d'};">${pnlSign}$${pnl.toFixed(2)} (${roiSign}${roi.toFixed(1)}%)</span>
+          `;
+          ghostBadgeEl.style.top = `${Math.round(mouseY - 12)}px`;
+          ghostBadgeEl.style.display = 'inline-flex';
+          ghostBadgeEl.style.borderColor = color;
+        }
       }
     });
 
@@ -318,12 +401,46 @@
         return;
       }
 
-      // Caso 2: Take Profit ou Stop Loss — mantém fluxo com modal de confirmação
-      if ((draggedItem === 'TP' || draggedItem === 'SL') && window.OrderPanel && typeof window.OrderPanel.openTpSlModal === 'function') {
-        setTimeout(() => {
-          const sym = localStorage.getItem('capich_tac_symbol') || 'BTCUSDT';
-          window.OrderPanel.openTpSlModal(sym, currentTpPrice || 0, currentSlPrice || 0);
-        }, 80);
+      // Caso 2: Puxou novo TP ou SL a partir do badge da posição — envia IMEDIATAMENTE sem popup
+      if (draggedItem && typeof draggedItem === 'object' && draggedItem.type === 'POS_DRAG_NEW_ORDER') {
+        if (ghostLine) {
+          try { currentTargetSeries.removePriceLine(ghostLine); } catch (_) {}
+          ghostLine = null;
+        }
+        if (ghostBadgeEl) ghostBadgeEl.style.display = 'none';
+
+        const finalPrice = draggedItem.currentGhostPrice;
+        const orderKind = draggedItem.orderKind;
+        const sym = draggedItem.symbol || localStorage.getItem('capich_tac_symbol') || 'BTCUSDT';
+
+        if (finalPrice && finalPrice > 0 && finalPrice !== draggedItem.entryPrice && orderKind) {
+          if (window.OrderPanel && typeof window.OrderPanel.setDirectTpSl === 'function') {
+            if (orderKind === 'TP') {
+              window.OrderPanel.setDirectTpSl(sym, { takeProfit: finalPrice });
+            } else if (orderKind === 'SL') {
+              window.OrderPanel.setDirectTpSl(sym, { stopLoss: finalPrice });
+            }
+          }
+        }
+        return;
+      }
+
+      // Caso 3: Take Profit existente arrastado — atualiza IMEDIATAMENTE sem popup
+      if (draggedItem === 'TP' && currentTpPrice) {
+        const sym = localStorage.getItem('capich_tac_symbol') || 'BTCUSDT';
+        if (window.OrderPanel && typeof window.OrderPanel.setDirectTpSl === 'function') {
+          window.OrderPanel.setDirectTpSl(sym, { takeProfit: currentTpPrice });
+        }
+        return;
+      }
+
+      // Caso 4: Stop Loss existente arrastado — atualiza IMEDIATAMENTE sem popup
+      if (draggedItem === 'SL' && currentSlPrice) {
+        const sym = localStorage.getItem('capich_tac_symbol') || 'BTCUSDT';
+        if (window.OrderPanel && typeof window.OrderPanel.setDirectTpSl === 'function') {
+          window.OrderPanel.setDirectTpSl(sym, { stopLoss: currentSlPrice });
+        }
+        return;
       }
     });
   }
@@ -553,6 +670,12 @@
     if (posBadgeEl) posBadgeEl.style.display = 'none';
     if (tpBadgeEl)  tpBadgeEl.style.display = 'none';
     if (slBadgeEl)  slBadgeEl.style.display = 'none';
+    if (ghostBadgeEl) ghostBadgeEl.style.display = 'none';
+
+    if (ghostLine && currentTargetSeries) {
+      try { currentTargetSeries.removePriceLine(ghostLine); } catch (_) {}
+      ghostLine = null;
+    }
 
     // limpa linhas condicionais
     clearConditionalLines();
