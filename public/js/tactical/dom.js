@@ -145,6 +145,12 @@ export function buildHTML() {
             <div class="tac-chart-main" id="tac-chart-main">
               <canvas id="tac-zones-canvas"></canvas>
               <div id="tac-candle-tooltip" class="tac-candle-tooltip" style="display:none;"></div>
+              
+              <!-- Relógio em Tempo Real na Escala de Tempo (Horário de Brasília UTC-3) -->
+              <div id="tac-chart-clock" class="tac-chart-clock" title="Horário de Brasília (UTC-3)">
+                <span id="tac-clock-time">--:--:--</span>
+                <span class="tac-clock-tz">UTC-3</span>
+              </div>
             </div>
             <div class="tac-chart-vol" id="tac-chart-vol">
               <canvas id="tac-vol-canvas"></canvas>

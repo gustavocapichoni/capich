@@ -149,6 +149,54 @@ export function updateCandleCountdown() {
   } else {
     countdownBadge.style.display = 'none';
   }
+
+  // Atualiza o relógio oficial de Brasília na escala de tempo
+  updateBrasiliaClock();
+}
+
+export function updateBrasiliaClock() {
+  const container = document.getElementById('tac-chart-main');
+  if (!container) return;
+
+  let clockEl = document.getElementById('tac-chart-clock');
+  if (!clockEl) {
+    clockEl = document.createElement('div');
+    clockEl.id = 'tac-chart-clock';
+    clockEl.className = 'tac-chart-clock';
+    clockEl.innerHTML = '<span id="tac-clock-time">--:--:--</span><span class="tac-clock-tz">UTC-3</span>';
+    container.appendChild(clockEl);
+  }
+
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+
+  const timeSpan = clockEl.querySelector('#tac-clock-time');
+  if (timeSpan && timeSpan.textContent !== timeStr) {
+    timeSpan.textContent = timeStr;
+  }
+
+  // Ajusta a posição à esquerda da escala de preços direita
+  let psw = 58;
+  if (state.charts.main && typeof state.charts.main.priceScale === 'function') {
+    try { psw = state.charts.main.priceScale('right').width() || 58; } catch (_) {}
+  }
+  clockEl.style.right = `${psw + 8}px`;
+
+  // Tooltip com data completa de Brasília
+  const dateStr = now.toLocaleDateString('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+    weekday: 'long',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+  clockEl.title = `${dateStr} • Horário de Brasília (UTC-3)`;
 }
 
 // ─── Tooltip Flutuante de Candle com Regra dos 3 Segundos ───────────────────
