@@ -151,7 +151,7 @@ async function pruneOldDocuments() {
 
   for (let i = MAX_DAYS; i <= MAX_DAYS + 15; i++) {
     const oldDate = daysAgo(i);
-    for (const symbol of PAIRS) {
+    for (const symbol of [...PAIRS, 'INDEX_TOP10']) {
       for (const interval of TIMEFRAMES) {
         refsToDelete.push(db.collection(COLLECTION).doc(docKey(symbol, interval, oldDate)));
       }
@@ -187,6 +187,23 @@ async function runAccumulation() {
       } catch (err) {
         console.warn(`[Accumulator] ⚠️ Erro ${symbol} ${interval}:`, err.message);
       }
+    }
+  }
+
+  // Acumulação perpétua do Índice de Mercado TOP 10 Cripto
+  for (const interval of TIMEFRAMES) {
+    try {
+      const { computeIndexCandles } = require('./routes/market_index_routes');
+      if (typeof computeIndexCandles === 'function') {
+        const idxRes = await computeIndexCandles(interval, 500);
+        if (idxRes && idxRes.candles && idxRes.candles.length) {
+          await saveCandles('INDEX_TOP10', interval, idxRes.candles);
+          console.log(`[Accumulator] 🏆 INDEX_TOP10 ${interval}: ${idxRes.candles.length} candles salvos no Firestore`);
+        }
+      }
+      await new Promise(r => setTimeout(r, 300));
+    } catch (err) {
+      console.warn(`[Accumulator] ⚠️ Erro ao acumular INDEX_TOP10 ${interval}:`, err.message);
     }
   }
 
@@ -280,4 +297,11 @@ function startAccumulator() {
   console.log('[Accumulator] 🚀 Acumulador Firebase iniciado (ciclo a cada 1h)');
 }
 
-module.exports = { startAccumulator, getHistoricalCandles, runAccumulation, getDb, admin };
+module.exports = {
+  startAccumulator,
+  getHistoricalCandles,
+  runAccumulation,
+  saveCandles,
+  getDb,
+  admin
+};

@@ -26,43 +26,20 @@ const INDEX_BASKET = [
 
 const indexCache = {}; // keyed by interval
 
-router.get('/api/crypto-index', async (req, res) => {
-  const interval = ['15m', '1h', '4h', '1d'].includes(req.query.interval) ? req.query.interval : '15m';
-  const limitMap  = { '15m': 96, '1h': 72, '4h': 60, '1d': 60 };
-  const cacheTtl  = { '15m': 30 * 1000, '1h': 2 * 60 * 1000, '4h': 5 * 60 * 1000, '1d': 10 * 60 * 1000 };
-  const limit = limitMap[interval];
-  const now   = Date.now();
-
-  if (indexCache[interval] && (now - indexCache[interval].lastUpdated < cacheTtl[interval])) {
-    return res.json(indexCache[interval].data);
-  }
-
-  try {
-    const [klinesAll, futKlines] = await Promise.all([
-      Promise.all(
-        INDEX_BASKET.map(async ({ symbol }) => {
-          for (const host of ['api.binance.com', 'data-api.binance.vision', 'api1.binance.com']) {
-            try {
-              const ctrl = new AbortController();
-              const t = setTimeout(() => ctrl.abort(), 6000);
-              const r = await fetch(
-                `https://${host}/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,
-                { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: ctrl.signal }
-              );
-              clearTimeout(t);
-              if (r.ok) return await r.json();
-            } catch (_) {}
-          }
-          return null;
-        })
-      ),
-      (async () => {
-        for (const host of ['fapi.binance.com', 'fapi1.binance.com']) {
+/**
+ * Calcula os candles consolidados do Índice TOP 10 Cripto a partir da Binance
+ * e salva automaticamente no Firestore para preservação do histórico perpétuo.
+ */
+async function computeIndexCandles(interval = '15m', limit = 500) {
+  const [klinesAll, futKlines] = await Promise.all([
+    Promise.all(
+      INDEX_BASKET.map(async ({ symbol }) => {
+        for (const host of ['api.binance.com', 'data-api.binance.vision', 'api1.binance.com']) {
           try {
             const ctrl = new AbortController();
             const t = setTimeout(() => ctrl.abort(), 6000);
             const r = await fetch(
-              `https://${host}/fapi/v1/klines?symbol=BTCUSDT&interval=${interval}&limit=${limit}`,
+              `https://${host}/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`,
               { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: ctrl.signal }
             );
             clearTimeout(t);
@@ -70,96 +47,135 @@ router.get('/api/crypto-index', async (req, res) => {
           } catch (_) {}
         }
         return null;
-      })()
-    ]);
-
-    // Se algum símbolo falhou, usa cache ou erro
-    if (klinesAll.some(d => !d || !d.length)) throw new Error('Falha em um ou mais símbolos');
-
-    const minLen     = Math.min(...klinesAll.map(d => d.length));
-    // Base = primeiro close do período para normalização (índice = 100 no início)
-    const basePrices = klinesAll.map(d => parseFloat(d[d.length - minLen][4]));
-
-    const candles = [];
-    for (let i = 0; i < minLen; i++) {
-      let o = 0, h = 0, l = 0, c = 0;
-      let totalSpotVolUsd = 0;
-      let netTakerSpotUsd = 0;
-
-      INDEX_BASKET.forEach(({ weight }, si) => {
-        const k    = klinesAll[si][klinesAll[si].length - minLen + i];
-        const base = basePrices[si];
-        o += weight * (parseFloat(k[1]) / base) * 100;
-        h += weight * (parseFloat(k[2]) / base) * 100;
-        l += weight * (parseFloat(k[3]) / base) * 100;
-        c += weight * (parseFloat(k[4]) / base) * 100;
-
-        const quoteVol = parseFloat(k[7]) || 0;
-        const takerBuyVol = parseFloat(k[10]) || (quoteVol * 0.5);
-        totalSpotVolUsd += quoteVol;
-        netTakerSpotUsd += (takerBuyVol - (quoteVol - takerBuyVol));
-      });
-
-      // Volume Futuros
-      let futVolUsd = totalSpotVolUsd * 2.8; // Proporção média de mercado futuros/spot se FAPI falhar
-      if (futKlines && futKlines.length) {
-        const fk = futKlines[Math.max(0, futKlines.length - minLen + i)];
-        if (fk) futVolUsd = (parseFloat(fk[7]) || 0) * 2.2; // Escalado para o mercado multi-ativo
+      })
+    ),
+    (async () => {
+      for (const host of ['fapi.binance.com', 'fapi1.binance.com']) {
+        try {
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), 6000);
+          const r = await fetch(
+            `https://${host}/fapi/v1/klines?symbol=BTCUSDT&interval=${interval}&limit=${limit}`,
+            { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: ctrl.signal }
+          );
+          clearTimeout(t);
+          if (r.ok) return await r.json();
+        } catch (_) {}
       }
+      return null;
+    })()
+  ]);
 
-      candles.push({
-        t: klinesAll[0][klinesAll[0].length - minLen + i][0],
-        o, h, l, c,
-        vSpot: totalSpotVolUsd,
-        vFut: futVolUsd,
-        netTakerSpotUsd
-      });
-    }
+  if (klinesAll.some(d => !d || !d.length)) throw new Error('Falha em um ou mais símbolos do Índice');
 
-    // Preço atual do BTC para converter fluxos em unidades físicas
-    const btcLastPrice = parseFloat(klinesAll[0][klinesAll[0].length - 1][4]) || 76000;
+  const minLen     = Math.min(...klinesAll.map(d => d.length));
+  // Base = primeiro close do período para normalização (índice = 100 no início)
+  const basePrices = klinesAll.map(d => parseFloat(d[d.length - minLen][4]));
 
-    // Cálculo das MMAs (32 e 80) e Fluxo CEX acumulado/suavizado
-    let cumFlowUsd = 0;
-    let flowHistory = [];
+  const candles = [];
+  for (let i = 0; i < minLen; i++) {
+    let o = 0, h = 0, l = 0, c = 0;
+    let totalSpotVolUsd = 0;
+    let netTakerSpotUsd = 0;
 
-    candles.forEach((cd, idx) => {
-      // 1. Médias Móveis Aritméticas (MMA 32 e MMA 80)
-      const p32 = Math.min(idx + 1, 32);
-      let sum32 = 0;
-      for (let j = idx - p32 + 1; j <= idx; j++) sum32 += candles[j].c;
-      cd.sma32 = sum32 / p32;
+    INDEX_BASKET.forEach(({ weight }, si) => {
+      const k    = klinesAll[si][klinesAll[si].length - minLen + i];
+      const base = basePrices[si];
+      o += weight * (parseFloat(k[1]) / base) * 100;
+      h += weight * (parseFloat(k[2]) / base) * 100;
+      l += weight * (parseFloat(k[3]) / base) * 100;
+      c += weight * (parseFloat(k[4]) / base) * 100;
 
-      const p80 = Math.min(idx + 1, 80);
-      let sum80 = 0;
-      for (let j = idx - p80 + 1; j <= idx; j++) sum80 += candles[j].c;
-      cd.sma80 = sum80 / p80;
-
-      // 2. Fluxo de Capital CEX (USD e BTC) baseado 100% no saldo líquido real Taker (Buy - Sell)
-      const candleFlowDelta = cd.netTakerSpotUsd;
-      cumFlowUsd = (cumFlowUsd * 0.90) + candleFlowDelta; // decaimento suave mantendo fidelidade ao fluxo real
-      flowHistory.push(cumFlowUsd);
-
-      // Linha de referência (linha de média/equilíbrio de 12 períodos)
-      const pRef = Math.min(idx + 1, 14);
-      let sumRef = 0;
-      for (let j = idx - pRef + 1; j <= idx; j++) sumRef += flowHistory[j];
-      const usdRef = sumRef / pRef;
-
-      cd.flowUsd    = cumFlowUsd;
-      cd.flowUsdRef = usdRef;
-      cd.flowBtc    = Math.round(cumFlowUsd / btcLastPrice);
-      cd.flowBtcRef = Math.round(usdRef / btcLastPrice);
+      const quoteVol = parseFloat(k[7]) || 0;
+      const takerBuyVol = parseFloat(k[10]) || (quoteVol * 0.5);
+      totalSpotVolUsd += quoteVol;
+      netTakerSpotUsd += (takerBuyVol - (quoteVol - takerBuyVol));
     });
 
-    const basketDetails = INDEX_BASKET.map(({ symbol, weight, name }, si) => ({
-      symbol,
-      weight,
-      name,
-      basePrice: basePrices[si],
-      lastPrice: parseFloat(klinesAll[si][klinesAll[si].length - 1][4])
-    }));
-    const result = { interval, candles, basket: INDEX_BASKET.map(b => b.name), basketDetails, updatedAt: now };
+    let futVolUsd = totalSpotVolUsd * 2.8;
+    if (futKlines && futKlines.length) {
+      const fk = futKlines[Math.max(0, futKlines.length - minLen + i)];
+      if (fk) futVolUsd = (parseFloat(fk[7]) || 0) * 2.2;
+    }
+
+    candles.push({
+      t: klinesAll[0][klinesAll[0].length - minLen + i][0],
+      o, h, l, c,
+      vSpot: totalSpotVolUsd,
+      vFut: futVolUsd,
+      netTakerSpotUsd
+    });
+  }
+
+  const btcLastPrice = parseFloat(klinesAll[0][klinesAll[0].length - 1][4]) || 76000;
+  let cumFlowUsd = 0;
+  let flowHistory = [];
+
+  candles.forEach((cd, idx) => {
+    const p32 = Math.min(idx + 1, 32);
+    let sum32 = 0;
+    for (let j = idx - p32 + 1; j <= idx; j++) sum32 += candles[j].c;
+    cd.sma32 = sum32 / p32;
+
+    const p80 = Math.min(idx + 1, 80);
+    let sum80 = 0;
+    for (let j = idx - p80 + 1; j <= idx; j++) sum80 += candles[j].c;
+    cd.sma80 = sum80 / p80;
+
+    const candleFlowDelta = cd.netTakerSpotUsd;
+    cumFlowUsd = (cumFlowUsd * 0.90) + candleFlowDelta;
+    flowHistory.push(cumFlowUsd);
+
+    const pRef = Math.min(idx + 1, 14);
+    let sumRef = 0;
+    for (let j = idx - pRef + 1; j <= idx; j++) sumRef += flowHistory[j];
+    const usdRef = sumRef / pRef;
+
+    cd.flowUsd    = cumFlowUsd;
+    cd.flowUsdRef = usdRef;
+    cd.flowBtc    = Math.round(cumFlowUsd / btcLastPrice);
+    cd.flowBtcRef = Math.round(usdRef / btcLastPrice);
+  });
+
+  const basketDetails = INDEX_BASKET.map(({ symbol, weight, name }, si) => ({
+    symbol,
+    weight,
+    name,
+    basePrice: basePrices[si],
+    lastPrice: parseFloat(klinesAll[si][klinesAll[si].length - 1][4])
+  }));
+
+  // Persistência contínua assíncrona no Firestore para não perder dados nunca
+  try {
+    const { saveCandles } = require('../firebase_accumulator');
+    if (typeof saveCandles === 'function') {
+      saveCandles('INDEX_TOP10', interval, candles).catch(() => {});
+    }
+  } catch (_) {}
+
+  return {
+    interval,
+    candles,
+    basket: INDEX_BASKET.map(b => b.name),
+    basketDetails,
+    updatedAt: Date.now()
+  };
+}
+
+router.get('/api/crypto-index', async (req, res) => {
+  const interval = ['15m', '1h', '4h', '1d'].includes(req.query.interval) ? req.query.interval : '15m';
+  const limitMap  = { '15m': 500, '1h': 500, '4h': 500, '1d': 500 };
+  const reqLimit  = parseInt(req.query.limit, 10);
+  const limit     = (!isNaN(reqLimit) && reqLimit >= 50 && reqLimit <= 1000) ? reqLimit : (limitMap[interval] || 500);
+  const cacheTtl  = { '15m': 30 * 1000, '1h': 2 * 60 * 1000, '4h': 5 * 60 * 1000, '1d': 10 * 60 * 1000 };
+  const now       = Date.now();
+
+  if (indexCache[interval] && (now - indexCache[interval].lastUpdated < cacheTtl[interval]) && !req.query.limit) {
+    return res.json(indexCache[interval].data);
+  }
+
+  try {
+    const result = await computeIndexCandles(interval, limit);
     indexCache[interval] = { data: result, lastUpdated: now };
     res.json(result);
   } catch (err) {
@@ -330,5 +346,7 @@ module.exports = {
   indexCache,
   fearGreedCache,
   dominanceCache,
-  oiCache
+  oiCache,
+  computeIndexCandles,
+  INDEX_BASKET
 };

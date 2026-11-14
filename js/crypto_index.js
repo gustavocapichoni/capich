@@ -99,8 +99,8 @@
         timeVisible: true,
         secondsVisible: false,
         rightOffset: 12,
-        barSpacing: 9,
-        minBarSpacing: 3
+        barSpacing: 8,
+        minBarSpacing: 1
       },
       handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
       handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true }
@@ -388,7 +388,7 @@
         vFut: lastCandle.vFut || 0
       };
       candles.push(newC);
-      if (candles.length > 96) candles.shift();
+      if (candles.length > 1000) candles.shift();
 
       if (candleSeries) {
         candleSeries.update({
@@ -446,7 +446,7 @@
     if (loading) loading.style.display = 'flex';
 
     try {
-      const r = await fetch(`/api/crypto-index?interval=${interval}`);
+      const r = await fetch(`/api/crypto-index?interval=${interval}&limit=500`);
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const d = await r.json();
 
