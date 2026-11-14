@@ -191,7 +191,7 @@ async function getSymbolPrecision(symbol) {
     if (!res.ok) throw new Error(`Falha ao buscar exchangeInfo da Binance: HTTP ${res.status}`);
     exchangeInfoCache = await res.json();
     lastExchangeInfoTime = now;
-    console.log('[getSymbolPrecision] exchangeInfo atualizado da Binance.');
+    // [DEV] console.log('[getSymbolPrecision] exchangeInfo atualizado da Binance.');
   }
 
   const s = exchangeInfoCache.symbols.find(x => x.symbol === symbol);
@@ -242,7 +242,7 @@ async function getSymbolPrecision(symbol) {
     ? tickSize.toString().split('.')[1].replace(/0+$/, '').length || 0
     : (s.pricePrecision || 2);
 
-  console.log(`[getSymbolPrecision] ${symbol}: lotMinQty=${lotMinQty}, minNotional=$${minNotional}, livePrice=$${livePrice}, minQtyByNotional=${minQtyByNotional} → minQty FINAL=${minQty}`);
+      // [DEV] console.log(`[getSymbolPrecision] ${symbol}: lotMinQty=${lotMinQty}, minNotional=$${minNotional}, livePrice=$${livePrice}, minQtyByNotional=${minQtyByNotional} → minQty FINAL=${minQty}`);
 
   return {
     symbol,
@@ -286,7 +286,7 @@ async function getOpenOrders(apiKey, apiSecret, symbol) {
     const conditionalOrders = []; // Ordens condicionais avulsas / realizações parciais
 
     if (allOrders.length > 0) {
-      console.log(`[getOpenOrders ${symbol}] Total ordens abertas (Std: ${stdList.length}, Algo: ${algoList.length}): ${allOrders.length}`);
+      // [DEV] console.log(`[getOpenOrders ${symbol}] Total ordens abertas (Std: ${stdList.length}, Algo: ${algoList.length}): ${allOrders.length}`);
       for (const ord of allOrders) {
         const type = String(ord.orderType || ord.type || ord.origType || ord.algoType || '').toUpperCase();
         const stopPrice = parseFloat(ord.triggerPrice || ord.stopPrice || ord.activatePrice) || 0;
@@ -295,7 +295,7 @@ async function getOpenOrders(apiKey, apiSecret, symbol) {
         const isClosePos = ord.closePosition === true || ord.closePosition === 'true' || ord.closePosition === 'TRUE';
         const ordSym = ord.symbol || symbol;
 
-        console.log(`[getOpenOrders ${ordSym}] Ordem ID: ${ord.orderId || ord.algoId}, closePos: ${isClosePos}, Tipo: ${type}, StopPrice: ${ord.triggerPrice || ord.stopPrice}, Qty: ${ord.origQty || ord.quantity}, Side: ${ord.side}`);
+      // [DEV] console.log(`[getOpenOrders ${ordSym}] Ordem ID: ${ord.orderId || ord.algoId}, closePos: ${isClosePos}, Tipo: ${type}, StopPrice: ${ord.triggerPrice || ord.stopPrice}, Qty: ${ord.origQty || ord.quantity}, Side: ${ord.side}`);
 
         // Apenas ordens com closePosition: true são consideradas TP / SL da posição total
         if (isClosePos) {

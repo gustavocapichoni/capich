@@ -1,12 +1,16 @@
 require('dotenv').config();
-const express   = require('express');
-const path      = require('path');
-const helmet    = require('helmet');
-const rateLimit = require('express-rate-limit');
+const express     = require('express');
+const path        = require('path');
+const helmet      = require('helmet');
+const rateLimit   = require('express-rate-limit');
+const compression = require('compression');
 const { startAccumulator, getHistoricalCandles, runAccumulation, getDb, admin } = require('./firebase_accumulator');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
+
+// 0. Compressão Gzip/Brotli — reduz tamanho das respostas HTTP em ~70%
+app.use(compression());
 
 // 1. Blindagem de Cabeçalhos HTTP com Helmet (Remove X-Powered-By, previne Clickjacking e MIME Sniffing)
 app.use(helmet({
