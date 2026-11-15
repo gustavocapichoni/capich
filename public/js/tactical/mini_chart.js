@@ -232,7 +232,17 @@ function _initMiniChart() {
       horzLines: { color: '#131a27', style: 1 },
     },
     crosshair: {
-      mode: window.LightweightCharts.CrosshairMode.Normal,
+      mode: (window.LightweightCharts && window.LightweightCharts.CrosshairMode)
+        ? window.LightweightCharts.CrosshairMode.Hidden
+        : 2,
+      vertLine: {
+        visible: false,
+        labelVisible: false,
+      },
+      horzLine: {
+        visible: false,
+        labelVisible: false,
+      },
     },
     rightPriceScale: {
       borderColor: '#1e2d40',
@@ -252,12 +262,14 @@ function _initMiniChart() {
   });
 
   _miniCandleSeries = _miniChartInstance.addCandlestickSeries({
-    upColor:        '#0ecb81',
-    downColor:      '#f6465d',
-    borderUpColor:  '#0ecb81',
-    borderDownColor:'#f6465d',
-    wickUpColor:    '#0ecb81',
-    wickDownColor:  '#f6465d',
+    upColor:          '#0ecb81',
+    downColor:        '#f6465d',
+    borderUpColor:    '#0ecb81',
+    borderDownColor:  '#f6465d',
+    wickUpColor:      '#0ecb81',
+    wickDownColor:    '#f6465d',
+    priceLineVisible: false, // Remove a linha tracejada de preço que corta o mini gráfico
+    lastValueVisible: true,  // Mantém a tag na escala de preços
   });
 
   _miniResizeObs = new ResizeObserver(() => {
