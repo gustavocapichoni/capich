@@ -29,6 +29,7 @@ const ALLOWED_BASKET_SYMBOLS = {
 const personalIndexCacheMap = new Map();
 const oracleScoreSmoothingMap = new Map();
 let dailyVolCache = { data: {}, lastUpdated: 0 };
+let lastKnownTop10Info = null;
 
 async function fetchDailyVolumes() {
   const now = Date.now();
@@ -286,7 +287,7 @@ router.get('/api/personal-index', async (req, res) => {
     let top10Text = '⚪ Maré Geral Neutra';
     let isTop10Bull = false;
     let isTop10Bear = false;
-    let top10Info = {
+    let top10Info = lastKnownTop10Info || {
       statusText: '⚪ Sintonizando TOP 10...',
       status: 'neutral',
       isBull80: false,
@@ -296,6 +297,18 @@ router.get('/api/personal-index', async (req, res) => {
       sma32: null,
       sma80: null
     };
+
+    // Auto-recuperação: se indexCache['15m'] estiver ausente, calcula sob demanda
+    if (!indexCache['15m']?.data?.candles?.length && typeof marketIndex?.computeIndexCandles === 'function') {
+      try {
+        const top10Res = await marketIndex.computeIndexCandles('15m', 120);
+        if (top10Res && top10Res.candles && top10Res.candles.length) {
+          indexCache['15m'] = { data: top10Res, lastUpdated: now };
+        }
+      } catch (errT10) {
+        console.warn('[PersonalIndex] Auto-cálculo TOP 10 aviso:', errT10.message);
+      }
+    }
 
     if (indexCache['15m']?.data?.candles?.length) {
       const candles10 = indexCache['15m'].data.candles;
@@ -326,6 +339,7 @@ router.get('/api/personal-index', async (req, res) => {
           sma32: last10.sma32 ? parseFloat(last10.sma32.toFixed(2)) : null,
           sma80: last10.sma80 ? parseFloat(last10.sma80.toFixed(2)) : null
         };
+        lastKnownTop10Info = top10Info; // Guarda em memória para nunca ficar "Sintonizando..."
       }
     }
 

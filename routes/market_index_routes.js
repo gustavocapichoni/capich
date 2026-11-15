@@ -262,7 +262,7 @@ router.get('/api/open-interest', async (req, res) => {
     btcPrice = parseFloat(pd.price) || 80000;
   } catch (e) {}
 
-  const [binance, bybit, okx, bitget, binanceLs, binanceTaker, bybitLs] = await Promise.all([
+  const [binance, bybit, okx, bitget, binanceLs, binanceTaker, bybitLs, okxLs, bitgetLs] = await Promise.all([
     fetchOISafe('https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT', 'Binance'),
     fetchOISafe('https://api.bybit.com/v5/market/open-interest?category=linear&symbol=BTCUSDT&intervalTime=5min&limit=1', 'Bybit'),
     fetchOISafe('https://www.okx.com/api/v5/public/open-interest?instType=SWAP&instId=BTC-USDT-SWAP', 'OKX'),
@@ -273,6 +273,10 @@ router.get('/api/open-interest', async (req, res) => {
     fetchOISafe('https://fapi.binance.com/futures/data/takerlongshortRatio?symbol=BTCUSDT&period=5m&limit=1', 'BinanceTaker'),
     // Long/Short Ratio Bybit
     fetchOISafe('https://api.bybit.com/v5/market/account-ratio?category=linear&symbol=BTCUSDT&period=1h&limit=1', 'BybitLongShort'),
+    // Long/Short Ratio OKX
+    fetchOISafe('https://www.okx.com/api/v5/rubik/stat/contracts/long-short-account-ratio?ccy=BTC&period=5m', 'OKXLongShort'),
+    // Long/Short Ratio Bitget
+    fetchOISafe('https://api.bitget.com/api/v2/mix/market/account-long-short?symbol=BTCUSDT&productType=USDT-FUTURES', 'BitgetLongShort')
   ]);
 
   const exchanges = [];
@@ -315,6 +319,32 @@ router.get('/api/open-interest', async (req, res) => {
     if (d && d.buyRatio) {
       const lp = parseFloat(d.buyRatio) * 100;
       longShort.bybit = { longPct: lp, shortPct: 100 - lp, ratio: lp / (100 - lp) };
+    }
+  }
+  if (okxLs && okxLs.json && Array.isArray(okxLs.json.data) && okxLs.json.data.length > 0) {
+    const row = okxLs.json.data[0];
+    const ratio = parseFloat(row[1]);
+    if (!isNaN(ratio) && ratio > 0) {
+      const lp = (ratio / (1 + ratio)) * 100;
+      longShort.okx = {
+        longPct:  Math.round(lp * 10) / 10,
+        shortPct: Math.round((100 - lp) * 10) / 10,
+        ratio:    Math.round(ratio * 100) / 100
+      };
+    }
+  }
+  if (bitgetLs && bitgetLs.json && Array.isArray(bitgetLs.json.data) && bitgetLs.json.data.length > 0) {
+    const list = bitgetLs.json.data;
+    const item = list[list.length - 1];
+    const longRatio = parseFloat(item.longAccountRatio);
+    const shortRatio = parseFloat(item.shortAccountRatio);
+    const ratio = parseFloat(item.longShortAccountRatio);
+    if (!isNaN(longRatio) && longRatio > 0) {
+      longShort.bitget = {
+        longPct:  Math.round(longRatio * 1000) / 10,
+        shortPct: Math.round(shortRatio * 1000) / 10,
+        ratio:    Math.round((ratio || (longRatio / shortRatio)) * 100) / 100
+      };
     }
   }
 

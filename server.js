@@ -404,6 +404,20 @@ const marketIndex = require('./routes/market_index_routes');
 app.use(marketIndex.router);
 const { indexCache, fearGreedCache, dominanceCache, oiCache } = marketIndex;
 
+// Sincronização e aquecimento contínuo em background do Índice TOP 10
+if (typeof marketIndex?.computeIndexCandles === 'function') {
+  const syncTop10Task = async () => {
+    try {
+      const res = await marketIndex.computeIndexCandles('15m', 150);
+      if (res && res.candles && res.candles.length) {
+        indexCache['15m'] = { data: res, lastUpdated: Date.now() };
+      }
+    } catch (_) {}
+  };
+  setTimeout(syncTop10Task, 1500); // Executa 1.5s após o boot
+  setInterval(syncTop10Task, 45000); // Mantém sempre renovado a cada 45 segundos
+}
+
 // Verifica se o token Google pertence ao admin
 app.post('/api/check-admin', async (req, res) => {
   const { idToken } = req.body;
