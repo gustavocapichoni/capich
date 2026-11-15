@@ -2257,3 +2257,109 @@
   color: #f6465d;
   cursor: ns-resize;
 }
+
+
+/* ─── Mini Gráfico BTC Flutuante ─────────────────────────────────────────── */
+.tac-mini-chart-panel {
+  position: absolute;
+  top: 42px;        /* logo abaixo da titlebar do gráfico */
+  left: 8px;
+  width: 310px;
+  height: 230px;
+  background: #0b0f17;
+  border: 1px solid #1e2d40;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+  display: flex;
+  flex-direction: column;
+  z-index: 999;
+  overflow: hidden;
+  resize: both;      /* permite redimensionar */
+  min-width: 220px;
+  min-height: 170px;
+}
+
+.tac-mini-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 8px 4px;
+  background: #0d1420;
+  border-bottom: 1px solid #1e2d40;
+  cursor: move;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.tac-mini-chart-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #eaecef;
+  letter-spacing: 0.3px;
+}
+
+.tac-mini-chart-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #0ecb81;
+  box-shadow: 0 0 5px #0ecb81;
+  flex-shrink: 0;
+  animation: miniChartPulse 2s ease-in-out infinite;
+}
+
+@keyframes miniChartPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.tac-mini-chart-price {
+  font-size: 12px;
+  font-weight: 700;
+  color: #f0b90b;
+  font-family: 'Courier New', monospace;
+  flex-shrink: 0;
+}
+
+.tac-mini-chart-close {
+  background: transparent;
+  border: none;
+  color: #848e9c;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  border-radius: 3px;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.tac-mini-chart-close:hover {
+  color: #f6465d;
+  background: rgba(246,70,93,0.12);
+}
+
+.tac-mini-chart-canvas {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.tac-mini-chart-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 8px;
+  background: #0d1420;
+  border-top: 1px solid #1e2d40;
+  flex-shrink: 0;
+}
+
+.tac-mini-chart-change {
+  font-size: 10px;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}

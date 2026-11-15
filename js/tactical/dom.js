@@ -143,6 +143,17 @@ export function buildHTML() {
                   <span class="tac-dropdown-status" id="tac-status-price-alert">OFF</span>
                 </button>
               </div>
+
+              <!-- Separador -->
+              <div class="tac-dropdown-separator"></div>
+
+              <!-- Mini Gráfico BTC -->
+              <div class="tac-dropdown-tool-row">
+                <button class="tac-dropdown-item" id="tac-btn-mini-chart" onclick="window._toggleMiniChart(); window._toggleTacDropdown('tac-dropdown-tools');" title="Mini gráfico BTC/USDT flutuante (15m)">
+                  <span>📊 Mini Gráfico BTC</span>
+                  <span class="tac-dropdown-status" id="tac-status-mini-chart">OFF</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -70,6 +70,8 @@ import {
   priceAlerts
 } from './tactical/audio_alerts.js';
 
+import { toggleMiniChart, closeMiniChart } from './tactical/mini_chart.js';
+
 // ─── Registro Global de Ações (Compatibilidade Total com onclick inline) ─────
 window._toggleTacMA         = toggleMovingAverages;
 window._toggleTacInd        = toggleIndicators;
