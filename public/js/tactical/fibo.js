@@ -82,7 +82,8 @@ function saveFibosToStorage(symbol) {
       type: f.type,
       p1: f.p1,
       p2: f.p2,
-      customColor: f.customColor
+      customColor: f.customColor,
+      locked: !!f.locked
     }));
     localStorage.setItem(key, JSON.stringify(data));
   } catch (_) {}
@@ -101,6 +102,7 @@ function loadFibosFromStorage(symbol) {
           p1: f.p1 || null,
           p2: f.p2 || null,
           customColor: f.customColor || getFiboColor(f.type === 'retr' ? 2 : 1),
+          locked: !!f.locked,
           active: !!(f.p1 && f.p2),
           isDragging: false,
           dragAnchor: null,
@@ -271,6 +273,59 @@ export function toggleFiboTool(which = 1) {
   const mc = document.getElementById('tac-chart-main');
   if (mc) mc.classList.add('fibo-mode');
   renderEmpireZones();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FIXAÇÃO / BLOQUEIO DE FIBONACCI (Tecla 'F')
+// ─────────────────────────────────────────────────────────────────────────────
+
+function exibirFiboToast(msg, isLocked) {
+  let toast = document.getElementById('tac-fibo-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'tac-fibo-toast';
+    toast.style.position = 'fixed';
+    toast.style.bottom = '30px';
+    toast.style.left = '50%';
+    toast.style.transform = 'translateX(-50%)';
+    toast.style.padding = '8px 18px';
+    toast.style.borderRadius = '6px';
+    toast.style.fontSize = '12px';
+    toast.style.fontWeight = 'bold';
+    toast.style.zIndex = '9999';
+    toast.style.pointerEvents = 'none';
+    toast.style.boxShadow = '0 4px 14px rgba(0,0,0,0.6)';
+    toast.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.background = isLocked ? '#f6465d' : '#0ecb81';
+  toast.style.color = '#ffffff';
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(8px)';
+  }, 1600);
+}
+
+/** Alterna trava (fixação) do Fibo para não ser movido por acidente */
+export function toggleLockFibo(id) {
+  if (!id) return;
+  const target = (state.fibos || []).find(f => f.id === id);
+  if (!target) return;
+
+  target.locked = !target.locked;
+  saveFibosToStorage(state.currentSymbol);
+  renderEmpireZones();
+
+  if (target.locked) {
+    exibirFiboToast('🔒 Fibonacci Fixado (Imune a arrasto)', true);
+  } else {
+    exibirFiboToast('🔓 Fibonacci Destravado (Livre para mover)', false);
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -732,7 +787,8 @@ export function drawFibonacciRetracement(ctx, width, height, timeScale, series, 
     ctx.stroke();
 
     const formattedPrice = formatPrice(targetPrice);
-    const labelText = fiboNum === 2 ? `F2: ${lev.ratio} (${formattedPrice})` : `${lev.ratio} (${formattedPrice})`;
+    const lockPrefix = (fiboObj.locked && lev.ratio === 1.0) ? '🔒 ' : '';
+    const labelText = fiboNum === 2 ? `${lockPrefix}F2: ${lev.ratio} (${formattedPrice})` : `${lockPrefix}${lev.ratio} (${formattedPrice})`;
 
     ctx.font = "bold 9.5px 'JetBrains Mono', 'Fira Code', monospace";
     ctx.textAlign = 'right';
@@ -775,6 +831,10 @@ export function initFiboMouseEvents(mainContainer) {
     const hitResult = checkAllFibosHit(clientX, clientY, timeScale, series);
     if (hitResult) {
       const { fiboObj, hit } = hitResult;
+      // Se o Fibonacci estiver travado/fixado (locked), ignora arrasto para proteger a posição
+      if (fiboObj.locked) {
+        return;
+      }
       state.dragTargetFiboId = fiboObj.id;
       fiboObj.isDragging = true;
       fiboObj.dragAnchor = (hit.anchor === 'level') ? 'line' : hit.anchor;
@@ -984,9 +1044,17 @@ export function initFiboMouseEvents(mainContainer) {
   });
 
   // ── DELETE / BACKSPACE — Apaga o Fibo selecionado ─────────────────────────
+  // ── TECLA F — Trava / Destrava (fixa) o Fibo selecionado ─────────────────
   window.addEventListener('keydown', e => {
     const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
     if (tag === 'input' || tag === 'textarea' || (e.target && e.target.isContentEditable)) {
+      return;
+    }
+
+    // Atalho 'F' ou 'f' para travar/destravar o Fibo selecionado
+    if ((e.key === 'f' || e.key === 'F') && state.selectedFiboId) {
+      toggleLockFibo(state.selectedFiboId);
+      e.preventDefault();
       return;
     }
 
