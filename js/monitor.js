@@ -49,11 +49,9 @@ const COINS = [
 ];
 
 // ─── Estado Global ────────────────────────────────────────────────────────────
-let soundEnabled = true;
-try {
-  const savedSound = localStorage.getItem("capich_sound_enabled");
-  if (savedSound !== null) soundEnabled = (savedSound === "true");
-} catch (_) {}
+// Alertas sonoros dos cards desativados (cards removidos da página index)
+// O monitor.js mantém apenas os dados para o medidor macro (gauge-canvas)
+const soundEnabled = false;
 
 let audioCtx = null;
 let flashState = false;
@@ -64,22 +62,9 @@ alertAudio.loop = true;
 alertAudio.preload = "auto";
 
 function updateAudioState() {
-  const hasActiveAlarms = coinsState.some(c => c.alertSoundActive);
-  if (hasActiveAlarms && soundEnabled) {
-    if (alertAudio.paused) {
-      alertAudio.currentTime = 0;
-      alertAudio.play().catch(() => {
-        // Fallback para Web Audio se o navegador restringir áudio antes do primeiro clique
-        const active = coinsState.filter(c => c.alertSoundActive);
-        if (active.length > 0) {
-          playBeep(active[0].soundFreq || 1200, 300);
-        }
-      });
-    }
-  } else {
-    alertAudio.pause();
-    alertAudio.currentTime = 0;
-  }
+  // Alertas sonoros desativados — cards dos 5 pares foram removidos da página
+  alertAudio.pause();
+  alertAudio.currentTime = 0;
 }
 
 // Estado individual de cada moeda
@@ -445,72 +430,12 @@ function processTick(idx, high, low, close, sma32, sma80, diff15m) {
 }
 
 // ─── Cruzamento e Alertas ─────────────────────────────────────────────────────
+// Alertas sonoros desativados pois os cards foram removidos da página index.
+// A função ainda roda para manter o estado da tendência (usado pelo medidor macro).
 function checkRealtimeCrossing(idx, close, sma32, dec, ts) {
   const coin = coinsState[idx];
-  const elAlertDesc = document.getElementById(`alert-desc-${idx}`);
-  updateAudioState();
-  const elBtnReset  = document.getElementById(`btn-reset-${idx}`);
-
-  if (coin.alertTriggered) {
-    return;
-  }
-
-  if (!coin.alertArmed) {
-    if (coin.definedTrend === null && elAlertDesc) {
-      elAlertDesc.textContent = "⏳ Aguardando definição da tendência (alinhamento das médias)";
-      elAlertDesc.className = "alert-desc";
-    }
-    return;
-  }
-
-  // Tendência ALTA: Preço tocou ou cruzou abaixo da MMA 32
-  if (coin.definedTrend === "ALTA") {
-    if (close <= sma32) {
-      coin.alertTriggered   = true;
-      coin.alertArmed       = false;
-      coin.alertSoundActive = true;
-      coin.soundFreq        = 900; // Tom grave para cruzamento para baixo
-
-      if (elAlertDesc) {
-        elAlertDesc.innerHTML = `🔔 <strong>CRUZOU MMA 32 ABAIXO!</strong><br>Preço: ${fmtPrice(close, dec)} ≤ MMA: ${fmtPrice(sma32, dec)}<br>Às ${ts}`;
-        elAlertDesc.className = "alert-desc triggered";
-      }
-      if (elBtnReset) {
-        elBtnReset.textContent = "🔕 Silenciar Alerta";
-        elBtnReset.classList.add("active-alarm");
-      }
-      updateAudioState();
-    } else {
-      if (elAlertDesc) {
-        elAlertDesc.textContent = `🟢 Armado (ALTA): Dispara se Preço cruzar ≤ ${fmtPrice(sma32, dec)}`;
-        elAlertDesc.className = "alert-desc armed-alta";
-      }
-    }
-  }
-  // Tendência BAIXA: Preço tocou ou cruzou acima da MMA 32
-  else if (coin.definedTrend === "BAIXA") {
-    if (close >= sma32) {
-      coin.alertTriggered   = true;
-      coin.alertArmed       = false;
-      coin.alertSoundActive = true;
-      coin.soundFreq        = 1400; // Tom agudo para cruzamento para cima
-
-      if (elAlertDesc) {
-        elAlertDesc.innerHTML = `🔔 <strong>CRUZOU MMA 32 ACIMA!</strong><br>Preço: ${fmtPrice(close, dec)} ≥ MMA: ${fmtPrice(sma32, dec)}<br>Às ${ts}`;
-        elAlertDesc.className = "alert-desc triggered";
-      }
-      if (elBtnReset) {
-        elBtnReset.textContent = "🔕 Silenciar Alerta";
-        elBtnReset.classList.add("active-alarm");
-      }
-      updateAudioState();
-    } else {
-      if (elAlertDesc) {
-        elAlertDesc.textContent = `🔴 Armado (BAIXA): Dispara se Preço cruzar ≥ ${fmtPrice(sma32, dec)}`;
-        elAlertDesc.className = "alert-desc armed-baixa";
-      }
-    }
-  }
+  // Nunca ativa som — cards removidos
+  coin.alertSoundActive = false;
 }
 
 // ─── Resetar / Silenciar Alerta ───────────────────────────────────────────────
