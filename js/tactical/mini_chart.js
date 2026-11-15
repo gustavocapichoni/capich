@@ -56,10 +56,25 @@ function _applyStoredPos(panel) {
     const raw = localStorage.getItem(STORAGE_KEY_POS);
     if (!raw) return;
     const pos = JSON.parse(raw);
-    if (pos.top)  panel.style.top  = pos.top;
-    if (pos.left) panel.style.left = pos.left;
-    if (pos.width)  panel.style.width  = pos.width;
-    if (pos.height) panel.style.height = pos.height;
+    const parent = panel.offsetParent || panel.parentElement;
+    const maxH = parent ? Math.max(240, parent.clientHeight - 8) : 480;
+    const maxW = parent ? Math.max(280, Math.floor(parent.clientWidth * 0.7)) : 700;
+
+    let h = parseInt(pos.height) || 240;
+    let w = parseInt(pos.width)  || 320;
+    if (h > maxH) h = maxH;
+    if (w > maxW) w = maxW;
+
+    let t = parseInt(pos.top) || 6;
+    let l = parseInt(pos.left) || 8;
+    if (t < 4) t = 6;
+    if (t + h > maxH + 4) t = Math.max(4, maxH - h);
+    if (l < 4) l = 8;
+
+    panel.style.top    = `${t}px`;
+    panel.style.left   = `${l}px`;
+    panel.style.width  = `${w}px`;
+    panel.style.height = `${h}px`;
   } catch (_) {}
 }
 
@@ -145,14 +160,14 @@ function _buildMiniChartDOM() {
     </div>
   `;
 
-  const wrapper = document.getElementById('btc-tactical-section') || document.body;
+  const wrapper = document.getElementById('tac-chart-main') || document.getElementById('btc-tactical-section') || document.body;
   wrapper.style.position = wrapper.style.position || 'relative';
   wrapper.appendChild(tpl);
 
   _makeDraggable(tpl, document.getElementById('tac-mini-chart-header') || tpl);
 }
 
-// ─── Drag (arrastar pelo header) ──────────────────────────────────────────────
+// ─── Drag (arrastar pelo header com limites de tela) ──────────────────────────
 function _makeDraggable(panel, handle) {
   let startX, startY, startLeft, startTop;
 
@@ -160,7 +175,8 @@ function _makeDraggable(panel, handle) {
     if (e.target.closest('button')) return;
     e.preventDefault();
     const rect = panel.getBoundingClientRect();
-    const parentRect = panel.offsetParent?.getBoundingClientRect() || { left: 0, top: 0 };
+    const parent = panel.offsetParent || panel.parentElement || document.body;
+    const parentRect = parent.getBoundingClientRect();
     startX    = e.clientX;
     startY    = e.clientY;
     startLeft = rect.left - parentRect.left;
@@ -169,8 +185,20 @@ function _makeDraggable(panel, handle) {
     const onMove = (ev) => {
       const dx = ev.clientX - startX;
       const dy = ev.clientY - startY;
-      panel.style.left = `${startLeft + dx}px`;
-      panel.style.top  = `${startTop  + dy}px`;
+
+      let newLeft = startLeft + dx;
+      let newTop  = startTop + dy;
+
+      const maxLeft = parentRect.width - rect.width - 4;
+      const maxTop  = parentRect.height - rect.height - 4;
+
+      if (newLeft < 4) newLeft = 4;
+      if (maxLeft > 0 && newLeft > maxLeft) newLeft = maxLeft;
+      if (newTop < 4) newTop = 4;
+      if (maxTop > 0 && newTop > maxTop) newTop = maxTop;
+
+      panel.style.left = `${newLeft}px`;
+      panel.style.top  = `${newTop}px`;
     };
 
     const onUp = () => {

@@ -2262,14 +2262,14 @@
 /* ─── Mini Gráfico BTC Flutuante ─────────────────────────────────────────── */
 .tac-mini-chart-panel {
   position: absolute;
-  top: 42px;        /* logo abaixo da titlebar do gráfico */
+  top: 6px;
   left: 8px;
-  width: 310px;
-  height: 230px;
+  width: 320px;
+  height: 240px;
   background: #0b0f17;
   border: 1px solid #1e2d40;
   border-radius: 8px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.7);
   display: flex;
   flex-direction: column;
   z-index: 999;
@@ -2277,6 +2277,8 @@
   resize: both;      /* permite redimensionar */
   min-width: 220px;
   min-height: 170px;
+  max-width: 70%;    /* limite horizontal para não cobrir o gráfico todo */
+  max-height: calc(100% - 6px); /* limite vertical exato: não ultrapassa a escala de tempo do gráfico principal */
 }
 
 .tac-mini-chart-header {
