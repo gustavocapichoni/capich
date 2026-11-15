@@ -18,6 +18,7 @@ import {
   toggleFiboTool,
   clearFibo,
   clearFiboById,
+  clearAllFibos,
   updateFiboButtonUI,
   changeFiboColor
 } from './tactical/fibo.js';
@@ -91,6 +92,7 @@ window._toggleTacFibo       = () => toggleFiboTool(1);
 window._clearTacFibo        = () => clearFibo(1);
 window._toggleTacFibo2      = () => toggleFiboTool(2);
 window._clearTacFibo2       = () => clearFibo(2);
+window._clearAllFibos       = clearAllFibos;
 window._clearTacFiboById    = (id) => clearFiboById(id);
 window._changeTacFiboColor  = (which, color) => changeFiboColor(which, color);
 window._setTacTF            = setTimeframe;

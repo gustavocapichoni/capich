@@ -133,6 +133,14 @@ export function buildHTML() {
                 </div>
               </div>
 
+              <!-- Limpar Todos os Fibos -->
+              <div class="tac-dropdown-tool-row">
+                <button class="tac-dropdown-item tac-btn-clear-fibos" id="tac-btn-clear-fibos" onclick="window._clearAllFibos(); window._toggleTacDropdown('tac-dropdown-tools');" title="Apagar todos os traçados de Fibonacci do gráfico de uma vez só">
+                  <span>🗑️ Limpar Todos os Fibos</span>
+                  <span class="tac-dropdown-status" style="color:#f6465d;background:rgba(246,70,93,0.15);">LIMPAR</span>
+                </button>
+              </div>
+
               <!-- Separador -->
               <div class="tac-dropdown-separator"></div>
 

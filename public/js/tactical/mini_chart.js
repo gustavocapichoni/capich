@@ -1,7 +1,8 @@
 /**
  * js/tactical/mini_chart.js
- * Mini gráfico flutuante BTC/USDT (15m · Lightweight Charts)
+ * Mini gráfico flutuante BTC/USDT (Lightweight Charts)
  * Ativado pelo botão no dropdown Ferramentas.
+ * Suporta troca de timeframe (15m / 1h) via botões no header.
  */
 
 let _miniChartVisible = false;
@@ -11,9 +12,10 @@ let _miniWs = null;
 let _miniCurrentBar = null;
 let _miniResizeObs = null;
 
-const MINI_SYMBOL = 'BTCUSDT';
-const MINI_INTERVAL = '15m';
-const MINI_LIMIT = 120; // ~30h de velas
+const MINI_SYMBOL   = 'BTCUSDT';
+const MINI_INTERVALS = ['15m', '1h', '4h'];
+let   _miniInterval  = '15m';  // padrão
+const MINI_LIMIT    = 120;
 
 // ─── Toggle (chamado pelo botão no dropdown) ──────────────────────────────────
 export function toggleMiniChart() {
@@ -53,12 +55,18 @@ function _buildMiniChartDOM() {
   tpl.id = 'tac-mini-chart-panel';
   tpl.className = 'tac-mini-chart-panel';
   tpl.style.display = 'none';
+
+  const tfBtns = MINI_INTERVALS.map(tf =>
+    `<button class="tac-mini-tf-btn${tf === _miniInterval ? ' active' : ''}" data-tf="${tf}" onclick="window._setMiniChartInterval('${tf}')">${tf}</button>`
+  ).join('');
+
   tpl.innerHTML = `
     <div class="tac-mini-chart-header" id="tac-mini-chart-header">
       <span class="tac-mini-chart-title">
         <span class="tac-mini-chart-dot"></span>
-        BTC / USDT &nbsp;<span style="color:#848e9c;font-size:10px;">15m · Binance</span>
+        BTC / USDT
       </span>
+      <div class="tac-mini-tf-group">${tfBtns}</div>
       <span id="tac-mini-chart-price" class="tac-mini-chart-price">--</span>
       <button class="tac-mini-chart-close" onclick="window._closeMiniChart()" title="Fechar mini gráfico">✕</button>
     </div>
@@ -175,7 +183,7 @@ function _initMiniChart() {
 // ─── Histórico via REST ───────────────────────────────────────────────────────
 async function _fetchMiniKlines() {
   try {
-    const url = `https://fapi.binance.com/fapi/v1/klines?symbol=${MINI_SYMBOL}&interval=${MINI_INTERVAL}&limit=${MINI_LIMIT}`;
+    const url = `https://fapi.binance.com/fapi/v1/klines?symbol=${MINI_SYMBOL}&interval=${_miniInterval}&limit=${MINI_LIMIT}`;
     const res = await fetch(url);
     const data = await res.json();
     if (!Array.isArray(data) || !_miniCandleSeries) return;
@@ -204,7 +212,7 @@ async function _fetchMiniKlines() {
 // ─── WebSocket tempo real ─────────────────────────────────────────────────────
 function _connectMiniWs() {
   _closeMiniWs();
-  const stream = `${MINI_SYMBOL.toLowerCase()}@kline_${MINI_INTERVAL}`;
+  const stream = `${MINI_SYMBOL.toLowerCase()}@kline_${_miniInterval}`;
   _miniWs = new WebSocket(`wss://fstream.binance.com/ws/${stream}`);
 
   _miniWs.onmessage = (ev) => {
@@ -291,6 +299,22 @@ function _updateMiniChartBtn() {
   if (item) item.classList.toggle('active', _miniChartVisible);
 }
 
+export function setMiniChartInterval(tf) {
+  if (!MINI_INTERVALS.includes(tf) || _miniInterval === tf) return;
+  _miniInterval = tf;
+
+  // Atualiza classes ativas nos botões de timeframe
+  document.querySelectorAll('.tac-mini-tf-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-tf') === tf);
+  });
+
+  if (_miniChartVisible && _miniCandleSeries) {
+    _closeMiniWs();
+    _fetchMiniKlines().then(() => _connectMiniWs());
+  }
+}
+
 // ─── Expõe globalmente ────────────────────────────────────────────────────────
 window._toggleMiniChart = toggleMiniChart;
 window._closeMiniChart  = closeMiniChart;
+window._setMiniChartInterval = setMiniChartInterval;

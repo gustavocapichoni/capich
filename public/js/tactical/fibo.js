@@ -352,6 +352,26 @@ export function clearFiboById(id) {
   renderEmpireZones();
 }
 
+/** Limpa TODOS os Fibos (Projeções e Retrações) de uma vez só */
+export function clearAllFibos() {
+  state.fibos = [];
+  state.drawingFibo = null;
+  state.selectedFiboId = null;
+  saveFibosToStorage(state.currentSymbol);
+  updateFiboButtonUI('idle', 1);
+  updateFiboButtonUI('idle', 2);
+
+  const mc = document.getElementById('tac-chart-main');
+  if (mc) {
+    mc.classList.remove('fibo-mode');
+    mc.style.cursor = '';
+  }
+
+  tacStopAlert();
+  renderFiboAlertBadge(false, null);
+  renderEmpireZones();
+}
+
 /** Compatibilidade com clearFibo(which) legado — remove TODOS do tipo */
 export function clearFibo(which = 1) {
   const type = which === 2 ? 'retr' : 'proj';
