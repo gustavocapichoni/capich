@@ -181,6 +181,7 @@
             <span>${icon}</span> <span>${title}</span>
           </div>
           <div style="font-size:10px; opacity:0.95; line-height:1.3;">${lock.reason}</div>
+          ${lock.type === '24h' ? '<button type="button" onclick="window.OrderPanel&&window.OrderPanel.resetRiskLock()" style="margin-top:6px; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.35); color:#fff; border-radius:4px; padding:3px 8px; font-size:9.5px; font-weight:700; cursor:pointer;">🔓 Desbloquear Agora (Resetar Trava)</button>' : ''}
         `;
       }
       // Desabilita botões de envio
@@ -215,6 +216,7 @@
   let currentPrice     = 0;
   let currentPositionData = null;
   let lastKnownPositionsMap = {}; // Salva histórico de posições abertas para detectar execução de Stop Loss automático
+  let recentlyManualClosedSymbols = new Map(); // Evita contagem dupla de prejuízo quando fechado manualmente
   let isPanelLocked    = localStorage.getItem(STORAGE_KEY_LOCKED) === 'true';
   let currentOrderType = 'market'; // 'market' ou 'conditional'
   let pollInterval     = null;
@@ -1648,6 +1650,10 @@
         console.warn('[Dashboard] Erro ao registrar trade:', errRecord.message);
       }
 
+      // Marca o símbolo como fechado manualmente para que o detector de SL automático não conte em dobro
+      recentlyManualClosedSymbols.set(targetSymbol, Date.now());
+      delete lastKnownPositionsMap[targetSymbol];
+
       setToast(`✅ Posição em ${targetSymbol} zerada!`, 'success');
       if (targetSymbol === currentSymbol && window.ChartPositions) {
         window.ChartPositions.clearAllLines();
@@ -1815,6 +1821,13 @@
         const currentActiveSymbols = new Set(allPosData.positions.map(p => p.symbol));
         Object.keys(lastKnownPositionsMap).forEach(sym => {
           if (!currentActiveSymbols.has(sym)) {
+            // Se foi encerrado manualmente há menos de 45 segundos, já foi registrado! Ignora para não contar em dobro
+            const manualClosedAt = recentlyManualClosedSymbols.get(sym);
+            if (manualClosedAt && (Date.now() - manualClosedAt < 45000)) {
+              delete lastKnownPositionsMap[sym];
+              return;
+            }
+
             const prev = lastKnownPositionsMap[sym];
             // Se a posição fechou com PNL negativo estimado (estava negativa ou tomou stop)
             if (prev && prev.unRealizedProfit < 0) {
@@ -2099,6 +2112,13 @@
     syncSymbolPrice();
   }
 
+  function resetRiskLock() {
+    localStorage.removeItem(STORAGE_KEY_RISK_LOCK);
+    localStorage.removeItem(STORAGE_KEY_DAILY_LOSSES);
+    updateRiskLockUI();
+    setToast('✅ Trava de segurança resetada com sucesso!', 'success');
+  }
+
   // Exporta globalmente
   window.OrderPanel = {
     init: initOrderPanel,
@@ -2112,6 +2132,7 @@
     cancelPositionSl,
     setDirectTpSl,
     closePosition,
+    resetRiskLock,
     cancelConditionalOrderById,
     modifyConditionalOrderById,
     refreshPositions: fetchAccountData,
