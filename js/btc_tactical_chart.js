@@ -71,7 +71,7 @@ import {
   priceAlerts
 } from './tactical/audio_alerts.js';
 
-import { toggleMiniChart, closeMiniChart } from './tactical/mini_chart.js';
+import { toggleMiniChart, closeMiniChart, initMiniChartFromStorage } from './tactical/mini_chart.js';
 
 // ─── Registro Global de Ações (Compatibilidade Total com onclick inline) ─────
 window._toggleTacMA         = toggleMovingAverages;
@@ -297,6 +297,9 @@ function init() {
   if (state.fibo2.active && state.fibo2.p1 && state.fibo2.p2) {
     requestAnimationFrame(() => updateFiboButtonUI('placed', 2));
   }
+
+  // Restaura mini gráfico BTC caso tenha sido deixado aberto pelo usuário
+  initMiniChartFromStorage();
 }
 
 if (document.readyState === 'loading') {

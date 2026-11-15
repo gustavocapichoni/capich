@@ -255,12 +255,21 @@ export function openWebSocket(force = false) {
       const badgeEl = document.getElementById('tac-ticker-badge');
       const liveDot = document.getElementById('tac-live-dot');
       if (badgeEl) badgeEl.classList.remove('connecting');
-      if (liveDot) liveDot.title = 'Fluxo de dados em tempo real';
+      if (liveDot) {
+        liveDot.innerHTML = '';
+        liveDot.style.color = '';
+        liveDot.title = 'Fluxo de dados em tempo real (Conectado)';
+      }
     };
 
     state.ws.onmessage = (evt) => {
       try {
         if (state.currentSymbol !== activeSym) return;
+        const liveDot = document.getElementById('tac-live-dot');
+        if (liveDot && liveDot.innerHTML !== '') {
+          liveDot.innerHTML = '';
+          liveDot.style.color = '';
+        }
         const raw = JSON.parse(evt.data);
         const stream = raw.stream || '';
         const data = raw.data || raw;
