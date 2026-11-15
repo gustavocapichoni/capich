@@ -181,7 +181,6 @@
             <span>${icon}</span> <span>${title}</span>
           </div>
           <div style="font-size:10px; opacity:0.95; line-height:1.3;">${lock.reason}</div>
-          ${lock.type === '24h' ? '<button type="button" onclick="window.OrderPanel&&window.OrderPanel.resetRiskLock()" style="margin-top:6px; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.35); color:#fff; border-radius:4px; padding:3px 8px; font-size:9.5px; font-weight:700; cursor:pointer;">🔓 Desbloquear Agora (Resetar Trava)</button>' : ''}
         `;
       }
       // Desabilita botões de envio
