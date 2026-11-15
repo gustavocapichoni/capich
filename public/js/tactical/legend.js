@@ -63,28 +63,28 @@ export function formatLegendHTML(leg, c) {
 
   // Volume Real 72h e 8h posicionados no header ao lado do par
   const status72h = c.isAccum
-    ? '<span style="color:#0ecb81;font-weight:700;">🟢 EMPIRE 72h ACÚMULO</span>'
-    : '<span style="color:#f6465d;font-weight:700;">🔴 EMPIRE 72h DISTRIB.</span>';
+    ? '<span style="color:#00bcd4;font-weight:700;">🟢 EMPIRE 72h ACÚMULO</span>'
+    : '<span style="color:#af0000;font-weight:700;">🔴 EMPIRE 72h DISTRIB.</span>';
   const net72Text = formatVolume(c.netAccum72h, state.baseAsset);
   const p72hVal = c.isAccum ? c.vwapBuy : c.vwapSell;
   const p72hStr = (state.empireTagsVisible && p72hVal) ? ` · $${formatPrice(p72hVal)}` : '';
 
   const status8h = c.isIntraAccum
-    ? '<span style="color:#38b6ff;font-weight:700;">🔷 EMPIRE 8h ACÚMULO</span>'
-    : '<span style="color:#ff7043;font-weight:700;">🔶 EMPIRE 8h DISTRIB.</span>';
+    ? '<span style="color:#00bcd4;font-weight:700;">🔷 EMPIRE 8h ACÚMULO</span>'
+    : '<span style="color:#af0000;font-weight:700;">🔶 EMPIRE 8h DISTRIB.</span>';
   const net8Text = formatVolume(c.netAccum8h, state.baseAsset);
   const p8hVal = c.isIntraAccum ? c.intraBuy : c.intraSell;
   const p8hStr = (state.empireTagsVisible && p8hVal) ? ` · $${formatPrice(p8hVal)}` : '';
 
   const el72h = document.getElementById('tac-empire-72h-val');
   if (el72h) {
-    el72h.innerHTML = `${status72h} <span style="color:${c.isAccum ? '#0ecb81' : '#f6465d'};font-weight:600;">[${net72Text}${p72hStr}]</span>`;
+    el72h.innerHTML = `${status72h} <span style="color:${c.isAccum ? '#00bcd4' : '#af0000'};font-weight:600;">[${net72Text}${p72hStr}]</span>`;
     el72h.title = `EMPIRE 72h: ${c.isAccum ? 'Acumulação Institucional' : 'Distribuição Institucional'} (${net72Text})`;
   }
 
   const el8h = document.getElementById('tac-empire-8h-val');
   if (el8h) {
-    el8h.innerHTML = `${status8h} <span style="color:${c.isIntraAccum ? '#38b6ff' : '#ff7043'};font-weight:600;">[${net8Text}${p8hStr}]</span>`;
+    el8h.innerHTML = `${status8h} <span style="color:${c.isIntraAccum ? '#00bcd4' : '#af0000'};font-weight:600;">[${net8Text}${p8hStr}]</span>`;
     el8h.title = `EMPIRE 8h: ${c.isIntraAccum ? 'Acumulação Intraday' : 'Distribuição Intraday'} (${net8Text})`;
   }
 

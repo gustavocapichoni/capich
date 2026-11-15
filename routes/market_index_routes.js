@@ -237,7 +237,7 @@ const oiCache = { data: null, lastUpdated: 0 };
 async function fetchOISafe(url, name) {
   try {
     const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 6000);
+    const t = setTimeout(() => ctrl.abort(), 12000); // 12s de tolerância para conexões com oscilação
     const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: ctrl.signal });
     clearTimeout(t);
     if (!r.ok) return null;

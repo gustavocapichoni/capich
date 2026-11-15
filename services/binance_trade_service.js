@@ -672,7 +672,8 @@ async function closeCurrentPosition(apiKey, apiSecret, symbol) {
     success: true,
     closedSide: closeSide,
     quantity: closeQty,
-    orderId: res.orderId
+    orderId: res.orderId,
+    unRealizedProfit: pos.unRealizedProfit || 0
   };
 }
 

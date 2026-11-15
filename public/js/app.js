@@ -89,7 +89,7 @@ async function fazerLoginGoogle() {
   } catch (err) {
     if (err.code !== 'auth/popup-closed-by-user') {
       console.error('Erro login:', err);
-      alert('Erro ao fazer login. Verifique o console.');
+      alert(`Erro no login (${err.code}):\n${err.message}`);
     }
   }
 }
@@ -255,6 +255,7 @@ window.criarNovaSecao = criarNovaSecao;
 // ─── Renderizar seção ─────────────────────────────────────────────────────────
 function renderizarSecao(dados, noTopo = false) {
   const container = document.getElementById('secoes-container');
+  if (!container) return;
   const secao = document.createElement('section');
   secao.className = 'operacao-section';
   secao.dataset.id = dados.id;
@@ -269,7 +270,10 @@ function renderizarSecao(dados, noTopo = false) {
   const blocosHTML = (dados.blocos || []).map(bloco => `
     <div class="bloco-texto" data-bloco-id="${bloco.id}">
       <div class="bloco-conteudo">${bloco.texto.replace(/\n/g, '<br>')}</div>
-      <button class="btn-remover-bloco admin-only" onclick="removerBloco(this,'${dados.id}','${bloco.id}')">× Remover bloco</button>
+      <div class="bloco-acoes admin-only">
+        <button class="btn-editar-bloco" onclick="iniciarEdicaoBloco(this,'${dados.id}','${bloco.id}')">✏️ Editar texto</button>
+        <button class="btn-remover-bloco" onclick="removerBloco(this,'${dados.id}','${bloco.id}')">× Remover bloco</button>
+      </div>
     </div>
   `).join('');
 
@@ -423,7 +427,10 @@ async function salvarBloco(btn) {
     div.dataset.blocoId = blocoId;
     div.innerHTML   = `
       <div class="bloco-conteudo">${texto.replace(/\n/g, '<br>')}</div>
-      <button class="btn-remover-bloco admin-only" onclick="removerBloco(this,'${secaoId}','${blocoId}')">× Remover bloco</button>
+      <div class="bloco-acoes admin-only">
+        <button class="btn-editar-bloco" onclick="iniciarEdicaoBloco(this,'${secaoId}','${blocoId}')">✏️ Editar texto</button>
+        <button class="btn-remover-bloco" onclick="removerBloco(this,'${secaoId}','${blocoId}')">× Remover bloco</button>
+      </div>
     `;
     container.appendChild(div);
 
@@ -450,6 +457,86 @@ async function removerBloco(btn, secaoId, blocoId) {
   }
 }
 window.removerBloco = removerBloco;
+
+// ─── Editar bloco de texto ────────────────────────────────────────────────────
+function iniciarEdicaoBloco(btn, secaoId, blocoId) {
+  if (!isAdmin) return;
+  const blocoDiv = btn.closest('.bloco-texto');
+  if (!blocoDiv || blocoDiv.querySelector('.bloco-edicao-wrap')) return;
+
+  const conteudoDiv = blocoDiv.querySelector('.bloco-conteudo');
+  const acoesDiv    = blocoDiv.querySelector('.bloco-acoes');
+  // Converte <br> de volta para quebra de linha
+  const textoOriginal = conteudoDiv.innerHTML
+    .replace(/<br\s*[\/]?>/gi, '\n')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'");
+
+  conteudoDiv.style.display = 'none';
+  if (acoesDiv) acoesDiv.style.display = 'none';
+
+  const edicaoWrap = document.createElement('div');
+  edicaoWrap.className = 'bloco-edicao-wrap';
+  edicaoWrap.innerHTML = `
+    <textarea class="bloco-textarea-edicao">${textoOriginal}</textarea>
+    <div class="bloco-edicao-botoes">
+      <button class="btn-cancelar-edicao" type="button">Cancelar</button>
+      <button class="btn-salvar-edicao" type="button">💾 Salvar Alterações</button>
+    </div>
+  `;
+
+  blocoDiv.appendChild(edicaoWrap);
+
+  const textarea = edicaoWrap.querySelector('textarea');
+  textarea.focus();
+  textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+
+  edicaoWrap.querySelector('.btn-cancelar-edicao').onclick = () => {
+    edicaoWrap.remove();
+    conteudoDiv.style.display = '';
+    if (acoesDiv) acoesDiv.style.display = '';
+  };
+
+  edicaoWrap.querySelector('.btn-salvar-edicao').onclick = async () => {
+    const novoTexto = textarea.value.trim();
+    if (!novoTexto) {
+      alert('O texto não pode ficar vazio.');
+      return;
+    }
+
+    try {
+      const snap = await getDoc(doc(db, 'operacoes', secaoId));
+      if (!snap.exists()) throw new Error('Seção não encontrada');
+
+      const data = snap.data();
+      const blocos = data.blocos || [];
+      const index = blocos.findIndex(b => b.id === blocoId);
+
+      if (index === -1) throw new Error('Bloco não encontrado');
+
+      // Atualiza o texto do bloco mantendo id e metadata
+      blocos[index] = {
+        ...blocos[index],
+        texto: novoTexto,
+        atualizadoEm: new Date().toISOString()
+      };
+
+      await updateDoc(doc(db, 'operacoes', secaoId), { blocos });
+
+      conteudoDiv.innerHTML = novoTexto.replace(/\n/g, '<br>');
+      edicaoWrap.remove();
+      conteudoDiv.style.display = '';
+      if (acoesDiv) acoesDiv.style.display = '';
+    } catch (err) {
+      console.error('Erro ao atualizar bloco:', err);
+      alert(`Erro ao salvar alterações: ${err.message || err}`);
+    }
+  };
+}
+window.iniciarEdicaoBloco = iniciarEdicaoBloco;
 
 // ─── Enviar comentário na operação ──────────────────────────────────────────
 async function enviarComentario(event) {
@@ -620,6 +707,8 @@ window.inscreverEmail = inscreverEmail;
 
 // ─── Carregar todas as seções ─────────────────────────────────────────────────
 async function carregarSecoes() {
+  const container = document.getElementById('secoes-container');
+  if (!container) return; // Página não possui histórico de seções (ex: dashboard.html)
   try {
     const q    = query(collection(db, 'operacoes'), orderBy('criadoEm', 'desc'));
     const snap = await getDocs(q);

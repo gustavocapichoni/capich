@@ -111,28 +111,65 @@ export function buildHTML() {
               <span class="tac-dropdown-arrow">▼</span>
             </button>
             <div class="tac-dropdown-menu align-right">
-              <!-- Ferramenta Fibo 1 -->
+              <!-- Ferramenta Fibo 1 (Projeção) -->
               <div class="tac-dropdown-tool-row">
-                <button class="tac-dropdown-item tac-btn-fibo" id="tac-btn-fibo" onclick="window._toggleTacFibo()" title="Fibo 1 (Principal: Retrações + Expansões + Alerta 2.618)">
-                  <span>📐 Fibo 1</span>
+                <button class="tac-dropdown-item tac-btn-fibo" id="tac-btn-fibo" onclick="window._toggleTacFibo()" title="Fibo 1 (Projeções + Retrações): Clique para traçar no gráfico">
+                  <span>📐 Fibo 1 (Projeção)</span>
                   <span class="tac-dropdown-status" id="tac-status-fibo1">OFF</span>
                 </button>
-                <button class="tac-btn-fibo-clear" id="tac-btn-fibo-clear" onclick="window._clearTacFibo()" title="Limpar Fibo 1">
-                  ✕
-                </button>
+                <div class="tac-fibo-color-picker-wrap" title="Alterar cor do Fibo 1">
+                  <input type="color" id="tac-fibo-color-1" class="tac-fibo-color-input" value="#00bcd4" onchange="window._changeTacFiboColor(1, this.value)">
+                </div>
               </div>
 
-              <!-- Ferramenta Fibo 2 -->
+              <!-- Ferramenta Fibo 2 (Retração) -->
               <div class="tac-dropdown-tool-row">
-                <button class="tac-dropdown-item tac-btn-fibo tac-btn-fibo-2" id="tac-btn-fibo2" onclick="window._toggleTacFibo2()" title="Fibo 2 (Retrações de Pernada Menor / Cluster Boroden)">
-                  <span>📐 Fibo 2</span>
+                <button class="tac-dropdown-item tac-btn-fibo tac-btn-fibo-2" id="tac-btn-fibo2" onclick="window._toggleTacFibo2()" title="Fibo 2 (Retrações de Pernada Menor / Cluster): Clique para traçar no gráfico">
+                  <span>📐 Fibo 2 (Retração)</span>
                   <span class="tac-dropdown-status" id="tac-status-fibo2">OFF</span>
                 </button>
-                <button class="tac-btn-fibo-clear" id="tac-btn-fibo2-clear" onclick="window._clearTacFibo2()" title="Limpar Fibo 2">
-                  ✕
+                <div class="tac-fibo-color-picker-wrap" title="Alterar cor do Fibo 2">
+                  <input type="color" id="tac-fibo-color-2" class="tac-fibo-color-input" value="#f0b90b" onchange="window._changeTacFiboColor(2, this.value)">
+                </div>
+              </div>
+
+              <!-- Separador -->
+              <div class="tac-dropdown-separator"></div>
+
+              <!-- Alerta de Preço Personalizado -->
+              <div class="tac-dropdown-tool-row">
+                <button class="tac-dropdown-item tac-btn-price-alert" id="tac-btn-price-alert" onclick="window._openPriceAlertModal()" title="Definir alerta sonoro para um preço específico">
+                  <span>🔔 Alerta de Preço</span>
+                  <span class="tac-dropdown-status" id="tac-status-price-alert">OFF</span>
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal: Alerta de Preço -->
+      <div id="tac-price-alert-modal" class="tac-price-alert-modal" style="display:none;" onclick="if(event.target===this)window._closePriceAlertModal()">
+        <div class="tac-price-alert-modal-box">
+          <div class="tac-price-alert-modal-header">
+            <span>🔔 Alerta de Preço</span>
+            <button class="tac-price-alert-modal-close" onclick="window._closePriceAlertModal()" title="Fechar">✕</button>
+          </div>
+          <div class="tac-price-alert-modal-body">
+            <label class="tac-pal-label">Preço alvo (<span id="tac-pal-asset">USDT</span>)</label>
+            <input type="number" id="tac-pal-input" class="tac-pal-input" placeholder="Ex: 65000" step="any" min="0">
+            <label class="tac-pal-label" style="margin-top:8px;">Descrição (opcional)</label>
+            <input type="text" id="tac-pal-label-input" class="tac-pal-input" placeholder="Ex: Suporte forte, Alvo TP1...">
+            <div id="tac-pal-hint" class="tac-pal-hint"></div>
+          </div>
+          <div class="tac-price-alert-modal-footer">
+            <button class="tac-pal-btn-cancel" onclick="window._closePriceAlertModal()">Cancelar</button>
+            <button class="tac-pal-btn-confirm" onclick="window._confirmPriceAlert()">✓ Definir Alerta</button>
+          </div>
+          <!-- Lista de alertas ativos -->
+          <div class="tac-pal-list-wrap" id="tac-pal-list-wrap">
+            <div class="tac-pal-list-title">Alertas ativos</div>
+            <div id="tac-pal-list"></div>
           </div>
         </div>
       </div>

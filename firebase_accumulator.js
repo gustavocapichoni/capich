@@ -169,51 +169,70 @@ async function pruneOldDocuments() {
   }
 }
 
-// ─── Ciclo principal de acumulação ────────────────────────────────────────────
+// ─── Ciclo principal de acumulação (Incremental Econômico) ───────────────────
+// Busca apenas as últimas 96 velas (~1 dia em 15m, 4 dias em 1h) em vez de 500.
+// Salva apenas o dia de hoje e ontem (para fechar a virada da meia-noite UTC),
+// garantindo que 1 ano seja construído dia após dia consumindo menos de 2% da cota gratuita diária.
 
 async function runAccumulation() {
-  console.log('[Accumulator] 🔄 Iniciando ciclo de acumulação...');
+  console.log('[Accumulator] 🔄 Iniciando ciclo de acumulação incremental...');
+
+  const todayStr = toDateStr(Date.now());
+  const yesterdayStr = daysAgo(1);
 
   for (const symbol of PAIRS) {
     for (const interval of TIMEFRAMES) {
       try {
-        // 15m: busca últimas 500 velas (~5,2 dias)
-        // 1h:  busca últimas 500 velas (~20,8 dias)
-        const candles = await fetchBinanceCandles(symbol, interval, 500);
-        await saveCandles(symbol, interval, candles);
+        // 96 velas são suficientes para cobrir as últimas 24h a 96h com margem segura
+        const candles = await fetchBinanceCandles(symbol, interval, 96);
+        // Filtra para salvar apenas candles de hoje e ontem
+        const recentCandles = candles.filter(c => {
+          const d = toDateStr(c.t);
+          return d === todayStr || d === yesterdayStr;
+        });
 
-        // Aguarda 300ms entre requests para não sobrecarregar a API da Binance
-        await new Promise(r => setTimeout(r, 300));
+        if (recentCandles.length > 0) {
+          await saveCandles(symbol, interval, recentCandles);
+        }
+
+        // Aguarda 250ms entre requests para respeitar a taxa da Binance
+        await new Promise(r => setTimeout(r, 250));
       } catch (err) {
         console.warn(`[Accumulator] ⚠️ Erro ${symbol} ${interval}:`, err.message);
       }
     }
   }
 
-  // Acumulação perpétua do Índice de Mercado TOP 10 Cripto
+  // Acumulação perpétua do Índice de Mercado TOP 10 Cripto (Incremental)
   for (const interval of TIMEFRAMES) {
     try {
       const { computeIndexCandles } = require('./routes/market_index_routes');
       if (typeof computeIndexCandles === 'function') {
-        const idxRes = await computeIndexCandles(interval, 500);
+        const idxRes = await computeIndexCandles(interval, 96);
         if (idxRes && idxRes.candles && idxRes.candles.length) {
-          await saveCandles('INDEX_TOP10', interval, idxRes.candles);
-          console.log(`[Accumulator] 🏆 INDEX_TOP10 ${interval}: ${idxRes.candles.length} candles salvos no Firestore`);
+          const recentIndex = idxRes.candles.filter(c => {
+            const d = toDateStr(c.t);
+            return d === todayStr || d === yesterdayStr;
+          });
+          if (recentIndex.length > 0) {
+            await saveCandles('INDEX_TOP10', interval, recentIndex);
+            console.log(`[Accumulator] 🏆 INDEX_TOP10 ${interval}: salvo incremental`);
+          }
         }
       }
-      await new Promise(r => setTimeout(r, 300));
+      await new Promise(r => setTimeout(r, 250));
     } catch (err) {
       console.warn(`[Accumulator] ⚠️ Erro ao acumular INDEX_TOP10 ${interval}:`, err.message);
     }
   }
 
-  // Roda a limpeza de documentos antigos uma vez por dia (aleatório para não causar spike)
+  // Roda a limpeza de documentos com mais de 365 dias uma vez por dia (às 03:00 UTC)
   const hour = new Date().getUTCHours();
   if (hour === 3) {
     await pruneOldDocuments();
   }
 
-  console.log('[Accumulator] ✅ Ciclo concluído.');
+  console.log('[Accumulator] ✅ Ciclo incremental concluído com sucesso.');
 }
 
 // ─── Leitura do histórico do Firestore ────────────────────────────────────────

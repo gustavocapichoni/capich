@@ -173,7 +173,7 @@ export function initCharts() {
 
   // 3. Indicador EMPIRE 72h
   state.series.vwapBuy = state.charts.main.addLineSeries({
-    color: '#0ecb81',
+    color: '#00bcd4',
     lineWidth: 2,
     priceLineVisible: false,
     crosshairMarkerVisible: false,
@@ -183,7 +183,7 @@ export function initCharts() {
   });
 
   state.series.vwapSell = state.charts.main.addLineSeries({
-    color: '#f6465d',
+    color: '#af0000',
     lineWidth: 2,
     priceLineVisible: false,
     crosshairMarkerVisible: false,
@@ -194,7 +194,7 @@ export function initCharts() {
 
   // 4. Volume Real 8h (Intraday)
   state.series.intraBuy = state.charts.main.addLineSeries({
-    color: '#38b6ff',
+    color: '#00bcd4',
     lineWidth: 1.2,
     priceLineVisible: false,
     crosshairMarkerVisible: false,
@@ -204,7 +204,7 @@ export function initCharts() {
   });
 
   state.series.intraSell = state.charts.main.addLineSeries({
-    color: '#ff7043',
+    color: '#af0000',
     lineWidth: 1.2,
     priceLineVisible: false,
     crosshairMarkerVisible: false,

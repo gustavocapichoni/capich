@@ -44,19 +44,24 @@ export function renderVolumeCanvas() {
 
   const timeScale = state.charts.main.timeScale();
 
-  // Calcula o volume máximo visível para escala das barras E das linhas juntos
+  // Escala máxima de Volume das Barras e Futuros
   let maxVol = 0;
+  // Escala máxima independente de Volume Spot para não ficar esmagado
+  let maxSpotVol = 0;
+
   state.candles.forEach(c => {
     const x = timeScale.timeToCoordinate(c.time);
     if (x !== null && x >= -20 && x <= width + 20) {
       const spotTotal = (c.spotBuy || 0) + (c.spotSell || 0);
       const futTotal  = (c.futBuy  || 0) + (c.futSell  || 0);
       const combined  = c.volume || 0;
-      const mx = Math.max(spotTotal, futTotal, combined);
+      const mx = Math.max(futTotal, combined);
       if (mx > maxVol) maxVol = mx;
+      if (spotTotal > maxSpotVol) maxSpotVol = spotTotal;
     }
   });
   if (maxVol === 0) maxVol = 1;
+  if (maxSpotVol === 0) maxSpotVol = 1;
 
   let barWidth = 4;
   if (state.candles.length >= 2) {
@@ -69,13 +74,43 @@ export function renderVolumeCanvas() {
 
   const baseY = height - 2;
 
+  // ── Grade e Escala Numérica de Volume à Direita (estilo Binance) ──────────
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+
+  // Linha de 100% (topo)
+  const yTop = baseY - (height - 12);
+  ctx.beginPath();
+  ctx.moveTo(0, yTop);
+  ctx.lineTo(width, yTop);
+  ctx.stroke();
+
+  // Linha de 50% (meio)
+  const yMid = baseY - ((height - 12) * 0.5);
+  ctx.beginPath();
+  ctx.moveTo(0, yMid);
+  ctx.lineTo(width, yMid);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Rótulos numéricos na lateral direita
+  ctx.font = '10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+  ctx.fillStyle = '#848e9c';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(formatVolNumber(maxVol), width - 8, yTop + 6);
+  ctx.fillText(formatVolNumber(maxVol * 0.5), width - 8, yMid);
+  ctx.restore();
+
   let hoveredBarData = null;
 
   state.candles.forEach(c => {
     const x = timeScale.timeToCoordinate(c.time);
     if (x === null || x < -20 || x > width + 20) return;
 
-    const totalH = (c.volume / maxVol) * (height - 8);
+    const totalH = (c.volume / maxVol) * (height - 12);
     const buyRatio = c.volume > 0 ? (c.buyV / c.volume) : 0.5;
     const buyH  = totalH * buyRatio;
     const sellH = totalH - buyH;
@@ -108,35 +143,41 @@ export function renderVolumeCanvas() {
     const spotTotal = (c.spotBuy || 0) + (c.spotSell || 0);
     const futTotal  = (c.futBuy  || 0) + (c.futSell  || 0);
 
-    spotPoints.push({ x, y: baseY - (spotTotal / maxVol) * (height - 8) });
-    futPoints.push({  x, y: baseY - (futTotal  / maxVol) * (height - 8) });
+    // Linha Spot usa maxSpotVol proporcional (atingindo até 85% do topo para perfeita oscilação natural)
+    spotPoints.push({ x, y: baseY - (spotTotal / maxSpotVol) * (height - 14) });
+    // Linha Futuros usa maxVol proporcional
+    futPoints.push({  x, y: baseY - (futTotal  / maxVol)     * (height - 12) });
   });
 
-  // Desenha linha Spot (Branco)
-  if (spotPoints.length >= 2) {
-    ctx.save();
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([]);
-    ctx.beginPath();
-    ctx.moveTo(spotPoints[0].x, spotPoints[0].y);
-    for (let i = 1; i < spotPoints.length; i++) {
-      ctx.lineTo(spotPoints[i].x, spotPoints[i].y);
-    }
-    ctx.stroke();
-    ctx.restore();
-  }
-
-  // Desenha linha Futures (Azul #0c3299)
+  // Desenha linha Futures (Azul #0c3299 com espessura fina de 1.1px)
   if (futPoints.length >= 2) {
     ctx.save();
-    ctx.strokeStyle = '#0c3299';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#2b66ff';
+    ctx.lineWidth = 1.2;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
     ctx.setLineDash([]);
     ctx.beginPath();
     ctx.moveTo(futPoints[0].x, futPoints[0].y);
     for (let i = 1; i < futPoints.length; i++) {
       ctx.lineTo(futPoints[i].x, futPoints[i].y);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Desenha linha Spot (Branco translúcido com espessura fina de 1.1px)
+  if (spotPoints.length >= 2) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.lineWidth = 1.1;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(spotPoints[0].x, spotPoints[0].y);
+    for (let i = 1; i < spotPoints.length; i++) {
+      ctx.lineTo(spotPoints[i].x, spotPoints[i].y);
     }
     ctx.stroke();
     ctx.restore();
@@ -200,6 +241,15 @@ function renderVolumeTooltipContent(candle, closestX, containerWidth, tooltip) {
       <div class="tac-vol-row">
         <span class="tac-vol-lbl red">🔴 Venda (Pressão):</span>
         <span class="tac-vol-val red bold">${formatVolNumber(sellVol)} (${sellPct.toFixed(1)}%)</span>
+      </div>
+      <div class="tac-vol-divider"></div>
+      <div class="tac-vol-row">
+        <span class="tac-vol-lbl" style="color:#ffffff;">⚪ Vol. Spot:</span>
+        <span class="tac-vol-val bold" style="color:#ffffff;">${formatVolNumber((candle.spotBuy || 0) + (candle.spotSell || 0))} ${coinName}</span>
+      </div>
+      <div class="tac-vol-row">
+        <span class="tac-vol-lbl" style="color:#4d88ff;">🔵 Vol. Futuros:</span>
+        <span class="tac-vol-val bold" style="color:#4d88ff;">${formatVolNumber((candle.futBuy || 0) + (candle.futSell || 0))} ${coinName}</span>
       </div>
       <div class="tac-vol-divider"></div>
       <div class="tac-vol-row">
@@ -413,19 +463,19 @@ export function renderEmpireZones() {
         ctx.save();
         if (seg.status) {
           if (is72h) {
-            ctx.fillStyle = 'rgba(14, 203, 129, 0.09)';
-            ctx.strokeStyle = 'rgba(14, 203, 129, 0.35)';
+            ctx.fillStyle = 'rgba(0, 188, 212, 0.09)';
+            ctx.strokeStyle = 'rgba(0, 188, 212, 0.35)';
           } else {
-            ctx.fillStyle = 'rgba(56, 182, 255, 0.08)';
-            ctx.strokeStyle = 'rgba(56, 182, 255, 0.30)';
+            ctx.fillStyle = 'rgba(0, 188, 212, 0.08)';
+            ctx.strokeStyle = 'rgba(0, 188, 212, 0.30)';
           }
         } else {
           if (is72h) {
-            ctx.fillStyle = 'rgba(246, 70, 93, 0.09)';
-            ctx.strokeStyle = 'rgba(246, 70, 93, 0.35)';
+            ctx.fillStyle = 'rgba(175, 0, 0, 0.12)';
+            ctx.strokeStyle = 'rgba(175, 0, 0, 0.40)';
           } else {
-            ctx.fillStyle = 'rgba(255, 112, 67, 0.08)';
-            ctx.strokeStyle = 'rgba(255, 112, 67, 0.30)';
+            ctx.fillStyle = 'rgba(175, 0, 0, 0.10)';
+            ctx.strokeStyle = 'rgba(175, 0, 0, 0.35)';
           }
         }
 
@@ -452,11 +502,23 @@ export function renderEmpireZones() {
     }
   }
 
-  // Desenho das ferramentas Fibonacci
-  if (state.fibo && state.fibo.p1 && state.fibo.p2) {
+  // Desenho das ferramentas Fibonacci (Múltiplos Fibos Dinâmicos)
+  if (Array.isArray(state.fibos)) {
+    state.fibos.forEach((f, idx) => {
+      if (f && f.p1 && f.p2) {
+        drawFibonacciRetracement(ctx, width, height, timeScale, series, f, f.type === 'retr' ? 2 : 1);
+      }
+    });
+  }
+  // Desenho do Fibo enquanto o usuário está arrastando para traçar no gráfico
+  if (state.drawingFibo && state.drawingFibo.p1 && state.drawingFibo.p2) {
+    drawFibonacciRetracement(ctx, width, height, timeScale, series, state.drawingFibo, state.drawingFibo.type === 'retr' ? 2 : 1);
+  }
+  // Suporte aos legados se existirem
+  if (state.fibo && state.fibo.p1 && state.fibo.p2 && (!state.fibos || !state.fibos.length)) {
     drawFibonacciRetracement(ctx, width, height, timeScale, series, state.fibo, 1);
   }
-  if (state.fibo2 && state.fibo2.p1 && state.fibo2.p2) {
+  if (state.fibo2 && state.fibo2.p1 && state.fibo2.p2 && (!state.fibos || !state.fibos.length)) {
     drawFibonacciRetracement(ctx, width, height, timeScale, series, state.fibo2, 2);
   }
 

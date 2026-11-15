@@ -82,6 +82,8 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/index', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.get('/sobre', (req, res) => res.sendFile(path.join(__dirname, 'sobre.html')));
 app.get('/metodo', (req, res) => res.sendFile(path.join(__dirname, 'metodo.html')));
+app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'dashboard.html')));
+app.get('/trading', (req, res) => res.sendFile(path.join(__dirname, 'crypto_trading_history.html')));
 app.get('/crypto_trading_history', (req, res) => res.sendFile(path.join(__dirname, 'crypto_trading_history.html')));
 
 // Endpoint para Vercel Cron (acumulador em background na nuvem)
@@ -670,48 +672,10 @@ app.get('/api/btc-history-tactical', async (req, res) => {
       };
     });
 
-    // 1.0b Integração com Histórico Acumulado do Firestore
-    // O cache de 1h evita leitura repetida ao Firestore a cada troca de par —
-    // preservando o limite diário do plano gratuito do Firebase.
-    try {
-      const fbKey = `${symbol}_${interval}`;
-      const fbNow = Date.now();
-      const fbCached = firebaseHistCache.get(fbKey);
-
-      let hist;
-      if (fbCached && (fbNow - fbCached.time) < FIREBASE_HIST_CACHE_TTL) {
-        // Serve do cache em memória — zero leitura Firestore
-        hist = fbCached.data;
-      } else {
-        // Primeira vez ou cache expirado — lê o Firestore e armazena
-        hist = await getHistoricalCandles(symbol, interval, 30);
-        firebaseHistCache.set(fbKey, { data: hist, time: fbNow });
-        console.log(`[Firebase Cache] Atualizado: ${fbKey} (${hist?.length || 0} candles)`);
-      }
-
-      if (hist && hist.length > 0 && candles.length > 0) {
-        const earliestLive = candles[0].t;
-        const older = hist
-          .filter(h => h.t < earliestLive)
-          .map(h => ({
-            t: h.t,
-            o: h.o,
-            h: h.h,
-            l: h.l,
-            c: h.c,
-            v: h.v,
-            buyV: h.bv || (h.v * 0.5),
-            sellV: Math.max(0, h.v - (h.bv || (h.v * 0.5))),
-            futBuy: h.bv || (h.v * 0.5),
-            futSell: Math.max(0, h.v - (h.bv || (h.v * 0.5))),
-            spotBuy: h.bv || (h.v * 0.5),
-            spotSell: Math.max(0, h.v - (h.bv || (h.v * 0.5)))
-          }));
-        if (older.length > 0) {
-          candles = [...older, ...candles];
-        }
-      }
-    } catch (_) {}
+    // 1.0b Integração Histórica: em produção e tempo real, a Binance já entrega
+    // até 1000 velas na memória (41 dias em 1h, 10 dias em 15m) — garantindo 0ms de latência
+    // e zero consumo da cota gratuita diária do Firestore ao trocar de par no painel.
+    // O histórico longo (365 dias) fica acumulado e seguro no Firestore para estudos/backtest.
 
     // 1.1 Processamento do Open Interest e Sentimento Multi-Métricas
     let oiData = {
@@ -1107,11 +1071,18 @@ if (!process.env.VERCEL) {
     console.log(`\n✅ Servidor rodando em: http://localhost:${PORT}\n`);
     console.log('   Pressione Ctrl+C para parar.\n');
 
-    // Inicia o acumulador histórico do Firestore após 5 segundos (evita pico de memória no boot)
+    // Inicia o acumulador histórico do Firestore após 5 segundos
+    // Executa apenas em produção (nuvem) ou quando explicitamente habilitado,
+    // evitando que o localhost concorra e estoure a cota diária do banco de dados.
+    const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL || process.env.ENABLE_ACCUMULATOR === 'true';
     if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY) {
-      setTimeout(() => {
-        startAccumulator();
-      }, 5000);
+      if (isProduction) {
+        setTimeout(() => {
+          startAccumulator();
+        }, 5000);
+      } else {
+        console.log('[Accumulator] ℹ️ Ambiente local detectado: Acumulador Firestore pausado localmente para preservar sua cota gratuita diária (a nuvem cuida da acumulação).');
+      }
     }
   });
 }

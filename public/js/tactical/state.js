@@ -94,8 +94,12 @@ export const state = {
       approachDir: null
     }
   },
-  dragTargetFibo: null, // 1 ou 2
-  selectedFibo: null, // 1 ou 2 quando selecionado via duplo clique
+  fibos: [], // Array de múltiplos Fibos: [{ id, type: 'proj'|'retr', p1, p2, active, customColor, alert2618 }]
+  drawingFibo: null, // Fibo sendo desenhado no momento { id, type, p1, p2, customColor, isDragging }
+  selectedFiboId: null, // ID do Fibo selecionado com duplo clique
+  dragTargetFiboId: null, // ID do fibo sendo arrastado, ou '__drawing__'
+  dragTargetFibo: null, // legado — mantido por compatibilidade
+  selectedFibo: null, // legado — mantido por compatibilidade
   ws: null
 };
 

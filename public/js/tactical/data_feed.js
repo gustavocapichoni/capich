@@ -60,7 +60,11 @@ export async function fetchAndRender() {
       intraSell: c.intraSell,
       isIntraAccum: c.isIntraAccum,
       netAccum8h: c.netAccum8h,
-      signal: c.signal
+      signal: c.signal,
+      futBuy: c.futBuy || 0,
+      futSell: c.futSell || 0,
+      spotBuy: c.spotBuy || 0,
+      spotSell: c.spotSell || 0
     }));
 
     if (state.series.candles) {
@@ -222,7 +226,7 @@ export function updateOracleHUD() {
 
 export function openWebSocket(force = false) {
   const symbolLower = state.currentSymbol.toLowerCase();
-  const targetStreamKey = `${symbolLower}@kline_${state.currentTimeframe}`;
+  const targetStreamKey = `${symbolLower}@kline_${state.currentTimeframe}/${symbolLower}@aggTrade`;
 
   if (!force && state.ws && state.ws.readyState === WebSocket.OPEN && wsActiveStreamKey === targetStreamKey) {
     return;
@@ -240,7 +244,8 @@ export function openWebSocket(force = false) {
   wsActiveStreamKey = targetStreamKey;
   const liveDot = document.getElementById('tac-live-dot');
   const activeSym = state.currentSymbol;
-  const wsUrl = `wss://fstream.binance.com/ws/${targetStreamKey}`;
+  // Stream combinado da Binance: Klines + AggTrade em tempo real (< 100ms)
+  const wsUrl = `wss://fstream.binance.com/stream?streams=${targetStreamKey}`;
   
   try {
     state.ws = new WebSocket(wsUrl);
@@ -256,11 +261,56 @@ export function openWebSocket(force = false) {
     state.ws.onmessage = (evt) => {
       try {
         if (state.currentSymbol !== activeSym) return;
-        const msg = JSON.parse(evt.data);
-        if (!msg.k) return;
-        const k = msg.k;
+        const raw = JSON.parse(evt.data);
+        const stream = raw.stream || '';
+        const data = raw.data || raw;
+
+        // ── 1. AGGTRADE (Preço Trade a Trade em Tempo Real - Zero Delay) ────────
+        if (stream.includes('@aggTrade') || data.e === 'aggTrade') {
+          const tradePrice = parseFloat(data.p);
+          if (tradePrice && !isNaN(tradePrice)) {
+            state.currentPrice = tradePrice;
+            lastPriceUpdateTimestamp = Date.now();
+
+            if (state.candles.length) {
+              const last = state.candles[state.candles.length - 1];
+              last.close = tradePrice;
+              if (tradePrice > last.high) last.high = tradePrice;
+              if (tradePrice < last.low)  last.low  = tradePrice;
+
+              if (state.series.candles) {
+                try {
+                  state.series.candles.update({
+                    time: last.time,
+                    open: last.open,
+                    high: last.high,
+                    low: last.low,
+                    close: tradePrice
+                  });
+                } catch (_) {}
+              }
+            }
+
+            if (!state.isHovering) {
+              renderDefaultLegend();
+              renderEmpireZones();
+            }
+
+            checkFiboAlert(tradePrice);
+
+            if (window.OrderPanel) {
+              window.OrderPanel.setMarketContext(state.currentSymbol, tradePrice);
+            }
+          }
+          return;
+        }
+
+        // ── 2. KLINE STREAM (Atualização Completa da Barra de Tempo) ─────────────
+        const k = data.k || (raw.k ? raw.k : null);
+        if (!k) return;
 
         lastPriceUpdateTimestamp = Date.now();
+        state.currentPrice = parseFloat(k.c);
 
         const updatedCandle = {
           time: Math.floor(k.t / 1000),
@@ -436,6 +486,7 @@ export async function syncLivePriceFallback() {
       }
 
       const activeCandle = state.candles[state.candles.length - 1];
+      state.currentPrice = activeCandle.close;
       if (state.series.candles) {
         try {
           state.series.candles.update({
@@ -450,6 +501,7 @@ export async function syncLivePriceFallback() {
 
       if (!state.isHovering) {
         renderDefaultLegend();
+        renderEmpireZones();
       }
 
       checkFiboAlert(kClose);

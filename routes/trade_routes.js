@@ -374,7 +374,8 @@ router.post('/close', async (req, res) => {
     res.json({
       success: true,
       message: `Posição em ${symbol} encerrada com sucesso!`,
-      result
+      result,
+      unRealizedProfit: result.unRealizedProfit || 0
     });
   } catch (err) {
     console.error('[/api/trade/close] Erro:', err.message);

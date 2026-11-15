@@ -11,11 +11,210 @@
   const STORAGE_KEY_SEC    = 'capich_binance_api_secret';
   const STORAGE_KEY_LOCKED = 'capich_order_panel_locked';
 
+  // ══ TRAVAS DE SEGURANÇA & PRESERVAÇÃO DE CAPITAL ═════════════════
+  // 1. Trava Anti-Tilt: 4 prejuízos no dia (horário de Brasília) = Bloqueio geral inviolável por 24 horas
+  // 2. Trava Fim de Semana: Sábado 00:00 até Domingo 10:00 (horário de Brasília)
+  const STORAGE_KEY_RISK_LOCK = 'capich_risk_lock_until';
+  const STORAGE_KEY_DAILY_LOSSES = 'capich_daily_loss_data';
+
+  /**
+   * Retorna a data atual no formato 'YYYY-MM-DD' segundo o fuso de Brasília (UTC-3)
+   */
+  function getBrasiliaDateStr() {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Sao_Paulo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).format(new Date());
+  }
+
+  /**
+   * Obtém as partes de data/hora atual no fuso de Brasília (UTC-3)
+   */
+  function getBrasiliaDateParts() {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Sao_Paulo',
+      weekday: 'short', // 'Mon', 'Sat', 'Sun', etc.
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: false
+    });
+    const parts = formatter.formatToParts(now);
+    const map = {};
+    parts.forEach(p => { map[p.type] = p.value; });
+    return {
+      weekday: map.weekday,
+      hour: parseInt(map.hour, 10) || 0,
+      minute: parseInt(map.minute, 10) || 0,
+      second: parseInt(map.second, 10) || 0
+    };
+  }
+
+  /**
+   * Verifica se estamos dentro do bloqueio de fim de semana:
+   * Sábado a partir das 00:00 até Domingo às 10:00 da manhã (Horário de Brasília)
+   */
+  function checkWeekendLock() {
+    const b = getBrasiliaDateParts();
+    // Sábado inteiro (das 00:00 às 23:59)
+    if (b.weekday === 'Sat') {
+      return {
+        locked: true,
+        reason: 'Sábado (Baixa liquidez). Operações liberadas Domingo às 10:00 (Horário de Brasília).'
+      };
+    }
+    // Domingo antes das 10:00 da manhã
+    if (b.weekday === 'Sun' && b.hour < 10) {
+      const restHours = 9 - b.hour;
+      const restMins = 60 - b.minute;
+      return {
+        locked: true,
+        reason: `Fim de semana (Baixa liquidez). Operações liberadas às 10:00 (restam aprox. ${restHours}h ${restMins}min).`
+      };
+    }
+    return { locked: false, reason: '' };
+  }
+
+  /**
+   * Carrega os dados de prejuízo diário. Se mudou o dia em Brasília, reseta o contador.
+   */
+  function getDailyLossState() {
+    const today = getBrasiliaDateStr();
+    let data = { date: today, losses: 0 };
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_DAILY_LOSSES);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.date === today) {
+          data = parsed;
+        } else {
+          // Virou o dia em Brasília: reseta automaticamente!
+          data = { date: today, losses: 0 };
+          localStorage.setItem(STORAGE_KEY_DAILY_LOSSES, JSON.stringify(data));
+        }
+      }
+    } catch (_) {}
+    return data;
+  }
+
+  /**
+   * Registra um prejuízo. Se atingir 4, aciona o bloqueio de 24 horas inviolável.
+   */
+  function registerLoss() {
+    const state = getDailyLossState();
+    state.losses += 1;
+    localStorage.setItem(STORAGE_KEY_DAILY_LOSSES, JSON.stringify(state));
+
+    console.warn(`[Preservação de Capital] Prejuízo registrado no dia: ${state.losses}/4`);
+
+    if (state.losses >= 4) {
+      // Ativa bloqueio de 24 horas exatas (86.400.000 ms)
+      const lockUntil = Date.now() + (24 * 60 * 60 * 1000);
+      localStorage.setItem(STORAGE_KEY_RISK_LOCK, String(lockUntil));
+      updateRiskLockUI();
+      alert('🚨 TRAVA DE SEGURANÇA ATIVADA!\n\nVocê atingiu 4 prejuízos no dia. O sistema foi bloqueado por 24 horas para preservação do seu capital.\n\nSem botão de cancelamento. Respire, descanse a mente e volte amanhã!');
+    } else {
+      updateRiskLockUI();
+    }
+  }
+
+  /**
+   * Verifica o status geral das travas de segurança
+   */
+  function getRiskLockStatus() {
+    // 1. Checa trava de 24h por 4 perdas
+    const rawUntil = localStorage.getItem(STORAGE_KEY_RISK_LOCK);
+    if (rawUntil) {
+      const lockUntil = parseInt(rawUntil, 10);
+      const now = Date.now();
+      if (now < lockUntil) {
+        const diffMs = lockUntil - now;
+        const h = Math.floor(diffMs / (1000 * 60 * 60));
+        const m = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        return {
+          locked: true,
+          type: '24h',
+          reason: `Bloqueio de 24h por 4 prejuízos no dia. Tempo restante: ${h}h ${m}min.`
+        };
+      } else {
+        // Expirou as 24h: remove a trava
+        localStorage.removeItem(STORAGE_KEY_RISK_LOCK);
+      }
+    }
+
+    // 2. Checa trava de fim de semana
+    const wk = checkWeekendLock();
+    if (wk.locked) {
+      return {
+        locked: true,
+        type: 'weekend',
+        reason: wk.reason
+      };
+    }
+
+    return { locked: false, type: 'none', reason: '' };
+  }
+
+  /**
+   * Renderiza / atualiza o banner visual da trava de segurança no topo do painel
+   */
+  function updateRiskLockUI() {
+    const lock = getRiskLockStatus();
+    let banner = document.getElementById('tac-risk-lock-banner');
+    const container = document.getElementById('binance-order-panel');
+
+    if (lock.locked) {
+      if (!banner && container) {
+        banner = document.createElement('div');
+        banner.id = 'tac-risk-lock-banner';
+        container.prepend(banner);
+      }
+      if (banner) {
+        const icon = lock.type === '24h' ? '🚨' : '🛑';
+        const title = lock.type === '24h' ? 'TRAVA DE SEGURANÇA ATIVA (24H)' : 'PAUSA DE FIM DE SEMANA';
+        banner.className = 'tac-risk-lock-banner active';
+        banner.innerHTML = `
+          <div style="font-weight:800; font-size:11px; margin-bottom:2px; display:flex; align-items:center; gap:5px;">
+            <span>${icon}</span> <span>${title}</span>
+          </div>
+          <div style="font-size:10px; opacity:0.95; line-height:1.3;">${lock.reason}</div>
+        `;
+      }
+      // Desabilita botões de envio
+      const btnBuy = document.getElementById('bop-btn-buy');
+      const btnSell = document.getElementById('bop-btn-sell');
+      if (btnBuy) btnBuy.disabled = true;
+      if (btnSell) btnSell.disabled = true;
+    } else {
+      if (banner) banner.remove();
+      // Mostra contador de perdas do dia no rodapé do painel se houver perdas
+      const dailyState = getDailyLossState();
+      let badge = document.getElementById('tac-daily-loss-badge');
+      if (dailyState.losses > 0) {
+        if (!badge && container) {
+          badge = document.createElement('div');
+          badge.id = 'tac-daily-loss-badge';
+          badge.className = 'tac-daily-loss-badge';
+          container.appendChild(badge);
+        }
+        if (badge) {
+          badge.textContent = `⚠️ Risco Hoje: ${dailyState.losses}/4 stops atingidos`;
+        }
+      } else if (badge) {
+        badge.remove();
+      }
+    }
+  }
+
   const defaultInitialSym = localStorage.getItem('capich_tac_symbol') || 'BTCUSDT';
   let currentSymbol    = defaultInitialSym;
   let baseAsset        = defaultInitialSym.replace('USDT', '');
   let currentPrice     = 0;
   let currentPositionData = null;
+  let lastKnownPositionsMap = {}; // Salva histórico de posições abertas para detectar execução de Stop Loss automático
   let isPanelLocked    = localStorage.getItem(STORAGE_KEY_LOCKED) === 'true';
   let currentOrderType = 'market'; // 'market' ou 'conditional'
   let pollInterval     = null;
@@ -1422,6 +1621,33 @@
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
 
+      // Verificação de prejuízo para a Trava de Segurança
+      const pnl = parseFloat(data.unRealizedProfit) || 0;
+      if (pnl < 0) {
+        console.warn(`[Preservação de Capital] Posição encerrada com prejuízo: $${pnl.toFixed(2)} USDT`);
+        registerLoss();
+      }
+
+      // Registra o trade no Dashboard Operacional (Ponto Zero / Curva de Capital)
+      try {
+        const trades = JSON.parse(localStorage.getItem('capich_custom_trades_history') || '[]');
+        const entryP = currentPositionData?.entryPrice || 0;
+        const pnlPct = entryP > 0 ? (pnl / (entryP * Math.abs(currentPositionData?.positionAmt || 1))) * 100 : 0;
+        trades.push({
+          id: `trade_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+          symbol: targetSymbol,
+          side: (currentPositionData?.positionAmt || 0) >= 0 ? 'LONG' : 'SHORT',
+          entryPrice: entryP,
+          closePrice: currentPrice || 0,
+          pnl: parseFloat(pnl.toFixed(2)),
+          pnlPct: parseFloat(pnlPct.toFixed(2)),
+          closedAt: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
+        });
+        localStorage.setItem('capich_custom_trades_history', JSON.stringify(trades));
+      } catch (errRecord) {
+        console.warn('[Dashboard] Erro ao registrar trade:', errRecord.message);
+      }
+
       setToast(`✅ Posição em ${targetSymbol} zerada!`, 'success');
       if (targetSymbol === currentSymbol && window.ChartPositions) {
         window.ChartPositions.clearAllLines();
@@ -1585,6 +1811,49 @@
       if (allPosData.success && Array.isArray(allPosData.positions)) {
         renderPositionsTable(allPosData.positions);
 
+        // Detecta posições que sumiram (Stop Loss automático executado na exchange)
+        const currentActiveSymbols = new Set(allPosData.positions.map(p => p.symbol));
+        Object.keys(lastKnownPositionsMap).forEach(sym => {
+          if (!currentActiveSymbols.has(sym)) {
+            const prev = lastKnownPositionsMap[sym];
+            // Se a posição fechou com PNL negativo estimado (estava negativa ou tomou stop)
+            if (prev && prev.unRealizedProfit < 0) {
+              console.warn(`[Preservação de Capital] Stop Loss automático detectado em ${sym} (prejuízo anterior: $${prev.unRealizedProfit.toFixed(2)})`);
+              registerLoss();
+            }
+
+            // Registra no Dashboard Operacional o fechamento
+            try {
+              const trades = JSON.parse(localStorage.getItem('capich_custom_trades_history') || '[]');
+              const pnl = prev ? prev.unRealizedProfit : 0;
+              const entryP = prev ? prev.entryPrice : 0;
+              trades.push({
+                id: `trade_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+                symbol: sym,
+                side: prev ? prev.side : 'LONG',
+                entryPrice: entryP,
+                closePrice: prev ? prev.markPrice : 0,
+                pnl: parseFloat(pnl.toFixed(2)),
+                pnlPct: entryP > 0 ? parseFloat(((pnl / entryP) * 100).toFixed(2)) : 0,
+                closedAt: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
+              });
+              localStorage.setItem('capich_custom_trades_history', JSON.stringify(trades));
+            } catch (_) {}
+
+            delete lastKnownPositionsMap[sym];
+          }
+        });
+
+        // Atualiza mapa de posições conhecidas
+        allPosData.positions.forEach(p => {
+          lastKnownPositionsMap[p.symbol] = {
+            unRealizedProfit: parseFloat(p.unRealizedProfit) || 0,
+            entryPrice: parseFloat(p.entryPrice) || 0,
+            markPrice: parseFloat(p.markPrice) || 0,
+            side: (parseFloat(p.positionAmt) || 0) >= 0 ? 'LONG' : 'SHORT'
+          };
+        });
+
         // Se o par atualmente aberto no gráfico estiver posicionado, plota as linhas no gráfico
         const currentActivePos = allPosData.positions.find(p => p.symbol === currentSymbol);
         if (currentActivePos) {
@@ -1637,6 +1906,9 @@
       if (window._syncTacChartHeight) {
         window._syncTacChartHeight();
       }
+
+      // Atualiza o estado da Trava de Segurança a cada ciclo de polling
+      updateRiskLockUI();
     } catch (err) {
       console.warn('[OrderPanel] Polling warning:', err.message);
       watchdogRegisterFailure(); // ⚠️ Falha total no polling — aciona watchdog
@@ -1647,6 +1919,13 @@
    * Envia ordem a mercado com a quantidade informada na moeda
    */
   async function sendTrade(side) {
+    // 1. Checagem obrigatória da Trava de Risco / Fim de Semana
+    const lock = getRiskLockStatus();
+    if (lock.locked) {
+      alert(`🛑 OPERAÇÕES BLOQUEADAS!\n\nMotivo: ${lock.reason}\n\nPreserve seu capital. Volte no horário indicado!`);
+      return;
+    }
+
     if (isPanelLocked) {
       alert('🔒 Painel bloqueado! Clique no cadeado no topo para desbloquear antes de executar qualquer trade.');
       return;

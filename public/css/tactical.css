@@ -466,6 +466,32 @@
   color: #ffffff;
 }
 
+/* Banner de Bloqueio da Trava de Risco / Fim de Semana */
+.tac-risk-lock-banner {
+  background: linear-gradient(135deg, rgba(175, 0, 0, 0.95), rgba(246, 70, 93, 0.92));
+  border: 1px solid #ff4444;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  color: #ffffff;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(246, 70, 93, 0.35);
+  animation: pulse-fibo 1.4s infinite;
+  user-select: none;
+}
+
+.tac-daily-loss-badge {
+  margin-top: 8px;
+  background: rgba(246, 70, 93, 0.12);
+  border: 1px solid rgba(246, 70, 93, 0.3);
+  color: #f6465d;
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
 /* Modal TP/SL dedicado (Estilo Binance Futures) */
 .bop-modal-tpsl-card {
   width: 440px !important;
@@ -923,16 +949,50 @@
   color: var(--tac-color-yellow);
 }
 
-/* Itens de Ferramentas com botão limpar */
+/* Itens de Ferramentas com botão limpar e Seletor de Cores */
 .tac-dropdown-tool-row {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   width: 100%;
 }
 
 .tac-dropdown-tool-row .tac-dropdown-item {
   flex: 1;
+}
+
+.tac-fibo-color-picker-wrap {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: transparent;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.tac-fibo-color-picker-wrap:hover {
+  transform: scale(1.08);
+  border-color: #ffffff;
+}
+
+.tac-fibo-color-input {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  background: transparent;
 }
 
 .tac-btn-fibo {
@@ -981,6 +1041,243 @@
   color: #38b6ff !important;
   animation: pulse-fibo 1.2s infinite;
 }
+
+/* ── Separador no Dropdown de Ferramentas ─────────────────────────── */
+.tac-dropdown-separator {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 5px 0;
+  width: 100%;
+}
+
+/* ── Botão Alerta de Preço ────────────────────────────────────────── */
+.tac-btn-price-alert {
+  background: #1e2329;
+  border: 1px solid var(--tac-border-color);
+  color: var(--tac-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 25px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.tac-btn-price-alert:hover,
+.tac-btn-price-alert.active {
+  background: rgba(255, 68, 68, 0.15) !important;
+  border-color: #ff4444 !important;
+  color: #ff6666 !important;
+}
+
+.tac-btn-price-alert.triggered {
+  background: rgba(255, 68, 68, 0.22) !important;
+  border-color: #ff4444 !important;
+  color: #ff4444 !important;
+  animation: pulse-fibo 0.9s infinite;
+}
+
+/* ── Modal Alerta de Preço ────────────────────────────────────────── */
+.tac-price-alert-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  z-index: 99998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(3px);
+}
+
+.tac-price-alert-modal-box {
+  background: #1a1d24;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  width: 340px;
+  max-width: 95vw;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.tac-price-alert-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px 12px;
+  background: #0f1217;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 13px;
+  font-weight: 700;
+  color: #f0b90b;
+  letter-spacing: 0.5px;
+}
+
+.tac-price-alert-modal-close {
+  background: none;
+  border: none;
+  color: #848e9c;
+  cursor: pointer;
+  font-size: 15px;
+  padding: 0 2px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+.tac-price-alert-modal-close:hover { color: #ff4444; }
+
+.tac-price-alert-modal-body {
+  padding: 16px 18px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tac-pal-label {
+  font-size: 10.5px;
+  color: #848e9c;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.tac-pal-input {
+  width: 100%;
+  background: #0f1217;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 5px;
+  color: #eaecef;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 7px 10px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s;
+  margin-top: 3px;
+}
+.tac-pal-input:focus { border-color: #f0b90b; }
+
+.tac-pal-hint {
+  font-size: 10px;
+  color: #848e9c;
+  margin-top: 6px;
+  min-height: 14px;
+  font-style: italic;
+}
+
+.tac-price-alert-modal-footer {
+  display: flex;
+  gap: 8px;
+  padding: 10px 18px 14px;
+  justify-content: flex-end;
+}
+
+.tac-pal-btn-cancel {
+  background: #2b313a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #848e9c;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.tac-pal-btn-cancel:hover { background: #3a4049; color: #eaecef; }
+
+.tac-pal-btn-confirm {
+  background: linear-gradient(135deg, #af0000, #cc2222);
+  border: none;
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 6px 18px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  letter-spacing: 0.3px;
+}
+.tac-pal-btn-confirm:hover { filter: brightness(1.15); }
+
+/* Lista de alertas dentro do modal */
+.tac-pal-list-wrap {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 10px 18px 14px;
+  display: none;
+}
+.tac-pal-list-wrap.has-items { display: block; }
+
+.tac-pal-list-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: #848e9c;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+
+.tac-pal-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  margin-bottom: 4px;
+  font-size: 11px;
+  gap: 8px;
+}
+
+.tac-pal-list-item.triggered {
+  background: rgba(255, 68, 68, 0.12);
+}
+
+.tac-pal-list-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.tac-pal-list-item-price {
+  font-weight: 700;
+  color: #eaecef;
+  font-size: 12px;
+}
+
+.tac-pal-list-item-dir {
+  font-size: 10px;
+  color: #848e9c;
+}
+
+.tac-pal-list-item-label {
+  font-size: 10px;
+  color: #f0b90b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tac-pal-list-item-del {
+  background: none;
+  border: none;
+  color: #4a5260;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0 3px;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+.tac-pal-list-item-del:hover { color: #ff4444; }
 
 .tac-btn-fibo-clear {
   display: none;
@@ -1283,36 +1580,35 @@
   align-items: center;
   justify-content: center;
   gap: 3px;
-  padding: 1px 5px;
-  background: rgba(18, 22, 28, 0.9);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1px 6px;
+  background: #000000; /* Fundo preto idêntico à escala de preços */
+  border: 1px solid #2b313a; /* Borda idêntica à borda da escala do gráfico */
   border-radius: 3px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'SF Mono', Consolas, monospace;
   font-size: 10.5px;
-  font-weight: 500;
-  color: #848e9c;
+  font-weight: 600;
+  color: #ffffff; /* Horas em branco */
   pointer-events: auto;
   z-index: 12;
   user-select: none;
   line-height: 1.2;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
   transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
 }
 
 .tac-chart-clock:hover {
-  color: #eaecef;
-  background: rgba(24, 29, 37, 0.95);
-  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  background: #000000;
+  border-color: rgba(255, 255, 255, 0.25);
   cursor: default;
 }
 
 .tac-clock-tz {
-  font-size: 9.5px;
-  color: #5d6571;
-  font-weight: 600;
+  font-size: 9px;
+  color: #848e9c; /* Rótulo UTC-3 discreto */
+  font-weight: 500;
   letter-spacing: 0.3px;
+  margin-left: 1px;
 }
 
 /* ── Tooltip Flutuante de Candle (Hover 3s) ─────────────────────────── */
