@@ -181,6 +181,9 @@ export function updateHUD() {
     }
   }
 
+  // ─── 2.B TESOURARIAS PÚBLICAS & BALEIAS NO CARD 2 (ORÁCULO) ───
+  updateTreasuriesCardHUD(state.personalBasket?.cexFlow?.treasuries);
+
   // ─── 3. DINHEIRO DOS TUBARÕES / INSTITUCIONAL (OPEN INTEREST) ───
   const oiValEl = document.getElementById('tac-oi-val');
   const oiDeltaEl = document.getElementById('tac-oi-delta-desc');
@@ -858,4 +861,51 @@ export function drawTruckGauge() {
   ctx.fillText(badgeValStr, badgeX, badgeY + badgeH / 2 + 0.5);
 
   ctx.restore();
+}
+
+let _treasuriesFetched = false;
+
+export function updateTreasuriesCardHUD(tr) {
+  const totalLockedEl = document.getElementById('tac-treasury-total-locked');
+  const pillsRowEl = document.getElementById('tac-treasury-pills-row');
+  if (!totalLockedEl && !pillsRowEl) return;
+
+  if (!tr) {
+    if (!_treasuriesFetched) {
+      _treasuriesFetched = true;
+      fetch('/api/institutional-treasuries')
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data) updateTreasuriesCardHUD(data);
+        })
+        .catch(() => {});
+    }
+    return;
+  }
+
+  if (totalLockedEl && tr.totalBtc) {
+    const totalM = (tr.totalBtc / 1e6).toFixed(2);
+    const totalUsdFmt = tr.totalUsd ? ` (~$${(tr.totalUsd / 1e9).toFixed(1)}B)` : '';
+    totalLockedEl.textContent = `${totalM}M BTC${totalUsdFmt}`;
+  }
+
+  if (pillsRowEl && Array.isArray(tr.topHolders) && tr.topHolders.length > 0) {
+    const topHolders = tr.topHolders.slice(0, 5);
+    pillsRowEl.innerHTML = topHolders.map(h => {
+      let shortName = h.name.replace(/\s*\(.*?\)/g, '').trim();
+      if (shortName === 'Strategy' || shortName === 'MicroStrategy') shortName = 'MSTR';
+      if (shortName.includes('Tether')) shortName = 'Tether';
+      if (shortName.includes('Twenty One')) shortName = 'TwentyOne';
+      if (shortName.includes('MARA')) shortName = 'MARA';
+
+      const btcK = (h.holdingsBtc / 1000).toFixed(1);
+      const isMstr = shortName === 'MSTR';
+      const isTether = shortName === 'Tether';
+      const color = isMstr ? '#38bdf8' : (isTether ? '#0ecb81' : '#f0b90b');
+      const bg = isMstr ? 'rgba(56,189,248,0.1)' : (isTether ? 'rgba(14,203,129,0.1)' : 'rgba(240,185,11,0.1)');
+      const border = isMstr ? 'rgba(56,189,248,0.2)' : (isTether ? 'rgba(14,203,129,0.2)' : 'rgba(240,185,11,0.2)');
+
+      return `<span style="background:${bg};color:${color};border:1px solid ${border};padding:2px 5px;border-radius:3px;font-weight:600;">${shortName}: ${btcK}K BTC</span>`;
+    }).join('');
+  }
 }

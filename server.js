@@ -160,6 +160,115 @@ async function updateMonthlyFlow() {
 updateMonthlyFlow();
 setInterval(updateMonthlyFlow, 30 * 60 * 1000);
 
+// ─── RASTREADOR PÚBLICO DE TESOURARIAS CORPORATIVAS & BALEIAS ───
+const FALLBACK_TREASURIES = {
+  totalBtc: 1362485,
+  totalUsd: 88560000000,
+  companiesCount: 181,
+  topHolders: [
+    { name: 'MicroStrategy (MSTR)', symbol: 'MSTR.US', country: 'US', holdingsBtc: 850848, supplyPct: 4.05 },
+    { name: 'Tether Treasury (Reserva USDT)', symbol: 'USDT', country: 'VG', holdingsBtc: 75354, supplyPct: 0.36 },
+    { name: 'Metaplanet', symbol: '3350.T', country: 'JP', holdingsBtc: 44000, supplyPct: 0.21 },
+    { name: 'Twenty One Capital', symbol: 'XXI.US', country: 'US', holdingsBtc: 43514, supplyPct: 0.21 },
+    { name: 'Strive', symbol: 'ASST.US', country: 'US', holdingsBtc: 43404, supplyPct: 0.21 },
+    { name: 'MARA Holdings', symbol: 'MARA.US', country: 'US', holdingsBtc: 20415, supplyPct: 0.10 },
+    { name: 'Tesla', symbol: 'TSLA.US', country: 'US', holdingsBtc: 11509, supplyPct: 0.05 }
+  ],
+  summaryStr: 'MicroStrategy 850.8K · Tether 75.3K · Metaplanet 44.0K BTC',
+  updatedAt: Date.now()
+};
+
+let corporateTreasuriesCache = {
+  data: FALLBACK_TREASURIES,
+  lastUpdated: 0
+};
+const TREASURY_CACHE_TTL = 30 * 60 * 1000; // 30 minutos
+
+async function fetchCorporateTreasuries() {
+  const now = Date.now();
+  if (corporateTreasuriesCache.data && (now - corporateTreasuriesCache.lastUpdated < TREASURY_CACHE_TTL)) {
+    return corporateTreasuriesCache.data;
+  }
+
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 8000);
+    const res = await fetch('https://api.coingecko.com/api/v3/companies/public_treasury/bitcoin', {
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+      signal: ctrl.signal
+    });
+    clearTimeout(t);
+
+    if (res.ok) {
+      const json = await res.json();
+      const rawCompanies = Array.isArray(json?.companies) ? json.companies : [];
+
+      const companies = rawCompanies.map(c => ({
+        name: c.name === 'Strategy' ? 'MicroStrategy (MSTR)' : c.name,
+        symbol: c.symbol,
+        country: c.country,
+        holdingsBtc: Math.round(c.total_holdings || 0),
+        valueUsd: c.total_current_value_usd || 0,
+        supplyPct: c.percentage_of_total_supply ? parseFloat(c.percentage_of_total_supply.toFixed(2)) : 0
+      }));
+
+      const tetherEntry = {
+        name: 'Tether Treasury (Reserva USDT)',
+        symbol: 'USDT',
+        country: 'VG',
+        holdingsBtc: 75354,
+        valueUsd: 75354 * 65000,
+        supplyPct: 0.36
+      };
+
+      const allHolders = [companies[0], tetherEntry, ...companies.slice(1)].filter(Boolean);
+      allHolders.sort((a, b) => b.holdingsBtc - a.holdingsBtc);
+
+      const totalBtc = (json.total_holdings || 1287000) + 75354;
+      const totalUsd = (json.total_value_usd || 84000000000) + tetherEntry.valueUsd;
+
+      const topHolders = allHolders.slice(0, 8);
+      const summaryStr = `MicroStrategy ${(allHolders[0]?.holdingsBtc / 1000).toFixed(1)}K · Tether ${(tetherEntry.holdingsBtc / 1000).toFixed(1)}K · Metaplanet ${(allHolders.find(c => c.name.includes('Metaplanet'))?.holdingsBtc / 1000).toFixed(1)}K BTC`;
+
+      const result = {
+        totalBtc: Math.round(totalBtc),
+        totalUsd,
+        companiesCount: rawCompanies.length,
+        topHolders,
+        summaryStr,
+        updatedAt: now
+      };
+
+      corporateTreasuriesCache = { data: result, lastUpdated: now };
+      return result;
+    }
+  } catch (err) {
+    console.warn('[CorporateTreasuries] Erro ao buscar dados públicos:', err.message);
+  }
+
+  if (corporateTreasuriesCache.data) return corporateTreasuriesCache.data;
+  return {
+    totalBtc: 1362485,
+    totalUsd: 88560000000,
+    companiesCount: 181,
+    topHolders: [
+      { name: 'MicroStrategy (MSTR)', symbol: 'MSTR.US', country: 'US', holdingsBtc: 850848, supplyPct: 4.05 },
+      { name: 'Tether Treasury (Reserva USDT)', symbol: 'USDT', country: 'VG', holdingsBtc: 75354, supplyPct: 0.36 },
+      { name: 'Metaplanet', symbol: '3350.T', country: 'JP', holdingsBtc: 44000, supplyPct: 0.21 },
+      { name: 'Twenty One Capital', symbol: 'XXI.US', country: 'US', holdingsBtc: 43514, supplyPct: 0.21 },
+      { name: 'Strive', symbol: 'ASST.US', country: 'US', holdingsBtc: 43404, supplyPct: 0.21 },
+      { name: 'MARA Holdings', symbol: 'MARA.US', country: 'US', holdingsBtc: 20415, supplyPct: 0.10 },
+      { name: 'Tesla', symbol: 'TSLA.US', country: 'US', holdingsBtc: 11509, supplyPct: 0.05 }
+    ],
+    summaryStr: 'MicroStrategy 850.8K · Tether 75.3K · Metaplanet 44.0K BTC',
+    updatedAt: now
+  };
+}
+
+// Dispara busca inicial em segundo plano
+fetchCorporateTreasuries().catch(() => {});
+setInterval(fetchCorporateTreasuries, TREASURY_CACHE_TTL);
+
 async function fetchExchangeFlowsInternal() {
   const now = Date.now();
   const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
@@ -275,7 +384,8 @@ async function fetchExchangeFlowsInternal() {
         history8d: monthlyFlowCache.history8d,
         change1dPct: totalTvl > 0 ? (totalFlow1d / (totalTvl - totalFlow1d)) * 100 : 0,
         change7dPct: totalTvl > 0 ? (totalFlow7d / (totalTvl - totalFlow7d)) * 100 : 0,
-        trackedCount: exchanges.length
+        trackedCount: exchanges.length,
+        treasuries: await fetchCorporateTreasuries()
       },
       exchanges,
       updatedAt: now
@@ -307,6 +417,16 @@ app.get('/api/exchange-flows', async (req, res) => {
       return res.json(exchangeFlowsCache.data);
     }
     res.status(500).json({ error: 'Falha ao buscar dados de fluxo das corretoras' });
+  }
+});
+
+// Endpoint dedicado para Tesourarias Públicas & Baleias (MicroStrategy, Tether, etc.)
+app.get('/api/institutional-treasuries', async (req, res) => {
+  try {
+    const data = await fetchCorporateTreasuries();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Falha ao buscar dados de tesourarias institucionais' });
   }
 });
 
@@ -546,7 +666,8 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 const createPersonalIndexRouter = require('./routes/personal_index_routes');
 app.use(createPersonalIndexRouter({
   marketIndex,
-  getExchangeFlows: () => exchangeFlowsCache
+  getExchangeFlows: () => exchangeFlowsCache,
+  getWeeklyBaseline
 }));
 
 

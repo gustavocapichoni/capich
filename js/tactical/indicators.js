@@ -534,7 +534,7 @@ export function renderEmpireZones() {
         const isBull = lastCandle.close >= lastCandle.open;
         ctx.strokeStyle = isBull ? 'rgba(0, 188, 212, 0.85)' : 'rgba(246, 70, 93, 0.85)';
         ctx.lineWidth = 1;
-        ctx.setLineDash([3, 3]);
+        ctx.setLineDash([1.5, 2.5]); // Linha pontilhada (pontinhos finos)
         ctx.beginPath();
         ctx.moveTo(Math.max(0, startX), Math.round(y));
         ctx.lineTo(chartPlotWidth, Math.round(y));

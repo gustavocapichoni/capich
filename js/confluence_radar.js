@@ -133,16 +133,20 @@
         const badgeBg = bp.isWaitingSetup ? 'rgba(240, 185, 11, 0.15)' : 'rgba(14, 203, 129, 0.15)';
         const badgeColor = bp.isWaitingSetup ? '#f0b90b' : '#0ecb81';
 
+        const ampStr = (bp.amplitude8h !== undefined) ? `Amplitude 8h: <span style="color: #38bdf8; font-weight: 700;">${bp.amplitude8h.toFixed(2)}%</span> · ` : '';
+        const vol8hVal = (bp.volRatio8h !== undefined) ? bp.volRatio8h : bp.futBonus;
+        const volSign8h = (vol8hVal || 0) >= 0 ? '+' : '';
+        const volColor8h = (vol8hVal || 0) >= 0 ? '#0ecb81' : ((vol8hVal || 0) < -25 ? '#f6465d' : '#848e9c');
+
         leadValEl.innerHTML = `
           <div style="font-size: 1.05rem; margin-bottom: 4px; display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
             <strong style="color: #ffffff; font-size: 1.15rem;">${bp.symbol} / USDT</strong> 
             <span style="font-size: 0.82rem; padding: 2px 8px; border-radius: 4px; background: ${badgeBg}; color: ${badgeColor}; font-weight: 600;">${bp.setupName}</span>
           </div>
           <div style="font-size: 0.82rem; color: #848e9c; line-height: 1.45;">
-            Distância MMA 32: <span style="color: ${distColor}; font-weight: 700;">${bp.distMma32Pct >= 0 ? '+' : ''}${bp.distMma32Pct.toFixed(2)}%</span> · 
-            Vol. Spot: <span style="color: ${volColorSpot}; font-weight: 700;">${volSignSpot}${bp.spotBonus}%</span> · 
-            Vol. Futuros: <span style="color: ${volColorFut}; font-weight: 700;">${volSignFut}${bp.futBonus}%</span> · 
-            Stop Técnico (MMA 80): <span style="color: #eaecef; font-weight: 700;">${bp.stopLossPrice}</span>
+            Distância MMA 8 (1H): <span style="color: ${distColor}; font-weight: 700;">${bp.distMma32Pct >= 0 ? '+' : ''}${bp.distMma32Pct.toFixed(2)}%</span> · 
+            ${ampStr}Vol. 8h: <span style="color: ${volColor8h}; font-weight: 700;">${volSign8h}${vol8hVal}%</span> · 
+            Stop Técnico (MMA 20): <span style="color: #eaecef; font-weight: 700;">${bp.stopLossPrice}</span>
           </div>
           <div style="font-size: 0.78rem; color: #a0aec0; margin-top: 3px; font-style: italic;">
             ${bp.actionMsg}

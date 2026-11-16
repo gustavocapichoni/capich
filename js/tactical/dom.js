@@ -97,7 +97,7 @@ export function buildHTML() {
                 <span class="tac-dropdown-status">${state.empireTagsVisible ? 'ON' : 'OFF'}</span>
               </button>
               <!-- Toggle Linha de Preço -->
-              <button class="tac-dropdown-item ${state.priceLineVisible ? 'active' : ''}" id="tac-btn-priceline" onclick="window._toggleTacPriceLine()" title="Linha tracejada do preço atual">
+              <button class="tac-dropdown-item ${state.priceLineVisible ? 'active' : ''}" id="tac-btn-priceline" onclick="window._toggleTacPriceLine()" title="Linha pontilhada do preço atual">
                 <span>Linha de Preço</span>
                 <span class="tac-dropdown-status">${state.priceLineVisible ? 'ON' : 'OFF'}</span>
               </button>
@@ -371,6 +371,27 @@ export function buildHTML() {
               <div class="tac-lead-action" id="tac-oracle-lead-action">
                 Sintonizando confluência tática...
               </div>
+            </div>
+          </div>
+
+          <!-- Bloco: Grandes Tesourarias Corporativas & Baleias (Preenche a parte inferior do Oráculo) -->
+          <div class="tac-treasuries-card" id="tac-oracle-treasuries-card" style="margin-top:6px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:6px 8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <span style="font-size:8.5px;color:#38bdf8;font-weight:700;letter-spacing:0.3px;display:flex;align-items:center;gap:4px;">
+                <span>🏛️</span>
+                <span>TESOURARIAS &amp; BALEIAS (FORA DE CIRCULAÇÃO)</span>
+              </span>
+              <span id="tac-treasury-total-locked" style="font-size:8px;color:#f0b90b;font-weight:700;font-family:'JetBrains Mono',monospace;">1.36M BTC</span>
+            </div>
+            <div id="tac-treasury-pills-row" style="display:flex;gap:4px;flex-wrap:wrap;font-size:7.5px;">
+              <span style="background:rgba(56,189,248,0.1);color:#38bdf8;padding:2px 5px;border-radius:3px;font-weight:600;border:1px solid rgba(56,189,248,0.2);">MSTR: 850.8K BTC</span>
+              <span style="background:rgba(14,203,129,0.1);color:#0ecb81;padding:2px 5px;border-radius:3px;font-weight:600;border:1px solid rgba(14,203,129,0.2);">Tether: 75.3K BTC</span>
+              <span style="background:rgba(240,185,11,0.1);color:#f0b90b;padding:2px 5px;border-radius:3px;font-weight:600;border:1px solid rgba(240,185,11,0.2);">Metaplanet: 44.0K BTC</span>
+              <span style="background:rgba(255,255,255,0.05);color:#eaecef;padding:2px 5px;border-radius:3px;font-weight:500;">TwentyOne: 43.5K</span>
+              <span style="background:rgba(255,255,255,0.05);color:#eaecef;padding:2px 5px;border-radius:3px;font-weight:500;">Strive: 43.4K</span>
+            </div>
+            <div id="tac-treasury-status-note" style="font-size:7px;color:#848e9c;margin-top:3px;line-height:1.2;">
+              Bitcoins em custódia institucional fora de circulação (~6.5% da rede). Fornece suporte estrutural ao preço.
             </div>
           </div>
 
@@ -654,6 +675,10 @@ export function buildHTML() {
                 <span class="tac-popover-tag">📊 3. FLUXO CEX (DÓLAR &amp; BITCOIN 24H):</span>
                 <div>• <strong>💵 Dólar:</strong> Entrada (🟢) vs Saída (🔴). Se a barra verde estiver mais longa, há injeção de liquidez compradora nas corretoras.</div>
                 <div>• <strong>₿ Bitcoin:</strong> Oferta (🟡 Dourado) vs Cofre (🟠 Laranja). Se a barra dourada estiver maior, as baleias mandaram moedas para vender. Se a laranja estiver maior, estão retirando para cofres frios (choque de oferta / acumulação).</div>
+              </div>
+              <div class="tac-popover-section">
+                <span class="tac-popover-tag">🏛️ 4. TESOURARIAS CORPORATIVAS &amp; BALEIAS:</span>
+                <div>Rastreamento público de custódia corporativa de longo prazo: MicroStrategy (Michael Saylor), Tether Treasury (reserva oficial de lastro USDT), Metaplanet e mineradores. Moedas retiradas de circulação geram escassez no mercado à vista.</div>
               </div>
               <div class="tac-popover-section">
                 <span class="tac-popover-tag">🚨 DIVERGÊNCIA INSTITUCIONAL:</span>

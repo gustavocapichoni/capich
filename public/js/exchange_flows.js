@@ -181,6 +181,62 @@
         </div>
       `;
     }
+
+    // Renderiza o Card de Tesourarias Corporativas & Baleias
+    renderTreasuries(g.treasuries);
+  }
+
+  async function fetchTreasuriesDirect() {
+    try {
+      const res = await fetch('/api/institutional-treasuries');
+      if (res.ok) {
+        const tr = await res.json();
+        renderTreasuries(tr);
+      }
+    } catch (err) {
+      console.warn('Erro ao buscar tesourarias:', err);
+    }
+  }
+
+  function renderTreasuries(tr) {
+    const badgeEl = document.getElementById('treasuries-summary-badge');
+    const gridEl = document.getElementById('treasuries-holders-grid');
+    if (!gridEl) return;
+
+    if (!tr || !tr.topHolders || !tr.topHolders.length) {
+      fetchTreasuriesDirect();
+      return;
+    }
+
+    if (badgeEl) {
+      const totalBtcFmt = tr.totalBtc ? tr.totalBtc.toLocaleString('pt-BR') : '1.362.485';
+      const totalUsdFmt = tr.totalUsd ? `$${(tr.totalUsd / 1e9).toFixed(1)}B` : '$88.5B';
+      badgeEl.innerHTML = `🛡️ Total Trancado: <strong>${totalBtcFmt} BTC</strong> (~${totalUsdFmt})`;
+    }
+
+    gridEl.innerHTML = tr.topHolders.map((h, idx) => {
+      const btcFmt = h.holdingsBtc ? h.holdingsBtc.toLocaleString('pt-BR') : '0';
+      const isTop = idx === 0;
+      const cardBg = isTop ? 'rgba(56, 189, 248, 0.08)' : 'rgba(255, 255, 255, 0.03)';
+      const borderColor = isTop ? 'rgba(56, 189, 248, 0.3)' : 'rgba(255, 255, 255, 0.06)';
+      const flagEmoji = h.country === 'US' ? '🇺🇸' : (h.country === 'JP' ? '🇯🇵' : (h.country === 'VG' ? '🪙' : '🌐'));
+
+      return `
+        <div style="background: ${cardBg}; border: 1px solid ${borderColor}; border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+            <div style="font-weight: 700; color: #ffffff; font-size: 0.88rem; display: flex; align-items: center; gap: 4px;">
+              <span>${flagEmoji}</span>
+              <span>${h.name}</span>
+            </div>
+            <span style="font-size: 0.72rem; color: #848e9c; font-family: monospace;">${h.symbol || ''}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 6px;">
+            <span style="font-size: 1.05rem; font-weight: 800; color: #f0b90b;">${btcFmt} <span style="font-size: 0.72rem; color: #848e9c; font-weight: 500;">BTC</span></span>
+            ${h.supplyPct ? `<span style="font-size: 0.72rem; color: #38bdf8; font-weight: 600;">${h.supplyPct}% da rede</span>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 
   function getStatusBadge(change1d) {
@@ -636,12 +692,16 @@
     document.addEventListener('DOMContentLoaded', () => {
       setupEvents();
       fetchExchangeFlows();
+      fetchTreasuriesDirect();
       setInterval(fetchExchangeFlows, 60000); // Atualiza a cada 1 minuto
+      setInterval(fetchTreasuriesDirect, 5 * 60000);
     });
   } else {
     setupEvents();
     fetchExchangeFlows();
+    fetchTreasuriesDirect();
     setInterval(fetchExchangeFlows, 60000);
+    setInterval(fetchTreasuriesDirect, 5 * 60000);
   }
 
   window.addEventListener("resize", () => {
