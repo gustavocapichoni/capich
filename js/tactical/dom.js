@@ -441,43 +441,27 @@ export function buildHTML() {
           <!-- Divisor -->
           <div class="tac-hud-divider" style="margin:4px 0;"></div>
 
-          <!-- 2. Posição dos Tubarões (Top Traders) -->
+          <!-- 2. Posição dos Tubarões (Top Traders) — Régua Semanal Bidirecional (Δ desde Dom 19h) -->
           <div>
-            <div style="font-size:9px;color:var(--tac-text-muted);font-weight:600;display:flex;justify-content:space-between;">
+            <div style="font-size:9px;color:var(--tac-text-muted);font-weight:600;display:flex;justify-content:space-between;align-items:center;">
               <span>🦈 POSIÇÃO DOS TUBARÕES (TOP TRADERS)</span>
+              <span style="color:#f0b90b;font-size:8px;font-weight:700;background:rgba(240,185,11,0.12);padding:1px 4px;border-radius:3px;border:1px solid rgba(240,185,11,0.25);" title="Reinicia zerado todo domingo às 19:00 BRT">SEMANAL (DOM 19H)</span>
             </div>
-            <div class="tac-meter-wrap" id="tac-top-wrap" style="margin-top:2px;">
-              <div class="tac-meter-bar">
-                <div class="tac-meter-fill-long" id="tac-top-long" style="width: 50%;"></div>
-                <div class="tac-meter-fill-short" id="tac-top-short" style="width: 50%;"></div>
-              </div>
-              <div class="tac-meter-text">
-                <span style="color:#0ecb81;" id="tac-top-long-text">50% Volume Long</span>
-                <span style="color:#f6465d;" id="tac-top-short-text">50% Volume Short</span>
-              </div>
-            </div>
-            <div id="tac-top-desc" style="font-size:8.5px;font-weight:600;margin-top:1px;line-height:1.2;">Sincronizando posição dos tubarões...</div>
+            <canvas id="tac-weekly-top-canvas" style="width:100%;height:32px;display:block;margin-top:2px;"></canvas>
+            <div id="tac-top-desc" style="font-size:8.5px;font-weight:600;margin-top:2px;line-height:1.2;text-align:center;">Sincronizando posição dos tubarões...</div>
           </div>
 
           <!-- Divisor -->
           <div class="tac-hud-divider" style="margin:4px 0;"></div>
 
-          <!-- 3. Onde está a Manada? (Contas Varejo) -->
+          <!-- 3. Onde está a Manada? (Contas Varejo) — Régua Semanal Bidirecional (Δ desde Dom 19h) -->
           <div>
-            <div style="font-size:9px;color:var(--tac-text-muted);font-weight:600;display:flex;justify-content:space-between;">
+            <div style="font-size:9px;color:var(--tac-text-muted);font-weight:600;display:flex;justify-content:space-between;align-items:center;">
               <span>🐟 ONDE ESTÁ A MANADA? (CONTAS VAREJO)</span>
+              <span style="color:#f0b90b;font-size:8px;font-weight:700;background:rgba(240,185,11,0.12);padding:1px 4px;border-radius:3px;border:1px solid rgba(240,185,11,0.25);" title="Reinicia zerado todo domingo às 19:00 BRT">SEMANAL (DOM 19H)</span>
             </div>
-            <div class="tac-meter-wrap" id="tac-ls-wrap" style="margin-top:2px;">
-              <div class="tac-meter-bar">
-                <div class="tac-meter-fill-long" id="tac-ls-long" style="width: 50%;"></div>
-                <div class="tac-meter-fill-short" id="tac-ls-short" style="width: 50%;"></div>
-              </div>
-              <div class="tac-meter-text">
-                <span style="color:#0ecb81;" id="tac-ls-long-text">50% Alta</span>
-                <span style="color:#f6465d;" id="tac-ls-short-text">50% Baixa</span>
-              </div>
-            </div>
-            <div id="tac-ls-trap-desc" style="font-size:8.5px;font-weight:600;margin-top:1px;line-height:1.2;">Calculando risco de armadilha...</div>
+            <canvas id="tac-weekly-retail-canvas" style="width:100%;height:32px;display:block;margin-top:2px;"></canvas>
+            <div id="tac-ls-trap-desc" style="font-size:8.5px;font-weight:600;margin-top:2px;line-height:1.2;text-align:center;">Calculando risco de armadilha...</div>
           </div>
 
           <!-- Popover Informativo Unificado: Varejo & Institucional -->
@@ -488,12 +472,12 @@ export function buildHTML() {
             </div>
             <div class="tac-popover-body">
               <div class="tac-popover-section">
-                <span class="tac-popover-tag">🦈 1. POSIÇÃO DOS TUBARÕES (TOP TRADERS):</span>
-                <div>Mede a proporção do <strong>volume financeiro real</strong> em posições abertas pelo Top 20% das contas com maior margem na Binance. Mostra onde os grandes players estão posicionados.</div>
+                <span class="tac-popover-tag">🦈 1. POSIÇÃO DOS TUBARÕES (TOP TRADERS - SEMANAL):</span>
+                <div>Mede a proporção de posições abertas pelo Top 20% das contas com maior margem na Binance <strong>ao longo da semana atual</strong>. Reinicia zerado todo domingo às 19:00 (horário de Brasília) para mostrar exclusivamente o saldo líquido de novos contratos (Δ).</div>
               </div>
               <div class="tac-popover-section">
-                <span class="tac-popover-tag">🐟 2. ONDE ESTÁ A MANADA? (CONTAS VAREJO):</span>
-                <div>Mede a contagem numérica de contas físicas (sardinhas). Funciona como <strong>indicador contrário</strong>: se a manada estiver em euforia de compra e os tubarões vendidos, prepare-se para o despejo.</div>
+                <span class="tac-popover-tag">🐟 2. ONDE ESTÁ A MANADA? (CONTAS VAREJO - SEMANAL):</span>
+                <div>Mede a proporção de contas físicas (varejo) na semana atual a partir do marco zero de domingo 19h. Funciona como <strong>indicador contrário</strong>: se a manada entra eufórica na compra e os tubarões abrem venda na semana, alerta de armadilha.</div>
               </div>
               <div class="tac-popover-section">
                 <span class="tac-popover-tag">⚡ 3. QUEM ESTÁ AGREDINDO? (TAKER 5M):</span>

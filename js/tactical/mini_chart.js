@@ -291,6 +291,49 @@ function _initMiniChart() {
   });
 }
 
+// Duração do candle em segundos para detecção de virada de barra
+function _getIntervalSeconds(interval) {
+  if (interval === '15m') return 15 * 60;
+  if (interval === '1h')  return 60 * 60;
+  if (interval === '4h')  return 4 * 60 * 60;
+  return 900;
+}
+
+let _miniSyncingKlines = false;
+
+// Sincronização periódica leve das últimas klines (garante que novas velas sejam sempre criadas)
+async function _syncLatestKlines() {
+  if (!_miniChartVisible || !_miniCandleSeries || _miniSyncingKlines) return;
+  _miniSyncingKlines = true;
+  try {
+    const url = `https://fapi.binance.com/fapi/v1/klines?symbol=${MINI_SYMBOL}&interval=${_miniInterval}&limit=5`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!Array.isArray(data) || !_miniCandleSeries) return;
+
+    for (const k of data) {
+      const bar = {
+        time:  Math.floor(k[0] / 1000),
+        open:  parseFloat(k[1]),
+        high:  parseFloat(k[2]),
+        low:   parseFloat(k[3]),
+        close: parseFloat(k[4]),
+      };
+      if (!_miniCurrentBar || bar.time >= _miniCurrentBar.time) {
+        _miniCandleSeries.update(bar);
+        _miniCurrentBar = bar;
+      }
+    }
+    if (_miniCurrentBar) {
+      _updateMiniPriceDisplay(_miniCurrentBar.close, null);
+    }
+  } catch (e) {
+    console.warn('[MiniChart] Erro ao sincronizar klines:', e);
+  } finally {
+    _miniSyncingKlines = false;
+  }
+}
+
 // ─── Histórico via REST ───────────────────────────────────────────────────────
 async function _fetchMiniKlines() {
   try {
@@ -347,6 +390,14 @@ function _connectMiniWs() {
         if (stream.includes('@aggTrade') || data.e === 'aggTrade') {
           const tradePrice = parseFloat(data.p);
           if (tradePrice && _miniCurrentBar && _miniCandleSeries) {
+            const nowSec = Math.floor(Date.now() / 1000);
+            const intervalSec = _getIntervalSeconds(_miniInterval);
+            // Se o candle atual já venceu no relógio, dispara sincronização para abrir a nova barra
+            if (nowSec >= _miniCurrentBar.time + intervalSec) {
+              _syncLatestKlines();
+              return;
+            }
+
             _miniCurrentBar.close = tradePrice;
             if (tradePrice > _miniCurrentBar.high) _miniCurrentBar.high = tradePrice;
             if (tradePrice < _miniCurrentBar.low)  _miniCurrentBar.low  = tradePrice;
@@ -383,7 +434,9 @@ function _connectMiniWs() {
       const dot = document.getElementById('tac-mini-dot');
       if (dot) dot.style.background = '#848e9c';
       setTimeout(() => {
-        if (_miniChartVisible) _connectMiniWs();
+        if (_miniChartVisible) {
+          _syncLatestKlines().then(() => _connectMiniWs());
+        }
       }, 1500);
     };
   } catch (err) {
@@ -402,32 +455,29 @@ function _closeMiniWs() {
   }
 }
 
-// ─── Watchdog de Fallback (garante que nunca fique congelado) ──────────────────
+// ─── Watchdog de Fallback & Sincronização Periódica de Velas ───────────────────
 function _startWatchdog() {
   _stopWatchdog();
+  let syncCycle = 0;
   _miniWatchdogInterval = setInterval(async () => {
     if (!_miniChartVisible) return;
-    const elapsed = Date.now() - _miniLastTickTime;
-    // Se não receber tick há mais de 3.5 segundos, busca preço e reconecta WS
-    if (elapsed > 3500) {
-      try {
-        const res = await fetch(`https://fapi.binance.com/fapi/v1/ticker/price?symbol=${MINI_SYMBOL}`);
-        const pData = await res.json();
-        const price = parseFloat(pData.price);
-        if (price && _miniCurrentBar && _miniCandleSeries) {
-          _miniCurrentBar.close = price;
-          if (price > _miniCurrentBar.high) _miniCurrentBar.high = price;
-          if (price < _miniCurrentBar.low)  _miniCurrentBar.low  = price;
-          _miniCandleSeries.update(_miniCurrentBar);
-          _updateMiniPriceDisplay(price, null);
-        }
-      } catch (_) {}
+    syncCycle++;
 
+    // A cada 12 segundos (4 ciclos de 3s), sincroniza klines via REST
+    // Isso garante que mesmo que passe 1h ou 3h, novas velas são sempre impressas
+    if (syncCycle % 4 === 0) {
+      _syncLatestKlines();
+    }
+
+    const elapsed = Date.now() - _miniLastTickTime;
+    // Se não receber tick há mais de 4 segundos ou se o WS não estiver aberto, reconecta
+    if (elapsed > 4000 || !_miniWs || _miniWs.readyState !== WebSocket.OPEN) {
+      _syncLatestKlines();
       if (!_miniWs || _miniWs.readyState !== WebSocket.OPEN) {
         _connectMiniWs();
       }
     }
-  }, 2500);
+  }, 3000);
 }
 
 function _stopWatchdog() {
@@ -504,3 +554,16 @@ export function setMiniChartInterval(tf) {
 window._toggleMiniChart = toggleMiniChart;
 window._closeMiniChart  = closeMiniChart;
 window._setMiniChartInterval = setMiniChartInterval;
+
+// ─── Auto-recuperação ao alternar abas no navegador ────────────────────────────
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && _miniChartVisible && _miniCandleSeries) {
+      _syncLatestKlines().then(() => {
+        if (!_miniWs || _miniWs.readyState !== WebSocket.OPEN) {
+          _connectMiniWs();
+        }
+      });
+    }
+  });
+}

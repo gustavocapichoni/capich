@@ -16,6 +16,7 @@ app.use(compression());
 app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false,
+  crossOriginOpenerPolicy: false, // Necessário para permitir o popup de autenticação do Google/Firebase
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
@@ -567,6 +568,121 @@ const TACTICAL_CACHE_TTL = 3000;
 const firebaseHistCache = new Map();
 const FIREBASE_HIST_CACHE_TTL = 60 * 60 * 1000; // 1 hora em ms
 
+// ─── SEMANAL DERIVATIVOS: MARCO ZERO DOMINGO 19:00 BRT ───
+// Calcula a data exata do último domingo às 19:00 de Brasília (abertura semanal)
+function getLastSunday19hBrtTimestamp() {
+  const now = new Date();
+  const nowBrt = new Date(now.getTime() - 3 * 3600 * 1000);
+  const brtDay = nowBrt.getUTCDay(); // 0 = Domingo, 1 = Segunda, ...
+  const brtHour = nowBrt.getUTCHours();
+  const daysBack = (brtDay === 0 && brtHour < 19) ? 7 : brtDay;
+  const targetBrt = new Date(nowBrt);
+  targetBrt.setUTCDate(nowBrt.getUTCDate() - daysBack);
+  targetBrt.setUTCHours(19, 0, 0, 0);
+  targetBrt.setUTCMinutes(0, 0, 0);
+  targetBrt.setUTCSeconds(0, 0);
+  targetBrt.setUTCMilliseconds(0);
+  return targetBrt.getTime() + 3 * 3600 * 1000;
+}
+
+const weeklyBaselineCache = new Map();
+
+async function getWeeklyBaseline(symbol) {
+  const sundayTimestamp = getLastSunday19hBrtTimestamp();
+  const cached = weeklyBaselineCache.get(symbol);
+  if (cached && cached.sundayTimestamp === sundayTimestamp) {
+    return cached;
+  }
+
+  const start = sundayTimestamp;
+  const end = sundayTimestamp + 3600000;
+
+  let baseTopLongPct = 50;
+  let baseTopShortPct = 50;
+  let baseRetailLongPct = 50;
+  let baseRetailShortPct = 50;
+
+  try {
+    const [rBaseTop, rBaseLs] = await Promise.all([
+      fetch(`https://fapi.binance.com/futures/data/topLongShortPositionRatio?symbol=${symbol}&period=15m&startTime=${start}&endTime=${end}&limit=1`, { headers: { 'User-Agent': 'Mozilla/5.0' } }).catch(() => null),
+      fetch(`https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=${symbol}&period=15m&startTime=${start}&endTime=${end}&limit=1`, { headers: { 'User-Agent': 'Mozilla/5.0' } }).catch(() => null)
+    ]);
+
+    if (rBaseTop && rBaseTop.ok) {
+      const topJson = await rBaseTop.json();
+      const item = Array.isArray(topJson) ? topJson[0] : topJson;
+      if (item) {
+        const l = parseFloat(item.longAccount) || 0.5;
+        const s = parseFloat(item.shortAccount) || 0.5;
+        baseTopLongPct = Math.round(l * 1000) / 10;
+        baseTopShortPct = Math.round(s * 1000) / 10;
+      }
+    }
+
+    if (rBaseLs && rBaseLs.ok) {
+      const lsJson = await rBaseLs.json();
+      const item = Array.isArray(lsJson) ? lsJson[0] : lsJson;
+      if (item) {
+        const l = parseFloat(item.longAccount) || 0.5;
+        const s = parseFloat(item.shortAccount) || 0.5;
+        baseRetailLongPct = Math.round(l * 1000) / 10;
+        baseRetailShortPct = Math.round(s * 1000) / 10;
+      }
+    }
+  } catch (e) {
+    console.warn(`[WeeklyBaseline] Error fetching for ${symbol}:`, e.message);
+  }
+
+  const result = {
+    sundayTimestamp,
+    baseTopLongPct,
+    baseTopShortPct,
+    baseRetailLongPct,
+    baseRetailShortPct
+  };
+
+  if (baseTopLongPct !== 50 || baseRetailLongPct !== 50) {
+    weeklyBaselineCache.set(symbol, result);
+  }
+  return result;
+}
+
+async function attachWeeklyMetrics(oiData, symbol) {
+  try {
+    const baseline = await getWeeklyBaseline(symbol);
+    const topDeltaPct = Math.round(((oiData.topLongPct || 50) - baseline.baseTopLongPct) * 10) / 10;
+    const weeklyTopLong = Math.max(5, Math.min(95, Math.round((50 + topDeltaPct) * 10) / 10));
+    const weeklyTopShort = Math.round((100 - weeklyTopLong) * 10) / 10;
+
+    const retailDeltaPct = Math.round(((oiData.longPct || 50) - baseline.baseRetailLongPct) * 10) / 10;
+    const weeklyRetailLong = Math.max(5, Math.min(95, Math.round((50 + retailDeltaPct) * 10) / 10));
+    const weeklyRetailShort = Math.round((100 - weeklyRetailLong) * 10) / 10;
+
+    oiData.weekly = {
+      sundayTimestamp: baseline.sundayTimestamp,
+      baseTopLongPct: baseline.baseTopLongPct,
+      baseTopShortPct: baseline.baseTopShortPct,
+      baseRetailLongPct: baseline.baseRetailLongPct,
+      baseRetailShortPct: baseline.baseRetailShortPct,
+      topDeltaPct,
+      retailDeltaPct,
+      weeklyTopLong,
+      weeklyTopShort,
+      weeklyRetailLong,
+      weeklyRetailShort
+    };
+    oiData.weeklyTopLongPct = weeklyTopLong;
+    oiData.weeklyTopShortPct = weeklyTopShort;
+    oiData.weeklyRetailLongPct = weeklyRetailLong;
+    oiData.weeklyRetailShortPct = weeklyRetailShort;
+    oiData.topDeltaPct = topDeltaPct;
+    oiData.retailDeltaPct = retailDeltaPct;
+  } catch (err) {
+    console.warn('[WeeklyMetrics] error:', err.message);
+  }
+  return oiData;
+}
+
 app.get('/api/btc-history-tactical', async (req, res) => {
   try {
     const ALLOWED_SYMBOLS = {
@@ -767,6 +883,8 @@ app.get('/api/btc-history-tactical', async (req, res) => {
     } catch (e) {
       console.warn('[Tactical] OI parse error:', e.message);
     }
+
+    await attachWeeklyMetrics(oiData, symbol);
 
     const N = candles.length;
 
@@ -1071,6 +1189,8 @@ app.get('/api/tactical-oi', async (req, res) => {
         oiData.deltaOiPct = prevVal > 0 ? (dVal / prevVal) * 100 : 0;
       }
     }
+
+    await attachWeeklyMetrics(oiData, symbol);
 
     tacticalOiCache.set(symbol, { time: now, data: oiData });
     res.json({ success: true, oi: oiData });

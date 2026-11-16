@@ -75,12 +75,14 @@ export function generateMarketDiagnosis() {
   const vwapBuy = lastC?.vwapBuy || 0;
   const vwapSell = lastC?.vwapSell || 0;
 
-  // Derivativos: Tubarões, Manada e Taker
+  // Derivativos: Tubarões, Manada e Taker (Base Semanal Domingo 19h)
   const oi = state.oi || {};
-  const topLong = oi.topLongPct || 50;
-  const topShort = oi.topShortPct || 50;
-  const crowdLong = oi.longPct || 50;
-  const crowdShort = oi.shortPct || 50;
+  const topLong = oi.weekly ? oi.weekly.weeklyTopLong : (oi.weeklyTopLongPct || oi.topLongPct || 50);
+  const topShort = oi.weekly ? oi.weekly.weeklyTopShort : (oi.weeklyTopShortPct || oi.topShortPct || 50);
+  const topDelta = oi.weekly ? oi.weekly.topDeltaPct : (oi.topDeltaPct || 0);
+  const crowdLong = oi.weekly ? oi.weekly.weeklyRetailLong : (oi.weeklyRetailLongPct || oi.longPct || 50);
+  const crowdShort = oi.weekly ? oi.weekly.weeklyRetailShort : (oi.weeklyRetailShortPct || oi.shortPct || 50);
+  const crowdDelta = oi.weekly ? oi.weekly.retailDeltaPct : (oi.retailDeltaPct || 0);
   const takerBuy = oi.takerBuyPct || 50;
   const takerSell = oi.takerSellPct || 50;
   const oiUsd = oi.openInterestUsd || 0;
@@ -225,8 +227,10 @@ export function generateMarketDiagnosis() {
     riskReason,
     topLong,
     topShort,
+    topDelta,
     crowdLong,
     crowdShort,
+    crowdDelta,
     takerBuy,
     takerSell,
     isEmpireAccum,
@@ -334,18 +338,24 @@ export function renderAdvisorContent() {
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
         <div style="background:#161922;border:1px solid #282d38;border-radius:6px;padding:8px;">
-          <div style="font-size:9px;color:#848e9c;font-weight:600;">🦈 TUBARÕES (TOP TRADERS)</div>
-          <div style="font-size:13px;font-weight:800;color:${d.topLong >= 50 ? '#0ecb81' : '#f6465d'};margin-top:2px;">
-            ${d.topLong}% Long
+          <div style="font-size:9px;color:#848e9c;font-weight:600;display:flex;justify-content:space-between;align-items:center;">
+            <span>🦈 TUBARÕES (TOP TRADERS)</span>
+            <span style="color:#f0b90b;font-size:7.5px;font-weight:700;">SEMANAL</span>
           </div>
-          <div style="font-size:8.5px;color:#848e9c;margin-top:1px;">${d.topShort}% Short no volume real</div>
+          <div style="font-size:13px;font-weight:800;color:${d.topLong >= 50 ? '#0ecb81' : '#f6465d'};margin-top:2px;">
+            ${d.topLong.toFixed(1)}% Long
+          </div>
+          <div style="font-size:8.5px;color:#848e9c;margin-top:1px;">${d.topShort.toFixed(1)}% Short (Δ ${d.topDelta >= 0 ? '+' : ''}${d.topDelta.toFixed(1)}%)</div>
         </div>
         <div style="background:#161922;border:1px solid #282d38;border-radius:6px;padding:8px;">
-          <div style="font-size:9px;color:#848e9c;font-weight:600;">🐟 MANADA (VAREJO)</div>
-          <div style="font-size:13px;font-weight:800;color:${d.crowdLong >= 50 ? '#0ecb81' : '#f6465d'};margin-top:2px;">
-            ${d.crowdLong}% Alta
+          <div style="font-size:9px;color:#848e9c;font-weight:600;display:flex;justify-content:space-between;align-items:center;">
+            <span>🐟 MANADA (VAREJO)</span>
+            <span style="color:#f0b90b;font-size:7.5px;font-weight:700;">SEMANAL</span>
           </div>
-          <div style="font-size:8.5px;color:#848e9c;margin-top:1px;">${d.crowdShort}% Baixa em contas</div>
+          <div style="font-size:13px;font-weight:800;color:${d.crowdLong >= 50 ? '#0ecb81' : '#f6465d'};margin-top:2px;">
+            ${d.crowdLong.toFixed(1)}% Alta
+          </div>
+          <div style="font-size:8.5px;color:#848e9c;margin-top:1px;">${d.crowdShort.toFixed(1)}% Baixa (Δ ${d.crowdDelta >= 0 ? '+' : ''}${d.crowdDelta.toFixed(1)}%)</div>
         </div>
       </div>
       <div style="margin-top:8px;background:#161922;border:1px solid #282d38;border-radius:6px;padding:8px;display:flex;justify-content:space-between;align-items:center;">

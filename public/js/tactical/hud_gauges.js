@@ -387,10 +387,12 @@ export function updateHUD() {
     }
   }
 
-  // ─── 6. GAUGES EM CANVAS: TOP 10 + MEU ÍNDICE PESSOAL + O FLUXO INSTITUCIONAL ───
+  // ─── 6. GAUGES EM CANVAS: TOP 10 + MEU ÍNDICE PESSOAL + O FLUXO INSTITUCIONAL + SEMANAL ───
   drawTop10Gauge();
   drawBasketGauge();
   drawTruckGauge();
+  drawWeeklyTopGauge();
+  drawWeeklyRetailGauge();
 
   // ─── 7. ATUALIZAÇÃO REATIVA DO GUIA MESTRE (SE ESTIVER ABERTO) ───
   if (typeof window._updateAdvisorIfOpen === 'function') {
@@ -492,6 +494,147 @@ export function drawTop10Gauge() {
   ctx.fillText(badgeValStr, badgeX, badgeY + badgeH / 2 + 0.5);
 
   ctx.restore();
+}
+
+// ─── RÉGUA SEMANAL BIDIRECIONAL (Δ desde Dom 19h) ───
+// canvasId: id do canvas; descId: id do div descrição; deltaVal: variação líquida (%);
+// labelShort: rótulo esquerda; labelLong: rótulo direita; icon: emoji do card
+function _drawWeeklyDeltaGauge(canvasId, descId, deltaVal, labelShort, labelLong, icon) {
+  const canvas = document.getElementById(canvasId);
+  const descEl = document.getElementById(descId);
+  if (!canvas) return;
+
+  const dpr = window.devicePixelRatio || 1;
+  const w   = canvas.clientWidth || 260;
+  const h   = 34;
+
+  if (canvas.width !== Math.floor(w * dpr) || canvas.height !== Math.floor(h * dpr)) {
+    canvas.width  = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+  }
+
+  const ctx = canvas.getContext('2d');
+  ctx.save();
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, w, h);
+
+  const cx     = w / 2.0;
+  const barTop = 16;
+  const barH   = 8;
+  const maxDelta = 5.0;
+  const clamped  = Math.max(-maxDelta, Math.min(maxDelta, deltaVal));
+  const barLen   = (clamped / maxDelta) * (w / 2.0);
+  const tipX     = cx + barLen;
+
+  for (let val = -4; val <= 4; val++) {
+    const tickX   = cx + (val / maxDelta) * (w / 2.0);
+    const isMajor = val === 0 || Math.abs(val) === 2 || Math.abs(val) === 4;
+    ctx.fillStyle = val === 0 ? '#eaecef' : isMajor ? '#4a5568' : '#283245';
+    ctx.fillRect(tickX - 0.5, barTop + (isMajor ? 0 : 2), 1, isMajor ? barH : barH - 4);
+  }
+
+  if (barLen > 0) {
+    ctx.fillStyle = 'rgba(14, 203, 129, 0.70)';
+    ctx.fillRect(cx, barTop, barLen, barH);
+    ctx.fillStyle = '#0ecb81';
+    ctx.fillRect(tipX - 1.5, barTop - 2, 3, barH + 4);
+  } else if (barLen < 0) {
+    ctx.fillStyle = 'rgba(246, 70, 93, 0.70)';
+    ctx.fillRect(cx + barLen, barTop, -barLen, barH);
+    ctx.fillStyle = '#f6465d';
+    ctx.fillRect(tipX - 1.5, barTop - 2, 3, barH + 4);
+  }
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(cx - 1, barTop - 2, 2, barH + 4);
+
+  ctx.font = "bold 8.5px 'JetBrains Mono', monospace";
+  ctx.textBaseline = 'bottom';
+  ctx.fillStyle = '#f6465d';
+  ctx.textAlign = 'left';
+  ctx.fillText('◄ ' + labelShort, 6, h - 1);
+
+  ctx.fillStyle = '#0ecb81';
+  ctx.textAlign = 'right';
+  ctx.fillText(labelLong + ' ►', w - 6, h - 1);
+
+  ctx.fillStyle = '#848e9c';
+  ctx.textAlign = 'center';
+  ctx.fillText('0 (DOM 19H)', cx, h - 1);
+
+  const badgeValStr = (deltaVal > 0 ? '+' : '') + deltaVal.toFixed(2) + '%';
+  const badgeColor  = deltaVal > 0.1 ? '#0ecb81' : (deltaVal < -0.1 ? '#f6465d' : '#848e9c');
+
+  ctx.font = "bold 8.5px 'JetBrains Mono', monospace";
+  const textW  = ctx.measureText(badgeValStr).width;
+  const badgeW = Math.max(textW + 8, 44);
+  const badgeH = 12;
+  const badgeY = 1;
+  const badgeX = Math.max(badgeW / 2 + 2, Math.min(w - badgeW / 2 - 2, tipX));
+
+  ctx.fillStyle = '#0c1017';
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(badgeX - badgeW / 2, badgeY, badgeW, badgeH, 3);
+  else ctx.rect(badgeX - badgeW / 2, badgeY, badgeW, badgeH);
+  ctx.fill();
+
+  ctx.strokeStyle = badgeColor;
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  ctx.fillStyle = badgeColor;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(badgeValStr, badgeX, badgeY + badgeH / 2 + 0.5);
+
+  ctx.restore();
+
+  if (descEl) {
+    const sign = deltaVal >= 0 ? `+${deltaVal.toFixed(2)}%` : `${deltaVal.toFixed(2)}%`;
+    if (Math.abs(deltaVal) < 0.1) {
+      descEl.innerHTML = `<span style="color:#848e9c;">${icon} Semana zerada (Dom 19h): posições neutras</span>`;
+    } else if (deltaVal >= 0) {
+      descEl.innerHTML = `<span style="color:#0ecb81;">${icon} ${sign} posições compradoras abertas na semana</span>`;
+    } else {
+      descEl.innerHTML = `<span style="color:#f6465d;">${icon} ${sign} posições vendedoras abertas na semana</span>`;
+    }
+  }
+}
+
+// 6d. Régua Semanal — Tubarões (Top Traders)
+export function drawWeeklyTopGauge() {
+  const w     = state.oi && state.oi.weekly;
+  const delta = w ? w.topDeltaPct : (state.oi && state.oi.topDeltaPct) || 0;
+  const retailDelta = w ? w.retailDeltaPct : (state.oi && state.oi.retailDeltaPct) || 0;
+  const descEl = document.getElementById('tac-top-desc');
+
+  _drawWeeklyDeltaGauge('tac-weekly-top-canvas', 'tac-top-desc', delta, 'SHORT', 'LONG', '🦈');
+
+  if (descEl) {
+    const sign = delta >= 0 ? `+${delta.toFixed(2)}%` : `${delta.toFixed(2)}%`;
+    if (delta <= -2.0 && retailDelta >= 2.0) {
+      descEl.innerHTML = `<span style="color:#f6465d;">🚨 DIVERGÊNCIA: Tubarões abrindo Short (${sign}) vs Manada em Alta!</span>`;
+    } else if (delta >= 2.0 && retailDelta <= -2.0) {
+      descEl.innerHTML = `<span style="color:#0ecb81;">🔥 ABSORÇÃO: Tubarões em Long (${sign}) vs Pânico da manada!</span>`;
+    }
+  }
+}
+
+// 6e. Régua Semanal — Manada (Contas Varejo)
+export function drawWeeklyRetailGauge() {
+  const w     = state.oi && state.oi.weekly;
+  const delta = w ? w.retailDeltaPct : (state.oi && state.oi.retailDeltaPct) || 0;
+  const fr    = (state.oi && state.oi.fundingRate || 0) * 100;
+
+  _drawWeeklyDeltaGauge('tac-weekly-retail-canvas', 'tac-ls-trap-desc', delta, 'BAIXA', 'ALTA', '🐟');
+
+  const descEl = document.getElementById('tac-ls-trap-desc');
+  if (descEl) {
+    let frTag = '';
+    if (fr > 0.02) frTag = ' <span style="color:#f0b90b;">(🔥 Taxa cara)</span>';
+    else if (fr < -0.01) frTag = ' <span style="color:#38b6ff;">(❄️ Taxa negativa)</span>';
+    if (frTag) descEl.innerHTML += frTag;
+  }
 }
 
 // 6b. Meu Índice Pessoal (Cesta 5 Pares)
