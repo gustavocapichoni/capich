@@ -1330,17 +1330,10 @@ if (!process.env.VERCEL) {
     console.log('   Pressione Ctrl+C para parar.\n');
 
     // Inicia o acumulador histórico do Firestore após 5 segundos
-    // Executa apenas em produção (nuvem) ou quando explicitamente habilitado,
-    // evitando que o localhost concorra e estoure a cota diária do banco de dados.
-    const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL || process.env.ENABLE_ACCUMULATOR === 'true';
     if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY) {
-      if (isProduction) {
-        setTimeout(() => {
-          startAccumulator();
-        }, 5000);
-      } else {
-        console.log('[Accumulator] ℹ️ Ambiente local detectado: Acumulador Firestore pausado localmente para preservar sua cota gratuita diária (a nuvem cuida da acumulação).');
-      }
+      setTimeout(() => {
+        startAccumulator();
+      }, 5000);
     }
   });
 }
