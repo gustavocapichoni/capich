@@ -281,6 +281,35 @@
   <script src="js/order_panel.js?v=12"></script>
   <script type="module" src="js/btc_tactical_chart.js?v=38"></script>
   <script type="module" src="js/app.js?v=36"></script>
+
+  <!-- ══ Atalho [T] — Modo Compacto Trading ══════════════════════════════════ -->
+  <script>
+  (function () {
+    const COMPACT_CLASS = 'tac-compact-mode';
+    const STORAGE_KEY   = 'capich_compact_mode';
+
+    // Restaura o modo salvo (persiste entre reloads)
+    if (localStorage.getItem(STORAGE_KEY) === '1') {
+      document.body.classList.add(COMPACT_CLASS);
+    }
+
+    document.addEventListener('keydown', function (e) {
+      // Ignora quando o usuário está digitando em inputs
+      const tag = e.target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+      if (e.key === 't' || e.key === 'T') {
+        e.preventDefault();
+        const isOn = document.body.classList.toggle(COMPACT_CLASS);
+        localStorage.setItem(STORAGE_KEY, isOn ? '1' : '0');
+
+        // Dispara resize para o LightweightCharts recalcular dimensões
+        window.dispatchEvent(new Event('resize'));
+      }
+    });
+  })();
+  </script>
 </body>
 </html>
 
