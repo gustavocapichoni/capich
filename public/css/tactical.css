@@ -2430,27 +2430,21 @@ body.tac-compact-mode::after {
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* Body padding reduzido (a navbar desaparece no fullscreen, mas mesmo sem ela comprimimos) */
+/* Body padding reduzido — sem topbar, igual ao fullscreen-mode */
 body.tac-compact-mode {
-  padding-top: 4px !important;
+  padding-top: 6px !important;
   padding-bottom: 4px !important;
 }
 
-/* Topbar: reduz altura em modo compacto (não some — só encolhe) */
+/* Topbar: OCULTA em modo compacto, igual ao F11 */
 body.tac-compact-mode .topbar-binance {
-  height: 40px !important;
-  padding: 0 14px !important;
+  display: none !important;
 }
 
-/* Logo menor */
-body.tac-compact-mode .topbar-binance img,
-body.tac-compact-mode .topbar-binance svg {
-  height: 22px !important;
-}
-
-/* Offset do body para a topbar menor */
-body.tac-compact-mode:not(.fullscreen-mode) {
-  padding-top: 44px !important;
+/* Menu lateral sobe para o topo (igual ao fullscreen-mode) */
+body.tac-compact-mode .menu-vertical-lateral {
+  top: 0 !important;
+  height: 100vh !important;
 }
 
 /* Titlebar interna do gráfico (topbar do tac-wrapper) */
@@ -2459,10 +2453,10 @@ body.tac-compact-mode .tac-titlebar {
   min-height: 28px !important;
 }
 
-/* Gráfico principal: reduz de 420px para 280px */
+/* Gráfico principal: reduz de 420px para 320px (navbar sumiu, tem mais espaço) */
 body.tac-compact-mode .tac-chart-main {
-  min-height: 260px !important;
-  flex: 0 0 260px !important;
+  min-height: 320px !important;
+  flex: 0 0 320px !important;
 }
 
 /* Volume: reduz de 80px para 50px */
