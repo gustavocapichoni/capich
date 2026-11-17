@@ -23,6 +23,36 @@ import {
   changeFiboColor
 } from './tactical/fibo.js';
 import {
+  loadTrendlinesForSymbol,
+  toggleTrendlineTool,
+  changeTrendlineColor,
+  clearAllTrendlines
+} from './tactical/trendline.js';
+import {
+  loadSRLinesForSymbol,
+  toggleSRTool,
+  changeSRColor,
+  clearAllSRLines
+} from './tactical/sr_line.js';
+import {
+  loadSRZonesForSymbol,
+  toggleSRZoneTool,
+  changeSRZoneColor,
+  clearAllSRZones
+} from './tactical/sr_zone.js';
+import {
+  loadMeasuresForSymbol,
+  toggleMeasureTool,
+  changeMeasureColor,
+  clearAllMeasures
+} from './tactical/measure.js';
+import {
+  loadCanalsForSymbol,
+  toggleCanalTool,
+  changeCanalColor,
+  clearAllCanals
+} from './tactical/canal.js';
+import {
   initCharts,
   syncChartHeightToPanel
 } from './tactical/chart_core.js';
@@ -92,9 +122,37 @@ window._toggleTacFibo       = () => toggleFiboTool(1);
 window._clearTacFibo        = () => clearFibo(1);
 window._toggleTacFibo2      = () => toggleFiboTool(2);
 window._clearTacFibo2       = () => clearFibo(2);
-window._clearAllFibos       = clearAllFibos;
+export function clearAllTools() {
+  clearAllFibos();
+  clearAllTrendlines();
+  clearAllSRLines();
+  clearAllSRZones();
+  clearAllMeasures();
+  clearAllCanals();
+  clearAllPriceAlerts();
+  closeMiniChart();
+  _renderPriceAlertList();
+}
+
+window._clearAllTools       = clearAllTools;
+window._clearAllFibos       = clearAllTools;
 window._clearTacFiboById    = (id) => clearFiboById(id);
 window._changeTacFiboColor  = (which, color) => changeFiboColor(which, color);
+window._toggleTacTrendline      = toggleTrendlineTool;
+window._changeTacTrendlineColor = (color) => changeTrendlineColor(color);
+window._clearAllTrendlines      = clearAllTrendlines;
+window._toggleTacSR             = toggleSRTool;
+window._changeTacSRColor        = (color) => changeSRColor(color);
+window._clearAllSRLines         = clearAllSRLines;
+window._toggleTacSRZone         = toggleSRZoneTool;
+window._changeTacSRZoneColor    = (color) => changeSRZoneColor(color);
+window._clearAllSRZones         = clearAllSRZones;
+window._toggleTacMeasure        = toggleMeasureTool;
+window._changeTacMeasureColor   = (color) => changeMeasureColor(color);
+window._clearAllMeasures        = clearAllMeasures;
+window._toggleTacCanal          = toggleCanalTool;
+window._changeTacCanalColor     = (color) => changeCanalColor(color);
+window._clearAllCanals          = clearAllCanals;
 window._setTacTF            = setTimeframe;
 window._setTacPair          = setPair;
 window._toggleTacOracleHelp = toggleOracleHelp;
@@ -272,6 +330,11 @@ function init() {
   buildHTML();
   initHelpListeners();
   loadFiboForSymbol(state.currentSymbol);
+  loadTrendlinesForSymbol(state.currentSymbol);
+  loadSRLinesForSymbol(state.currentSymbol);
+  loadSRZonesForSymbol(state.currentSymbol);
+  loadMeasuresForSymbol(state.currentSymbol);
+  loadCanalsForSymbol(state.currentSymbol);
 
   if (window.OrderPanel && typeof window.OrderPanel.init === 'function') {
     window.OrderPanel.init();

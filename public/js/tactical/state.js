@@ -100,6 +100,26 @@ export const state = {
   dragTargetFiboId: null, // ID do fibo sendo arrastado, ou '__drawing__'
   dragTargetFibo: null, // legado — mantido por compatibilidade
   selectedFibo: null, // legado — mantido por compatibilidade
+  trendlines: [], // Array de Linhas de Tendência: [{ id, p1, p2, customColor, extendRight, locked }]
+  drawingTrendline: null, // Linha de tendência sendo desenhada no momento
+  selectedTrendlineId: null, // ID da linha de tendência selecionada com duplo clique
+  dragTargetTrendlineId: null, // ID da linha de tendência sendo arrastada, ou '__drawing_trendline__'
+  srLines: [], // Array de linhas de Suporte e Resistência: [{ id, price, customColor, locked }]
+  drawingSR: false, // Flag de modo de inserção de Suporte / Resistência
+  selectedSRId: null, // ID da linha S/R selecionada com duplo clique
+  dragTargetSRId: null, // ID da linha S/R sendo arrastada
+  srZones: [], // Array de faixas de Suporte e Resistência: [{ id, p1, p2, customColor, locked }]
+  drawingSRZone: null, // Faixa S/R sendo desenhada no momento
+  selectedSRZoneId: null, // ID da faixa selecionada com duplo clique
+  dragTargetSRZoneId: null, // ID da faixa sendo arrastada, ou '__drawing_zone__'
+  measures: [], // Array de medições (stop/take/range): [{ id, p1, p2, customColor, locked }]
+  drawingMeasure: null, // Medição sendo desenhada no momento
+  selectedMeasureId: null, // ID da medição selecionada com duplo clique
+  dragTargetMeasureId: null, // ID da medição sendo arrastada, ou '__drawing_measure__'
+  canals: [], // Array de Canais de Preço: [{ id, p1, p2, deltaPrice, customColor, locked }]
+  drawingCanal: null, // Canal sendo desenhado no momento { id, p1, p2, deltaPrice, phase, customColor }
+  selectedCanalId: null, // ID do canal selecionado com duplo clique
+  dragTargetCanalId: null, // ID do canal sendo arrastado, ou '__drawing_canal__'
   ws: null
 };
 

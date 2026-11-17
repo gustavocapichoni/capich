@@ -5,6 +5,11 @@
 
 import { state } from './state.js';
 import { drawFibonacciRetracement } from './fibo.js';
+import { drawTrendline } from './trendline.js';
+import { drawSRLine } from './sr_line.js';
+import { drawSRZone } from './sr_zone.js';
+import { drawMeasure } from './measure.js';
+import { drawCanal, drawCanalPreview } from './canal.js';
 
 // Volume Bicolor Empilhado (Compra + Venda)
 let hoveredVolTime = null;
@@ -520,6 +525,71 @@ export function renderEmpireZones() {
   }
   if (state.fibo2 && state.fibo2.p1 && state.fibo2.p2 && (!state.fibos || !state.fibos.length)) {
     drawFibonacciRetracement(ctx, width, height, timeScale, series, state.fibo2, 2);
+  }
+
+  // Desenho das ferramentas de Linha de Tendência (LTA / LTB)
+  if (Array.isArray(state.trendlines)) {
+    state.trendlines.forEach(tl => {
+      if (tl && tl.p1 && tl.p2) {
+        drawTrendline(ctx, width, height, timeScale, series, tl, tl.id === state.selectedTrendlineId);
+      }
+    });
+  }
+  // Desenho da Linha de Tendência enquanto o usuário está arrastando/traçando
+  if (state.drawingTrendline && state.drawingTrendline.p1 && state.drawingTrendline.p2) {
+    drawTrendline(ctx, width, height, timeScale, series, state.drawingTrendline, true);
+  }
+
+  // Desenho das ferramentas de Suporte e Resistência (Linha Horizontal)
+  if (Array.isArray(state.srLines)) {
+    state.srLines.forEach(sr => {
+      if (sr && sr.price !== null && sr.price !== undefined) {
+        drawSRLine(ctx, width, height, timeScale, series, sr, sr.id === state.selectedSRId);
+      }
+    });
+  }
+
+  // Desenho das ferramentas de Faixa de Suporte e Resistência (Zona)
+  if (Array.isArray(state.srZones)) {
+    state.srZones.forEach(zone => {
+      if (zone && zone.p1 && zone.p2) {
+        drawSRZone(ctx, width, height, timeScale, series, zone, zone.id === state.selectedSRZoneId);
+      }
+    });
+  }
+  // Desenho da Faixa S/R enquanto o usuário está arrastando/traçando
+  if (state.drawingSRZone && state.drawingSRZone.p1 && state.drawingSRZone.p2) {
+    drawSRZone(ctx, width, height, timeScale, series, state.drawingSRZone, true);
+  }
+
+  // Desenho das ferramentas de Medidor (Stop / Take / Range)
+  if (Array.isArray(state.measures)) {
+    state.measures.forEach(m => {
+      if (m && m.p1 && m.p2) {
+        drawMeasure(ctx, width, height, timeScale, series, m, m.id === state.selectedMeasureId);
+      }
+    });
+  }
+  // Desenho do Medidor enquanto o usuário está arrastando/medindo
+  if (state.drawingMeasure && state.drawingMeasure.p1 && state.drawingMeasure.p2) {
+    drawMeasure(ctx, width, height, timeScale, series, state.drawingMeasure, true);
+  }
+
+  // Desenho dos Canais de Preço
+  if (Array.isArray(state.canals)) {
+    state.canals.forEach(c => {
+      if (c && c.p1 && c.p2 && c.deltaPrice !== null && c.deltaPrice !== undefined) {
+        drawCanal(ctx, width, height, timeScale, series, c, c.id === state.selectedCanalId);
+      }
+    });
+  }
+  // Preview do Canal enquanto o usuário está desenhando
+  if (state.drawingCanal && state.drawingCanal.p1 && state.drawingCanal.p2 && state.drawingCanal.deltaPrice !== null) {
+    drawCanalPreview(ctx, width, height, timeScale, series, state.drawingCanal);
+  } else if (state.drawingCanal && state.drawingCanal.p1 && state.drawingCanal.p2 && state.drawingCanal.phase === 'line1') {
+    // Fase 1: apenas linha 1 sendo arrastada (sem paralela ainda)
+    state.drawingCanal.deltaPrice = 0;
+    drawCanalPreview(ctx, width, height, timeScale, series, state.drawingCanal);
   }
 
   // Desenho da Linha de Preço Cortada (apenas da vela atual para frente / direita)

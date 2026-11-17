@@ -111,6 +111,17 @@ export function buildHTML() {
               <span class="tac-dropdown-arrow">▼</span>
             </button>
             <div class="tac-dropdown-menu align-right">
+              <!-- Mini Gráfico BTC (No topo) -->
+              <div class="tac-dropdown-tool-row">
+                <button class="tac-dropdown-item" id="tac-btn-mini-chart" onclick="window._toggleMiniChart(); window._toggleTacDropdown('tac-dropdown-tools');" title="Mini gráfico BTC/USDT flutuante (15m)">
+                  <span>📊 Mini Gráfico BTC</span>
+                  <span class="tac-dropdown-status" id="tac-status-mini-chart">OFF</span>
+                </button>
+              </div>
+
+              <!-- Separador -->
+              <div class="tac-dropdown-separator"></div>
+
               <!-- Ferramenta Fibo 1 (Projeção) -->
               <div class="tac-dropdown-tool-row">
                 <button class="tac-dropdown-item tac-btn-fibo" id="tac-btn-fibo" onclick="window._toggleTacFibo()" title="Fibo 1 (Projeções + Retrações): Clique para traçar no gráfico">
@@ -133,12 +144,59 @@ export function buildHTML() {
                 </div>
               </div>
 
-              <!-- Limpar Todos os Fibos -->
+              <!-- Linha de Tendência -->
               <div class="tac-dropdown-tool-row">
-                <button class="tac-dropdown-item tac-btn-clear-fibos" id="tac-btn-clear-fibos" onclick="window._clearAllFibos(); window._toggleTacDropdown('tac-dropdown-tools');" title="Apagar todos os traçados de Fibonacci do gráfico de uma vez só">
-                  <span>🗑️ Limpar Todos os Fibos</span>
-                  <span class="tac-dropdown-status" style="color:#f6465d;background:rgba(246,70,93,0.15);">LIMPAR</span>
+                <button class="tac-dropdown-item tac-btn-trendline" id="tac-btn-trendline" onclick="window._toggleTacTrendline()" title="Linha de Tendência (LTA / LTB): Clique para traçar no gráfico">
+                  <span>📈 Linha de Tendência</span>
+                  <span class="tac-dropdown-status" id="tac-status-trendline">OFF</span>
                 </button>
+                <div class="tac-fibo-color-picker-wrap" title="Alterar cor da Linha de Tendência">
+                  <input type="color" id="tac-trendline-color" class="tac-fibo-color-input" value="#f0b90b" onchange="window._changeTacTrendlineColor(this.value)">
+                </div>
+              </div>
+
+              <!-- Suporte e Resistência -->
+              <div class="tac-dropdown-tool-row">
+                <button class="tac-dropdown-item tac-btn-sr" id="tac-btn-sr" onclick="window._toggleTacSR()" title="Suporte / Resistência: Clique para posicionar linha horizontal no gráfico">
+                  <span>⎯ Suporte / Resistência</span>
+                  <span class="tac-dropdown-status" id="tac-status-sr">OFF</span>
+                </button>
+                <div class="tac-fibo-color-picker-wrap" title="Alterar cor do Suporte / Resistência">
+                  <input type="color" id="tac-sr-color" class="tac-fibo-color-input" value="#38bdf8" onchange="window._changeTacSRColor(this.value)">
+                </div>
+              </div>
+
+              <!-- Faixa de Suporte e Resistência (Zona) -->
+              <div class="tac-dropdown-tool-row">
+                <button class="tac-dropdown-item tac-btn-sr-zone" id="tac-btn-sr-zone" onclick="window._toggleTacSRZone()" title="Faixa de Suporte e Resistência (Zona): Clique e arraste dois pontos para abrir a faixa">
+                  <span>▭ Faixa Suporte / Resistência</span>
+                  <span class="tac-dropdown-status" id="tac-status-sr-zone">OFF</span>
+                </button>
+                <div class="tac-fibo-color-picker-wrap" title="Alterar cor da Faixa de Suporte / Resistência">
+                  <input type="color" id="tac-sr-zone-color" class="tac-fibo-color-input" value="#00bcd4" onchange="window._changeTacSRZoneColor(this.value)">
+                </div>
+              </div>
+
+              <!-- Medidor de Stop / Take (Variação de Preço) -->
+              <div class="tac-dropdown-tool-row">
+                <button class="tac-dropdown-item tac-btn-measure" id="tac-btn-measure" onclick="window._toggleTacMeasure()" title="Medidor de Preço (Stop / Take): Clique e arraste para medir a variação ($ e %)">
+                  <span>📏 Medidor (Stop / Take)</span>
+                  <span class="tac-dropdown-status" id="tac-status-measure">OFF</span>
+                </button>
+                <div class="tac-fibo-color-picker-wrap" title="Alterar cor do Medidor">
+                  <input type="color" id="tac-measure-color" class="tac-fibo-color-input" value="#38bdf8" onchange="window._changeTacMeasureColor(this.value)">
+                </div>
+              </div>
+
+              <!-- Canal de Preço -->
+              <div class="tac-dropdown-tool-row">
+                <button class="tac-dropdown-item tac-btn-canal" id="tac-btn-canal" onclick="window._toggleTacCanal()" title="Canal de Preço: Clique e arraste para traçar duas linhas paralelas no gráfico">
+                  <span>〰️ Canal de Preço</span>
+                  <span class="tac-dropdown-status" id="tac-status-canal">OFF</span>
+                </button>
+                <div class="tac-fibo-color-picker-wrap" title="Alterar cor do Canal">
+                  <input type="color" id="tac-canal-color" class="tac-fibo-color-input" value="#f0b90b" onchange="window._changeTacCanalColor(this.value)">
+                </div>
               </div>
 
               <!-- Separador -->
@@ -155,11 +213,11 @@ export function buildHTML() {
               <!-- Separador -->
               <div class="tac-dropdown-separator"></div>
 
-              <!-- Mini Gráfico BTC -->
+              <!-- Limpar Todas as Ferramentas (Em último) -->
               <div class="tac-dropdown-tool-row">
-                <button class="tac-dropdown-item" id="tac-btn-mini-chart" onclick="window._toggleMiniChart(); window._toggleTacDropdown('tac-dropdown-tools');" title="Mini gráfico BTC/USDT flutuante (15m)">
-                  <span>📊 Mini Gráfico BTC</span>
-                  <span class="tac-dropdown-status" id="tac-status-mini-chart">OFF</span>
+                <button class="tac-dropdown-item tac-btn-clear-fibos tac-btn-clear-tools" id="tac-btn-clear-tools" onclick="window._clearAllTools(); window._toggleTacDropdown('tac-dropdown-tools');" title="Limpar todas as ferramentas do gráfico: Fibonaccis, Linhas de Tendência, Suporte/Resistência, Faixas, Medidor, Canais, Alertas e Mini Gráfico">
+                  <span>🗑️ Limpar Ferramentas</span>
+                  <span class="tac-dropdown-status" style="color:#f6465d;background:rgba(246,70,93,0.15);">LIMPAR</span>
                 </button>
               </div>
             </div>

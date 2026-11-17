@@ -9,6 +9,11 @@ import { renderVolumeCanvas, renderEmpireZones, initVolumeEvents } from './indic
 import { renderDefaultLegend, updateLegendOnHover, handleCandleTooltipHover, hideCandleTooltip, updateCandleCountdown } from './legend.js';
 import { drawTop10Gauge, drawBasketGauge, drawTruckGauge } from './hud_gauges.js';
 import { initFiboMouseEvents } from './fibo.js';
+import { initTrendlineMouseEvents } from './trendline.js';
+import { initSRMouseEvents } from './sr_line.js';
+import { initSRZoneMouseEvents } from './sr_zone.js';
+import { initMeasureMouseEvents } from './measure.js';
+import { initCanalMouseEvents } from './canal.js';
 
 export function applyPriceFormatToSeries(symbol) {
   const precision = getPrecisionForSymbol(symbol);
@@ -281,8 +286,13 @@ export function initCharts() {
     }
   });
 
-  // Inicializa eventos interativos de mouse do Fibonacci e Volume
+  // Inicializa eventos interativos de mouse do Fibonacci, Linha de Tendência, Suporte/Resistência, Faixas e Volume
   initFiboMouseEvents(mainContainer);
+  initTrendlineMouseEvents(mainContainer);
+  initSRMouseEvents(mainContainer);
+  initSRZoneMouseEvents(mainContainer);
+  initMeasureMouseEvents(mainContainer);
+  initCanalMouseEvents(mainContainer);
   initVolumeEvents();
   initChartControlsProximity();
 

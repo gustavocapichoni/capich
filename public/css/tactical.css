@@ -2561,3 +2561,175 @@ body.tac-compact-mode .tac-chart-main {
   min-height: 0 !important;
   flex: 1 1 auto !important;
 }
+
+
+/* ─── Ferramenta Linha de Tendência (LTA / LTB) ─── */
+.tac-btn-trendline {
+  background: #1e2329;
+  border: 1px solid var(--tac-border-color);
+  color: var(--tac-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 25px;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.tac-btn-trendline:hover,
+.tac-btn-trendline.active {
+  background: rgba(240, 185, 11, 0.18) !important;
+  border-color: var(--tac-color-yellow) !important;
+  color: var(--tac-color-yellow) !important;
+}
+
+.tac-btn-trendline.drawing {
+  background: rgba(240, 185, 11, 0.22) !important;
+  border-color: var(--tac-color-yellow) !important;
+  color: var(--tac-color-yellow) !important;
+  animation: pulse-fibo 1.2s infinite;
+}
+
+#tac-chart-main.trendline-mode {
+  cursor: crosshair !important;
+}
+
+
+/* ─── Ferramenta Suporte e Resistência ─── */
+.tac-btn-sr {
+  background: #1e2329;
+  border: 1px solid var(--tac-border-color);
+  color: var(--tac-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 25px;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.tac-btn-sr:hover,
+.tac-btn-sr.active {
+  background: rgba(56, 189, 248, 0.18) !important;
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+}
+
+.tac-btn-sr.drawing {
+  background: rgba(56, 189, 248, 0.22) !important;
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+  animation: pulse-fibo 1.2s infinite;
+}
+
+#tac-chart-main.sr-mode {
+  cursor: crosshair !important;
+}
+
+
+/* ─── Ferramenta Faixa de Suporte e Resistência (Zona) ─── */
+.tac-btn-sr-zone {
+  background: #1e2329;
+  border: 1px solid var(--tac-border-color);
+  color: var(--tac-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 25px;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.tac-btn-sr-zone:hover,
+.tac-btn-sr-zone.active {
+  background: rgba(0, 188, 212, 0.18) !important;
+  border-color: #00bcd4 !important;
+  color: #00bcd4 !important;
+}
+
+.tac-btn-sr-zone.drawing {
+  background: rgba(0, 188, 212, 0.22) !important;
+  border-color: #00bcd4 !important;
+  color: #00bcd4 !important;
+  animation: pulse-fibo 1.2s infinite;
+}
+
+#tac-chart-main.sr-zone-mode {
+  cursor: crosshair !important;
+}
+
+
+/* ─── Ferramenta Medidor de Stop / Take (Variação de Preço) ─── */
+.tac-btn-measure {
+  background: #1e2329;
+  border: 1px solid var(--tac-border-color);
+  color: var(--tac-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 25px;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.tac-btn-measure:hover,
+.tac-btn-measure.active {
+  background: rgba(14, 203, 129, 0.18) !important;
+  border-color: #0ecb81 !important;
+  color: #0ecb81 !important;
+}
+
+.tac-btn-measure.drawing {
+  background: rgba(14, 203, 129, 0.22) !important;
+  border-color: #0ecb81 !important;
+  color: #0ecb81 !important;
+  animation: pulse-fibo 1.2s infinite;
+}
+
+#tac-chart-main.measure-mode {
+  cursor: crosshair !important;
+}
+
+
+/* ─── Ferramenta Canal de Preço ──────────────────────────────────────────── */
+.tac-btn-canal { border-color: transparent !important; }
+.tac-btn-canal:hover,
+.tac-btn-canal.active { background: rgba(240, 185, 11, 0.18) !important; border-color: #f0b90b !important; color: #f0b90b !important; }
+.tac-btn-canal.drawing { animation: pulse-fibo 1.2s infinite; }
+#tac-chart-main.canal-mode { cursor: crosshair !important; }
+
+
+/* ─── Limpar Todas Ferramentas ────────────────────────────────────────────── */
+.tac-btn-clear-tools:hover {
+  background: rgba(246, 70, 93, 0.15) !important;
+  border-color: #f6465d !important;
+  color: #f6465d !important;
+}

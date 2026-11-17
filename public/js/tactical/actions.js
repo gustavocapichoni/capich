@@ -6,6 +6,11 @@
 
 import { state, PAIRS } from './state.js';
 import { loadFiboForSymbol } from './fibo.js';
+import { loadTrendlinesForSymbol } from './trendline.js';
+import { loadSRLinesForSymbol } from './sr_line.js';
+import { loadSRZonesForSymbol } from './sr_zone.js';
+import { loadMeasuresForSymbol } from './measure.js';
+import { loadCanalsForSymbol } from './canal.js';
 import { fetchAndRender } from './data_feed.js';
 import { renderEmpireZones } from './indicators.js';
 import { renderDefaultLegend, updateCandleCountdown } from './legend.js';
@@ -30,6 +35,11 @@ export function setPair(symbol) {
   if (liveDot) liveDot.title = 'Conectando ao par...';
 
   loadFiboForSymbol(symbol);
+  loadTrendlinesForSymbol(symbol);
+  loadSRLinesForSymbol(symbol);
+  loadSRZonesForSymbol(symbol);
+  loadMeasuresForSymbol(symbol);
+  loadCanalsForSymbol(symbol);
 
   if (window.OrderPanel) {
     window.OrderPanel.setMarketContext(symbol, 0);
