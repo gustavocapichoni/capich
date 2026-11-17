@@ -5,7 +5,7 @@
   "rewrites": [
     {
       "source": "/api/trade/:path*",
-      "destination": "https://capich-trade.fly.dev/api/trade/:path*"
+      "destination": "https://capich.onrender.com/api/trade/:path*"
     }
   ],
   "crons": [
