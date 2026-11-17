@@ -9,6 +9,9 @@ const { startAccumulator, getHistoricalCandles, runAccumulation, getDb, admin } 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
+// Habilita suporte a proxies reversos (Render, Vercel, Cloudflare) para express-rate-limit
+app.set('trust proxy', 1);
+
 // 0. Compressão Gzip/Brotli — reduz tamanho das respostas HTTP em ~70%
 app.use(compression());
 
