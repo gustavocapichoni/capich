@@ -282,30 +282,36 @@
   <script type="module" src="js/btc_tactical_chart.js?v=38"></script>
   <script type="module" src="js/app.js?v=36"></script>
 
-  <!-- ══ Atalho [T] — Modo Compacto Trading ══════════════════════════════════ -->
+  <!-- ══ Atalho [T] — Fullscreen Trading (Fullscreen API) ═══════════════════ -->
   <script>
   (function () {
     const COMPACT_CLASS = 'tac-compact-mode';
-    const STORAGE_KEY   = 'capich_compact_mode';
 
-    // Restaura o modo salvo (persiste entre reloads)
-    if (localStorage.getItem(STORAGE_KEY) === '1') {
-      document.body.classList.add(COMPACT_CLASS);
-    }
+    // ── Sincroniza CSS com o estado real do fullscreen do browser ──────────────
+    document.addEventListener('fullscreenchange', function () {
+      const isFull = !!document.fullscreenElement;
+      document.body.classList.toggle(COMPACT_CLASS, isFull);
+      // Avisa o LightweightCharts para recalcular tamanho do canvas
+      setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 80);
+    });
 
+    // ── Tecla T: entra/sai do fullscreen real (igual ao F11) ──────────────────
     document.addEventListener('keydown', function (e) {
-      // Ignora quando o usuário está digitando em inputs
       const tag = e.target.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
       if (e.ctrlKey || e.altKey || e.metaKey) return;
 
       if (e.key === 't' || e.key === 'T') {
         e.preventDefault();
-        const isOn = document.body.classList.toggle(COMPACT_CLASS);
-        localStorage.setItem(STORAGE_KEY, isOn ? '1' : '0');
-
-        // Dispara resize para o LightweightCharts recalcular dimensões
-        window.dispatchEvent(new Event('resize'));
+        if (!document.fullscreenElement) {
+          // Entra em fullscreen — barra do browser some, igual ao F11
+          document.documentElement.requestFullscreen().catch(function (err) {
+            console.warn('[CAPICH] Fullscreen negado:', err);
+          });
+        } else {
+          // Sai do fullscreen
+          document.exitFullscreen();
+        }
       }
     });
   })();
