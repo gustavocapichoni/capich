@@ -379,6 +379,53 @@
     }
   }
 
+  const STORAGE_KEY_BALANCE_HIDDEN = 'capich_bop_balance_hidden';
+  let isBalanceHidden = localStorage.getItem(STORAGE_KEY_BALANCE_HIDDEN) === 'true';
+  let rawBalanceText = 'Carregando...';
+  let rawBalanceTitle = '';
+
+  function updateBalanceUI() {
+    const btn = document.getElementById('bop-btn-bal-visibility');
+    const wrap = document.getElementById('bop-balance-toggle-wrap');
+    const titleText = isBalanceHidden ? 'Exibir Saldo' : 'Ocultar Saldo';
+    if (btn) {
+      btn.innerHTML = isBalanceHidden ? ICON_EYE_OFF : ICON_EYE_OPEN;
+      btn.title = titleText;
+      btn.classList.toggle('bop-bal-hidden', isBalanceHidden);
+    }
+    if (wrap) {
+      wrap.title = titleText;
+    }
+    const balEl = document.getElementById('bop-val-balance');
+    if (balEl) {
+      if (isBalanceHidden && rawBalanceText.startsWith('$')) {
+        balEl.textContent = '••••••';
+        balEl.title = 'Saldo oculto';
+        balEl.classList.add('is-hidden');
+      } else {
+        balEl.textContent = rawBalanceText;
+        balEl.title = rawBalanceTitle || '';
+        balEl.classList.remove('is-hidden');
+      }
+    }
+  }
+
+  function setBalanceText(text, title = '') {
+    rawBalanceText = text;
+    rawBalanceTitle = title;
+    updateBalanceUI();
+  }
+
+  function toggleBalanceVisibility() {
+    isBalanceHidden = !isBalanceHidden;
+    try {
+      localStorage.setItem(STORAGE_KEY_BALANCE_HIDDEN, String(isBalanceHidden));
+    } catch (e) {
+      console.warn('Não foi possível salvar preferência de saldo:', e);
+    }
+    updateBalanceUI();
+  }
+
   const STORAGE_KEY_AUTH_TOKEN = 'capich_trade_auth_token';
   const DEFAULT_TRADE_TOKEN = 'capich_fortress_secure_token_2026';
 
@@ -504,8 +551,13 @@
       <!-- Caixa de Conta: Saldo -->
       <div class="bop-account-box" style="padding: 8px 10px; margin-bottom: 8px;">
         <div class="bop-row-balance">
-          <span>Saldo USDT:</span>
-          <span class="bop-val-balance" id="bop-val-balance">Carregando...</span>
+          <div class="bop-balance-label-wrap" id="bop-balance-toggle-wrap" title="${isBalanceHidden ? 'Exibir Saldo' : 'Ocultar Saldo'}">
+            <button type="button" class="bop-btn-balance-visibility${isBalanceHidden ? ' bop-bal-hidden' : ''}" id="bop-btn-bal-visibility" aria-label="Ocultar / Exibir Saldo">
+              ${isBalanceHidden ? ICON_EYE_OFF : ICON_EYE_OPEN}
+            </button>
+            <span class="bop-balance-currency">USDT:</span>
+          </div>
+          <span class="bop-val-balance${isBalanceHidden && rawBalanceText.startsWith('$') ? ' is-hidden' : ''}" id="bop-val-balance">${isBalanceHidden && rawBalanceText.startsWith('$') ? '••••••' : rawBalanceText}</span>
         </div>
       </div>
 
@@ -684,6 +736,16 @@
       if (window.ChartPositions && typeof window.ChartPositions.onVisibilityChange === 'function') {
         window.ChartPositions.onVisibilityChange(updateVisibilityButtonUI);
       }
+    }
+
+    // Olho para Ocultar / Exibir Saldo da conta
+    const wrapBal = document.getElementById('bop-balance-toggle-wrap');
+    if (wrapBal) {
+      wrapBal.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleBalanceVisibility();
+      };
     }
 
     // Cadeado de Bloqueio / Desbloqueio do painel
@@ -1764,8 +1826,7 @@
 
     const { apiKey, apiSecret } = getStoredKeys();
     if (!apiKey || !apiSecret) {
-      const balEl = document.getElementById('bop-val-balance');
-      if (balEl) balEl.textContent = 'Clique na 🔑';
+      setBalanceText('Clique na 🔑');
       renderPositionsTable([]);
       return;
     }
@@ -1779,23 +1840,15 @@
       });
       const balData = await balRes.json();
       if (balRes.status === 401) {
-        const balEl = document.getElementById('bop-val-balance');
-        if (balEl) balEl.textContent = 'Token Inválido';
+        setBalanceText('Token Inválido');
         setToast('🔒 Token de segurança do servidor inválido.', 'error');
         return;
       }
       if (balData.success) {
         watchdogHeartbeat(); // ✅ Heartbeat: API respondeu com sucesso
-        const balEl = document.getElementById('bop-val-balance');
-        if (balEl) {
-          balEl.textContent = `$${Number(balData.availableBalance).toFixed(2)}`;
-        }
+        setBalanceText(`$${Number(balData.availableBalance).toFixed(2)}`);
       } else {
-        const balEl = document.getElementById('bop-val-balance');
-        if (balEl) {
-          balEl.textContent = 'Erro na chave/IP';
-          balEl.title = balData.error || 'Verifique se o IP está salvo na Binance';
-        }
+        setBalanceText('Erro na chave/IP', balData.error || 'Verifique se o IP está salvo na Binance');
         console.warn('[/api/trade/balance] Erro:', balData.error);
         if (balData.error && (balData.error.includes('-1003') || balData.error.includes('Way too many requests'))) {
           handleRateLimitBan(balData.error);
